@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SMS Opt-In Preview — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 680px;">
+    <h1 class="fw-bold mb-1">SMS Opt-In</h1>
+    <p class="text-muted">How NouriLoop users opt in to text-message notifications.</p>
+
+    <div class="alert alert-info small" role="alert">
+        This page is a read-only preview of the opt-in screen NouriLoop account
+        holders see at <strong>Settings ▸ Notifications</strong> after logging in. It is
+        published publicly so the message program’s consent flow can be reviewed. The
+        controls below are for illustration and do not submit. Full terms are in the
+        <a href="{{ path('app_privacy_sms') }}">SMS Privacy Policy</a>.
+    </div>
+
+    <div class="card p-4 mt-3">
+        <fieldset disabled aria-label="Opt-in preview (non-functional)">
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Deliver notifications via</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preview_channel" id="ch_email">
+                    <label class="form-check-label" for="ch_email">Email only</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preview_channel" id="ch_sms">
+                    <label class="form-check-label" for="ch_sms">Text message only</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="preview_channel" id="ch_both">
+                    <label class="form-check-label" for="ch_both">Email and text</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold" for="preview_phone">Mobile number (for text messages)</label>
+            <input type="tel" class="form-control" id="preview_phone" placeholder="+1 555 123 4567">
+            <div class="form-text">E.164 format, e.g. +14155551234.</div>
+        </div>
+
+        <div class="mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="preview_consent">
+                <label class="form-check-label small" for="preview_consent">
+                    I agree to receive recurring automated text messages from NouriLoop
+                    at the number above. Consent is not a condition of use; message and
+                    data rates may apply; reply STOP to cancel or HELP for help.
+                </label>
+            </div>
+            <div class="form-text">
+                Up to ~1 message/day. Msg &amp; data rates may apply. Reply STOP to cancel,
+                HELP for help. See the
+                <a href="{{ path('app_privacy_sms') }}">SMS Privacy Policy</a>.
+            </div>
+        </div>
+
+        <hr>
+        <p class="fw-semibold mb-2">Which notices to send</p>
+
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="n_meals">
+            <label class="form-check-label" for="n_meals">Remind me in the evening if I haven’t logged any meals that day</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="n_metrics">
+            <label class="form-check-label" for="n_metrics">Remind me when I haven’t logged health metrics in over a week</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="n_cal">
+            <label class="form-check-label" for="n_cal">Alert me when a day’s calories are unusually low or high</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="n_supp">
+            <label class="form-check-label" for="n_supp">Send me weekly supplement suggestions when nutrients run low</label>
+        </div>
+
+        <button type="button" class="btn btn-success fw-semibold mt-2">Save preferences</button>
+        </fieldset>
+    </div>
+
+    <p class="text-muted small mt-3 mb-0">
+        Opt-in is voluntary and is not required to use NouriLoop — email delivery is
+        always available. To opt out at any time, reply STOP to any message or turn SMS
+        off on this screen. Reply HELP, or contact info@nouriloop.com /
+        +1 (541) 559-8353, for help.
+    </p>
+</div>
+{% endblock %}

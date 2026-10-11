@@ -1,0 +1,274 @@
+# European-Spanish OVERRIDE catalog — carries ONLY the keys whose wording
+# genuinely differs from base `es` (LatAm-leaning); everything else falls back
+# es_ES → es → en. Keeps the base catalog's tú. Keep this file sparse.
+common:
+    session_expired: Tu sesión ha caducado — inténtalo de nuevo.
+auth:
+    login:
+        hero_lead: >-
+            Haz una foto de tu comida. Nosotros la analizamos. Mira cómo se
+            relaciona con tu nutrición, tu índice de inflamación, tu glucosa
+            en sangre y tu sueño.
+    reset:
+        retry: ¿No te ha llegado?
+cgm:
+    step1_install: >-
+        En tu iPhone, instala {link}Health Auto Export – JSON+CSV{link_end}
+        desde el App Store. ¿Lees esto en un ordenador? Apunta la cámara
+        de tu iPhone al código QR de abajo para ir directo.
+    step4_body: >-
+        Guarda la automatización y ejecútala una vez a mano — ábrela y toca su
+        botón manual de <strong>export / update</strong>. (Después de esta
+        primera vez, la app envía lecturas nuevas según el horario que
+        elegiste.)
+    state_waiting: >-
+        Tu teléfono conectó ✓ — ahora esperamos lecturas de glucosa. Después
+        de ejecutar la exportación (Paso 4) suelen aparecer en un minuto. Si no
+        llega nada, revisa en la app Salud que tu sensor esté escribiendo
+        lecturas de Blood Glucose.
+glucose_page:
+    not_connected: >-
+        ¿Todavía no has conectado tu sensor? {link}El asistente
+        guiado{link_end} tarda unos 10 minutos.
+    coach_pitch: >-
+        Ve más allá de las clasificaciones: un análisis profundo con IA lee
+        tus respuestas de glucosa frente a los alimentos, horarios y
+        combinaciones detrás de ellas — mostrando patrones personales («el
+        arroz te dispara, pero no con alubias») y cambios concretos que
+        probar.
+health:
+    privacy: >-
+        Cómo tratamos tus datos de salud: {link}Aviso de privacidad de datos
+        de salud{link_end}
+supplement:
+    scan:
+        lead: >-
+            Haz una foto clara del panel de <strong>datos del
+            suplemento</strong>. Si la etiqueta rodea el frasco, hazle
+            <strong>dos o tres fotos</strong> y selecciónalas todas — las
+            leeremos juntas y combinaremos los resultados. Podrás revisar y
+            editar todo antes de guardar.
+supp_suggestion:
+    vitaminA: >-
+        Considera un suplemento de vitamina A o aumenta el hígado, el boniato
+        y las zanahorias.
+    vitaminB3: >-
+        Considera un suplemento de complejo B o come más aves, pescado y
+        cacahuetes.
+    vitaminB6: >-
+        Considera un suplemento de vitamina B6 o come más aves, pescado,
+        patatas y plátanos.
+    vitaminB9: >-
+        Considera un suplemento de folato o complejo B. Buenas fuentes: hojas
+        verdes, alubias.
+    calcium: >-
+        Considera un suplemento de calcio o aumenta los lácteos, las leches
+        vegetales enriquecidas y las hojas verdes.
+    potassium: >-
+        Aumenta los alimentos ricos en potasio: plátanos, aguacates, boniatos,
+        alubias.
+    zinc: >-
+        Considera un suplemento de zinc o come más ostras, ternera y pipas de
+        calabaza.
+delivery:
+    inapp:
+        no_meals_body: >-
+            Aún no hay nada registrado para {date} — haz una foto para
+            mantener tu registro al día.
+meal:
+    type:
+        snack: Tentempié
+    log:
+        favorite_pitch: ¿Comes esto a menudo? Registra un favorito
+        analyzing: Analizando tu comida con IA… esto tarda unos segundos.
+        limit_reached: >-
+            Ya has usado tus 10 análisis gratis de este mes. Mejora a Loop
+            para fotos ilimitadas.
+        session_expired: Tu sesión ha caducado — revisa y envía de nuevo.
+inflammation:
+    keyword:
+        bacon: Beicon
+        hot_dog: Perrito caliente
+        hotdog: Perrito caliente
+        deli_meat: Fiambres
+        french_fries: Patatas fritas
+        doughnut: Dónut
+        donut: Dónut
+        cake: Tarta
+        candy: Golosinas
+        mackerel: Caballa
+        arugula: Rúcula
+onboarding:
+    meal:
+        lead: >-
+            Haz una foto de una comida — NouriLoop lee la nutrición por ti,
+            sin captura manual. Es la base de todo lo demás aquí.
+        cta: Hacer una foto
+settings:
+    tone:
+        warmth_high: Abuela mimosa
+    notifications:
+        phone: Número de móvil (para mensajes de texto)
+        phone_help: Usa el formato E.164, p. ej. +34 seguido de tu número de 9 dígitos.
+        phone_required: Añade un número de móvil para recibir mensajes de texto.
+about:
+    hero_lead: >-
+        NouriLoop convierte fotos cotidianas de tu comida en una imagen
+        clara de cómo comes — y lo conecta con cómo te sientes. Haz una
+        foto de tu comida y la IA hace la parte tediosa: estimar la
+        nutrición, detectar los ingredientes y hacer las preguntas
+        correctas. Con el tiempo, NouriLoop cierra el ciclo entre tu dieta,
+        tus métricas de salud y tus síntomas, para que veas qué está
+        funcionando de verdad.
+    logging:
+        items: >-
+            <li><strong>Nutrición con solo una foto</strong> — Haz una foto
+            de tu comida y la IA de NouriLoop estima calorías, proteína,
+            carbohidratos, grasa, fibra, azúcar y un panel completo de
+            vitaminas y minerales.</li> <li><strong>Confirma y
+            refina</strong> — Cada estimación pasa por una pantalla de
+            revisión rápida donde puedes ajustar ingredientes, responder una
+            o dos preguntas aclaratorias y afinar antes de guardar.</li>
+            <li><strong>Control de porciones</strong> — ¿Comiste la mitad?
+            ¿El doble? Indica cuántas porciones comiste en realidad y todos
+            los números se ajustan al instante.</li> <li><strong>Añade una
+            etiqueta para más precisión</strong> — Adjunta una segunda foto,
+            como la etiqueta de información nutricional, y la IA combina
+            ambas para una estimación más precisa.</li>
+            <li><strong>Registra a tu ritmo</strong> — ¿Te has olvidado de
+            registrar en la mesa? Cambia la fecha de una comida a cuando
+            realmente la comiste.</li> <li><strong>Favoritos</strong> —
+            Guarda las comidas que comes a menudo y vuelve a registrarlas
+            con un toque — sin nuevo análisis, sin esperas.</li>
+            <li><strong>Importa una receta</strong> — Fotografía
+            una página de un libro de cocina o una tarjeta
+            escrita a mano: NouriLoop lee los ingredientes y el
+            rendimiento, calcula la nutrición por porción y la
+            guarda como favorito — conservando los ingredientes
+            y los pasos para que puedas cocinarla después.</li>
+    loop:
+        items: >-
+            <li><strong>Índice de inflamación de tu dieta</strong> — Una señal
+            diaria y fácil de leer de qué tan pro o antiinflamatorias fueron
+            tus elecciones de comida, basada en investigación nutricional
+            establecida.</li> <li><strong>Chequeos de síntomas</strong> — Haz
+            un seguimiento de los síntomas que te importan (dolor articular,
+            digestión, dolores de cabeza, energía, claridad mental o los tuyos
+            propios) con un control deslizante diario cuya carita de ánimo
+            hace que la escala siempre se lea igual.</li>
+            <li><strong>Relaciones por síntoma</strong> — Cada síntoma tiene
+            su propia vista, que lo compara con tu dieta (proteína,
+            carbohidratos, grasa, fibra y tu índice de inflamación) y tus
+            métricas corporales (pasos, glucosa, peso, sueño). NouriLoop hace
+            las estadísticas y muestra solo las relaciones estadísticamente
+            significativas en tus propios datos — del mismo día y del día
+            siguiente, porque algunos efectos tardan.</li>
+            <li><strong>Predicciones «¿Y si…?»</strong> <em>(Loop+)</em> — ¿Te
+            preguntas qué pasaría si comieras tu comida favorita todos los
+            días durante dos semanas? NouriLoop proyecta cómo evolucionarían
+            probablemente tu índice de inflamación, tu nutrición, tu peso y
+            tus síntomas — calculado a partir de tu propio historial y
+            explicado en lenguaje sencillo.</li> <li><strong>Respuesta de
+            glucosa por comida</strong> — Si usas un medidor continuo de
+            glucosa, NouriLoop traza la respuesta de azúcar en sangre de cada
+            comida, la compara con lo que su nutrición predecía y clasifica
+            qué comidas te la subieron más y menos.</li> <li><strong>AI
+            Pattern Coach</strong> <em>(Loop+)</em> — Va un paso más allá: una
+            IA analiza a fondo tus propias respuestas de glucosa entre comidas
+            — los alimentos, los horarios y las combinaciones detrás de ellas
+            — y escribe un resumen de coaching personalizado, señalando los
+            patrones que ve y algunos ajustes concretos para probar. Basado
+            por completo en tus datos.</li>
+    goals:
+        items: >-
+            <li><strong>Configuración conversacional de metas</strong> — Dile
+            a NouriLoop algo como «quiero comer más fibra» y un coach de IA lo
+            convierte en una meta concreta y medible, basada en tus propios
+            hábitos de comida.</li> <li><strong>Revisiones
+            programadas</strong> — NouriLoop evalúa tu progreso con la
+            frecuencia que elijas y te entrega un resumen amigable, una
+            gráfica o un informe directo a tu bandeja de entrada.</li>
+            <li><strong>Coaching con tu voz</strong> — Tres controles simples
+            ajustan cómo te escribe la IA de NouriLoop — de clínica a cálida,
+            de formal a juguetona, de sencilla a experta — para que tus
+            revisiones y análisis suenen como a ti te gusta.</li>
+            <li><strong>Objetivos seguros y realistas</strong> — Las metas se
+            comparan con límites seguros, y te avisamos antes de que fijes un
+            objetivo que podría no ser seguro.</li>
+    privacy:
+        items: >-
+            <li><strong>Cuentas personales multiusuario</strong> — Tus datos
+            son tuyos, guardados aparte de otras cuentas y protegidos.</li>
+            <li><strong>Prácticas de privacidad claras</strong> — Avisos en
+            lenguaje sencillo explican cómo se tratan tus datos de salud,
+            incluidos los servicios que participan en procesarlos. Consulta
+            nuestro {health_link}Aviso de privacidad de datos de
+            salud{link_end}.</li>
+pricing_page:
+    loop_tagline: >-
+        Todo lo que necesitas para hacer un seguimiento de tu nutrición y
+        mejorarla.
+lp:
+    diabetes:
+        one_place_items: >-
+            <li><strong>Haz una foto de tu comida.</strong> La nutrición —
+            carbohidratos, azúcar, fibra, proteína y más — se estima desde la imagen.
+            Sin buscar en bases de datos.</li> <li><strong>Tus lecturas del MCG llegan
+            solas.</strong> En iPhone, mediante una exportación programada desde Apple
+            Health; una guía te acompaña la primera vez. En Android puedes importar tus
+            lecturas desde un archivo compatible hoy mismo, y estamos trabajando para
+            automatizarlo.</li> <li><strong>Cada comida recibe su curva de
+            respuesta:</strong> tu línea base, tu pico, cuánto tardó en llegar y cuánto
+            tardó en volver a bajar.</li> <li><strong>Las comidas se comparan entre
+            sí</strong> — tus mayores picos, tus comidas más suaves y las que te
+            subieron la glucosa más de lo que su nutrición predecía.</li>
+            <li><strong>Importa tus propias recetas.</strong> Fotografía una página de
+            un libro de cocina o una tarjeta de receta una sola vez: NouriLoop lee los
+            ingredientes, estima los hidratos de carbono y el azúcar por porción, y la
+            guarda como favorito — registrar tu comida casera lleva un solo toque.</li>
+    fiber:
+        seo_description: >-
+            Haz un seguimiento de la fibra, las vitaminas y los minerales
+            desde una foto de tu comida — sin buscar en bases de datos. Mira
+            qué nutrientes te faltan de forma constante.
+        photo_items: >-
+            <li><strong>Haz una foto de tu plato.</strong> NouriLoop estima
+            la fibra junto a un panel completo de nutrientes — folato,
+            magnesio, potasio, vitaminas de la A a la E y más de 15
+            adicionales — desde la propia imagen.</li> <li><strong>Cada
+            estimación viene con una puntuación de confianza</strong>, y una
+            pantalla de revisión rápida te deja ajustar ingredientes o
+            adjuntar la etiqueta de información nutricional para un número
+            más preciso. Estimaciones honestas, no precisión falsa.</li>
+            <li><strong>Tu panel diario muestra cómo va el día de
+            hoy</strong> — para que «come más fibra» se convierta en un
+            número que realmente puedes vigilar.</li>
+            <li><strong>¿Cocinas en casa? Importa la receta una
+            sola vez.</strong> Fotografía la página del libro o
+            la tarjeta de la receta: NouriLoop lee los
+            ingredientes, calcula la fibra y el panel completo
+            de nutrientes por porción, y la guarda como favorito
+            para registrarla con un solo toque.</li>
+    inflammation:
+        lead: >-
+            Ya has quitado los ultraprocesados y has añadido el salmón y las
+            verduras de hoja verde — pero nada te dice si está ayudando.
+            NouriLoop puntúa cada día de comidas en una escala de
+            inflamación, a partir de lo que realmente comiste, y registra
+            cómo te sientes junto a ella. Después de un par de semanas, el
+            patrón está ahí mismo, en la gráfica.
+        score_items: >-
+            <li><strong>Haz una foto de cada comida</strong> — la nutrición
+            se estima desde la imagen, en segundos. Sin captura manual en
+            bases de datos.</li> <li><strong>Cada día recibe una puntuación
+            de −10 a +10:</strong> la grasa saturada, el azúcar y el sodio
+            la empujan hacia lo proinflamatorio; la fibra, las vitaminas
+            antioxidantes, el pescado graso, el aceite de oliva, las
+            verduras de hoja verde y las bayas tiran hacia el otro
+            lado.</li> <li><strong>Es una puntuación transparente, basada en
+            reglas</strong> y construida sobre investigación nutricional
+            publicada — con la misma direccionalidad que el Índice
+            Inflamatorio de la Dieta — no una caja negra.</li>
+            <li><strong>Funciona hacia atrás:</strong> un día puntuado el
+            martes pasado es un punto de datos, así que tu gráfica se va
+            llenando conforme registras.</li>

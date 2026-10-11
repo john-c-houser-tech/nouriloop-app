@@ -1,0 +1,34 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Supplements{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/supplements.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Supplements page: flagged nutrient gaps and your saved supplements">
+</figure>
+<p>Tell NouriLoop which supplements you take every day, and it folds them into your nutrient picture — so its
+adequacy checks reflect what you're actually getting, not just from food.</p>
+
+<h2 class="h5 fw-bold mt-4">Adding a supplement</h2>
+<ol>
+    <li>Go to <strong>Supplements → Scan a supplement</strong>.</li>
+    <li>Take a photo of the label (you can add a second shot for wrap-around labels). The AI reads the
+        facts panel and pulls out the per-serving nutrients.</li>
+    <li>On the confirm screen, check the values and set how many <strong>servings per day</strong> you take,
+        then save.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">How it's used</h2>
+<p>Active supplements count toward your daily nutrient totals. On the Supplements page you'll see which
+nutrients are still below their recommended daily allowance after accounting for what you supplement, with
+suggestions. Turn a supplement off and it drops right back out of the calculation.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'log-meal'}) }}">Logging a Meal</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'health-metrics'}) }}">Importing Health Data</a></li>
+</ul>
+{% endblock %}

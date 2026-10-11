@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'recipe.confirm.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 720px;">
+    <h2 class="fw-bold mb-1">{{ 'recipe.confirm.title'|trans }}</h2>
+    <p class="text-muted">
+        {{ 'recipe.confirm.lead'|trans }}
+        {% if state.confidence is defined %}
+        <span class="badge bg-{{ state.confidence >= 0.75 ? 'success' : (state.confidence >= 0.5 ? 'warning text-dark' : 'danger') }}">
+            {{ 'recipe.confirm.confidence'|trans({'pct': (state.confidence * 100)|round}) }}
+        </span>
+        {% endif %}
+    </p>
+
+    {% if state.imageWeb %}
+    <div class="d-flex gap-2 mb-3">
+        <img src="{{ asset(state.imageWeb) }}" alt="" class="rounded"
+             style="width:96px;height:96px;object-fit:cover;">
+        {% for extra in state.extraWebPaths|default([]) %}
+        <img src="{{ asset(extra) }}" alt="" class="rounded"
+             style="width:96px;height:96px;object-fit:cover;">
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ path('app_recipe_confirm') }}" class="card p-4">
+        <input type="hidden" name="_token" value="{{ csrf_token('recipe-confirm') }}">
+
+        {% if state.questions is not empty %}
+        <div class="alert alert-warning">
+            <p class="fw-semibold mb-2"><i class="bi bi-question-circle"></i> {{ 'recipe.confirm.questions'|trans }}</p>
+            {% for question in state.questions %}
+            <div class="mb-2">
+                <label class="form-label small mb-1">{{ question }}</label>
+                <input type="text" name="answers[{{ loop.index0 }}]" class="form-control form-control-sm">
+            </div>
+            {% endfor %}
+            <p class="small text-muted mb-0">{{ 'recipe.confirm.answers_hint'|trans }}</p>
+        </div>
+        {% endif %}
+
+        <div class="row g-3 mb-3">
+            <div class="col-sm-8">
+                <label class="form-label fw-semibold">{{ 'recipe.confirm.name'|trans }}</label>
+                <input type="text" name="title" maxlength="200" class="form-control"
+                       value="{{ state.title }}" required>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'recipe.confirm.servings'|trans }}</label>
+                <input type="number" name="servings" id="recipe-servings" class="form-control"
+                       value="{{ state.servings is not null ? state.servings : '' }}"
+                       min="0.5" step="0.5" required>
+                <div class="form-text">{{ 'recipe.confirm.servings_help'|trans }}</div>
+            </div>
+        </div>
+
+        <hr>
+        <p class="fw-semibold mb-2">{{ 'recipe.confirm.ingredients'|trans }}</p>
+        <div id="ingredient-rows">
+            {# A read failure can return no lines — keep one blank row so the
+               user can type (and the add-row JS has something to clone). #}
+            {% for ing in (state.ingredients is empty ? [{}] : state.ingredients) %}
+            <div class="row g-2 mb-1 ingredient-row">
+                <div class="col-6">
+                    <input type="text" name="ing_name[]" class="form-control form-control-sm"
+                           value="{{ ing.name|default('') }}" placeholder="{{ 'recipe.confirm.ingredient'|trans }}">
+                </div>
+                <div class="col-3">
+                    <input type="text" name="ing_amount[]" class="form-control form-control-sm"
+                           value="{{ ing.amount|default('') }}" placeholder="{{ 'recipe.confirm.amount'|trans }}">
+                </div>
+                <div class="col-3">
+                    <input type="text" name="ing_unit[]" class="form-control form-control-sm"
+                           value="{{ ing.unit|default('') }}" placeholder="{{ 'recipe.confirm.unit'|trans }}">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <button type="button" id="add-ingredient" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-plus-lg"></i> {{ 'recipe.confirm.add_line'|trans }}
+            </button>
+            <span class="small text-muted">{{ 'recipe.confirm.remove_hint'|trans }}</span>
+        </div>
+
+        <hr>
+        {% set nut = state.nutrients %}
+        <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+                <p class="fw-semibold mb-1">{{ 'recipe.confirm.batch'|trans }}</p>
+                <p class="small text-muted mb-0">
+                    {{ nut.calories|default(0)|format_number({fraction_digit: 0}) }} {{ 'macro.kcal'|trans }} ·
+                    {{ 'macro.abbr_protein'|trans }} {{ nut.protein|default(0)|format_number({fraction_digit: 0}) }}g ·
+                    {{ 'macro.abbr_carbs'|trans }} {{ nut.carbohydrates|default(0)|format_number({fraction_digit: 0}) }}g ·
+                    {{ 'macro.abbr_fat'|trans }} {{ nut.fat|default(0)|format_number({fraction_digit: 0}) }}g
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <p class="fw-semibold mb-1">{{ 'recipe.confirm.per_serving'|trans }}</p>
+                <p class="small text-muted mb-0" id="per-serving"
+                   data-calories="{{ nut.calories|default(0) }}"
+                   data-protein="{{ nut.protein|default(0) }}"
+                   data-carbs="{{ nut.carbohydrates|default(0) }}"
+                   data-fat="{{ nut.fat|default(0) }}"
+                   data-kcal-label="{{ 'macro.kcal'|trans|e('html_attr') }}"
+                   data-p-label="{{ 'macro.abbr_protein'|trans|e('html_attr') }}"
+                   data-c-label="{{ 'macro.abbr_carbs'|trans|e('html_attr') }}"
+                   data-f-label="{{ 'macro.abbr_fat'|trans|e('html_attr') }}">—</p>
+            </div>
+        </div>
+
+        {% if state.instructions is not empty %}
+        <hr>
+        <details class="mb-3">
+            <summary class="fw-semibold">{{ 'recipe.confirm.instructions'|trans }}</summary>
+            <textarea name="instructions" class="form-control form-control-sm mt-2" rows="8"
+                      maxlength="10000">{{ state.instructions }}</textarea>
+        </details>
+        {% else %}
+        <input type="hidden" name="instructions" value="">
+        {% endif %}
+
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <button type="submit" name="action" value="save" class="btn btn-success fw-semibold">
+                <i class="bi bi-star"></i> {{ 'recipe.confirm.save'|trans }}
+            </button>
+            {% if canRetry and state.questions is not empty %}
+            <button type="submit" name="action" value="reanalyze" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-repeat"></i> {{ 'recipe.confirm.reanalyze'|trans }}
+            </button>
+            {% endif %}
+            <a href="{{ path('app_favorites') }}" class="btn btn-link text-decoration-none ms-auto">
+                {{ 'recipe.confirm.cancel'|trans }}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    // Live per-serving preview: the batch totals divided by the servings
+    // field, formatted like the server-rendered numbers (Intl matches Twig's
+    // format_number for the document locale).
+    const servingsInput = document.getElementById('recipe-servings');
+    const out = document.getElementById('per-serving');
+    const fmt = new Intl.NumberFormat(document.documentElement.lang || 'en');
+    function updatePreview() {
+        const servings = parseFloat(servingsInput.value);
+        if (!servings || servings <= 0) {
+            out.textContent = '—';
+            return;
+        }
+        const d = out.dataset;
+        const per = (v) => fmt.format(Math.round(parseFloat(v) / servings));
+        out.textContent = per(d.calories) + ' ' + d.kcalLabel
+            + ' · ' + d.pLabel + ' ' + per(d.protein) + 'g'
+            + ' · ' + d.cLabel + ' ' + per(d.carbs) + 'g'
+            + ' · ' + d.fLabel + ' ' + per(d.fat) + 'g';
+    }
+    servingsInput.addEventListener('input', updatePreview);
+    updatePreview();
+
+    // Blank extra ingredient rows on demand (a cleared name drops the line server-side).
+    document.getElementById('add-ingredient').addEventListener('click', function () {
+        const rows = document.getElementById('ingredient-rows');
+        const row = rows.querySelector('.ingredient-row').cloneNode(true);
+        row.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+        rows.appendChild(row);
+    });
+})();
+</script>
+{% endblock %}

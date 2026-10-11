@@ -1,0 +1,445 @@
+# British-English OVERRIDE catalog — carries ONLY the keys where the `en`
+# source uses American spelling/vocabulary (-ize→-ise, -yze→-yse, fiber→fibre,
+# color→colour, favorite→favourite, glycemic→glycaemic, …); everything else
+# falls back en_GB → en. Third-party UI terms ("Summarize Data", "Health Auto
+# Export") keep their on-screen spelling and are NOT overridden. Keep sparse.
+chrome:
+    nav:
+        admin_favorites: Favourite savings
+auth:
+    login:
+        hero_lead: >-
+            Snap a photo of your meal. We analyse it. See how it lines up with
+            your nutrition, inflammation score, blood glucose, and sleep.
+        hero_cycle_alt: >-
+            The NouriLoop cycle: log your meal, we analyse it, you see the
+            patterns, then repeat.
+        hero_analyze: Analyse
+dashboard:
+    protein:
+        set_weight: (set a weight reading for a personalised target)
+goal:
+    metric:
+        fiber: Fibre
+    ref:
+        fiber: >-
+            The Daily Value for fibre is 28 g/day (about 14 g per 1,000 kcal).
+            Most adults get far less than this.
+    chat:
+        greeting: >-
+            Hi! I can help you set a nutrition goal. Tell me what you'd like
+            to work on — something like "eat less sugar", "get more fibre", or
+            "keep my calories steady" — and I'll help turn it into something
+            measurable we can track.
+    starter:
+        fiber: Eat more fibre
+        name_fiber: More fibre
+glucose_page:
+    meals_analyzed: '{count, plural, one {Meal analysed} other {Meals analysed}}'
+    above_note: >-
+        These meals raised your glucose more than a glycaemic-load estimate of
+        their carbs, fibre, sugar, fat, and protein would suggest — worth
+        watching for patterns.
+predict:
+    type_favorite: Eat a favourite every day
+    which_favorite: Which favourite meal?
+    search_favorites: Search favourites…
+    err_favorite: Please select a valid favourite meal.
+health:
+    import:
+        done: >-
+            Imported {imported, plural, one {# new reading} other {# new
+            readings}} from {format}, {skipped, plural, one {skipped #
+            duplicate or unrecognised record} other {skipped # duplicates or
+            unrecognised records}}.
+        json_app_hint: Leave on auto-detect unless the format isn't recognised.
+        csv_names: 'Recognised metric names:'
+        json_lead: >-
+            JSON exports from supported iPhone apps are recognised
+            automatically — leave <strong>Source app</strong> on auto-detect
+            (pick one only if detection fails). Currently supported:
+        json_note: >-
+            Each app's own units are honoured (e.g. lb→kg, mmol/L→mg/dL).
+            Types NouriLoop doesn't track (calories, BMI, VO₂max, dietary
+            totals, workouts, etc.) are skipped. For automated daily syncing,
+            point the <code>scripts/apple-health-sync.php</code> script at
+            the exported <code>.json</code> file (or its folder) with an
+            {link}API token{link_end}.
+supplement:
+    active_note: Active supplements are counted towards your daily nutrient totals above.
+nutrient_full:
+    fiber: Fibre
+supp_suggestion:
+    fiber: >-
+        Consider a fibre supplement (psyllium husk) or eat more legumes, whole
+        grains, and vegetables.
+favorite:
+    title: Favourites
+    heading: Favourite Meals
+    empty: >-
+        No favourites yet. Save a meal as a favourite from its detail page or
+        the review screen to reuse it here without re-analysing a photo.
+    savings: Claude analyses skipped by reusing favourites
+    search_ph: Search favourites by name…
+    delete_confirm: Delete this favourite? Meals already logged from it are kept.
+    no_matches: No favourites match your search.
+    saved: Saved “{name}” to your favourites.
+    removed: Favourite removed.
+meal:
+    edit:
+        reanalyze_link: Re-analyse this meal
+    reanalyze:
+        title: Re-analyse Meal
+        heading: Re-analyse this meal
+        submit: Re-analyse this meal
+    log:
+        favorite_pitch: Eat this often? Log a favourite
+        favorite_sub: Reuse a saved meal — no photo, no re-analysing.
+        submit: Analyse & Log Meal
+        analyzing: Analysing your meal with AI… this takes a few seconds.
+        analyzing_btn: Analysing…
+        analyze_failed: We couldn't analyse that photo. Please try again in a moment.
+        reanalyze_failed: We couldn't re-analyse that. Please try again in a moment.
+        favorite_saved: Saved “{name}” to your favourites.
+    clarify:
+        hint_questions: >-
+            Not fully confident yet — answer the questions below (or fix the
+            ingredients) and re-analyse for a sharper estimate.
+        hint_no_more: >-
+            The AI couldn't get more confident on its own — save the estimate
+            as-is, or fix the ingredients and re-analyse.
+        extra_photo_lead: >-
+            Got the packaging or label? Add it here and
+            <strong>re-analyse</strong> — the AI reads it together with your
+            meal photo for a sharper estimate.
+        favorite_name: Favourite name
+        favorite_name_hint: — used if you save this as a favourite
+        favorite_ph: e.g. Tuesday porridge
+        save_fav: Save to log & add to favourites
+        reanalyze: Re-analyse with corrections
+    show:
+        save_favorite: Save as favourite
+        favorite_ph: Favourite name
+        favorite_hint: Reuse this meal later without re-analysing a photo.
+        reanalyzed: AI re-analysed {date}
+        reanalyze: Re-analyse with AI
+        reanalyze_cta: Re-analyse this meal
+        glucose:
+            gl_badge_title: >-
+                Estimated glycaemic load based on carbs, fibre, sugar, fat,
+                and protein
+            band_closing: >-
+                The estimate uses a glycaemic load model derived from this
+                meal's carbs, fibre, sugar, fat, and protein.
+nutrient:
+    fiber: Fibre
+trends:
+    arrows_legend: >-
+        The arrows show the <strong>direction over the last {days,
+        plural, one {# day} other {# days}}</strong> — not today on its own: <span
+        class="text-nowrap"><i class="bi bi-arrow-up-right"></i>
+        rising</span>, <span class="text-nowrap"><i class="bi
+        bi-arrow-down-right"></i> falling</span>, <span
+        class="text-nowrap"><i class="bi bi-arrow-right"></i> holding
+        steady</span>. Whether a change is good or bad is shown by the tile's
+        colour (<span class="text-success fw-semibold">green</span> good ·
+        <span class="text-warning fw-semibold">amber</span> watch · <span
+        class="text-danger fw-semibold">red</span> attention).
+    inflammation:
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> a daily −10 (anti-)
+            to +10 (pro-inflammatory) estimate of your logged food — an
+            educational wellness signal, not medical advice.</p> <p
+            class="mb-1"><strong>Data source:</strong> each day's logged meals
+            — their analysed nutrition and ingredient list.</p> <p
+            class="mb-1"><strong>How it's calculated:</strong> a pure
+            heuristic (no AI) blends a nutrient backbone (saturated fat,
+            sugar, sodium push pro; fibre + antioxidant micros A/C/D/E, B6,
+            folate, B12, Mg, Zn, Se as %RDA push anti — directionality per the
+            Dietary Inflammatory Index) with food-keyword adjustments
+            (processed meat / fried / sugary → pro; fatty fish, olive oil,
+            leafy greens, berries, turmeric → anti, capped per meal), summed
+            per local day and clamped to −10…+10.</p>
+    symptom:
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> {label}'s daily level
+            (0–10) stacked above the other factors you track, each in its own
+            units. The <em>Diet</em> stack covers protein, carbs, fat, fibre
+            and your dietary inflammation score; the <em>Health</em> stack
+            covers steps, blood glucose, weight and nightly sleep (shown only
+            if you've imported those metrics).</p> <p
+            class="mb-1"><strong>Why stacked instead of overlaid:</strong>
+            these factors use very different units (grams vs mg/dL vs steps),
+            so overlaying them on one axis either hides the real numbers or
+            buries the shape in clutter. Stacking keeps each factor's true
+            scale while lining every panel up on the same date axis — hover
+            any point for its exact value.</p> <p
+            class="mb-1"><strong>Significant correlations:</strong> for every
+            factor we compute a Pearson <em>r</em> both same-day and next-day
+            (effects can lag), and a two-tailed significance test. Only
+            correlations with at least {minDays, plural, one {# matched day}
+            other {# matched days}} and p &lt; 0.05 are listed — descriptive, not causal, and clearer the more you
+            log.</p>
+    sleep:
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> nightly total sleep
+            hours, an optional dinner→sleep gap line, and evening glucose
+            dots.</p> <p class="mb-1"><strong>Data source:</strong> imported
+            sleep-stage data (Core/Deep/REM/inBed), meal timestamps, and
+            glucose readings.</p> <p class="mb-1"><strong>How it's
+            calculated:</strong> total hours = sum of a night's sleep stages;
+            gap = hours from dinner to sleep onset; evening glucose dot =
+            peak {unit} from 6–10 PM. The table below pairs each night's
+            dinner, evening glucose (peak 6–10 PM), gap, overnight glucose
+            (average midnight–6 AM) and sleep, colour-coded by fixed
+            thresholds.</p>
+        table_legend: >-
+            Evening glucose = peak {unit} from 6–10 PM. Overnight glucose =
+            avg {unit} from midnight–6 AM. Colour coding: <span class="badge
+            bg-success">good</span> <span class="badge bg-warning
+            text-dark">watch</span> <span class="badge bg-danger">high</span>
+    health:
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> imported body
+            measurements over time, with a daily range band. Tap a metric
+            button to add/remove its line.</p> <p class="mb-1"><strong>Data
+            source:</strong> readings imported via Apple Health, Health Auto
+            Export, or the ingestion API.</p> <p class="mb-1"><strong>How
+            it's calculated:</strong> per local day the line = daily average
+            and the shaded band = daily min–max; no transform beyond unit
+            normalisation (e.g. lb→kg). The good / watch / attention badge on
+            each metric's overview tile flags its latest reading against
+            simple, non-medical thresholds.</p>
+    calories:
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> total calories
+            logged per day.</p> <p class="mb-1"><strong>Data source:</strong>
+            your logged meals' analysed calories.</p> <p
+            class="mb-1"><strong>How it's calculated:</strong> sum of meal
+            calories per local day. The overview badge flags when the daily
+            average falls below 1,200 or above 3,500 kcal.</p>
+    js:
+        fiber: Fibre
+inflammation:
+    factor:
+        fiber: Fibre
+    keyword:
+        soda: Fizzy drink
+        french_fries: Chips
+        cookie: Biscuit
+        candy: Sweets
+        arugula: Rocket
+settings:
+    tone:
+        humor: Humour
+about:
+    real_life:
+        items: >-
+            <li><strong>Smart reminders</strong> — Optional nudges when you
+            haven't logged a meal, your health readings are getting stale,
+            your calories look off, or your nutrient gaps are widening.</li>
+            <li><strong>Notification centre</strong> — A bell and inbox
+            right in the app gather your goal check-ins and reminders in one
+            place, so nothing slips by even if you skip email.</li>
+            <li><strong>Email, text, or in-app</strong> — Get notifications
+            and goal check-ins however you prefer.</li> <li><strong>Your
+            timezone, your day</strong> — "Today" always means <em>your</em>
+            local day, wherever you are.</li> <li><strong>GLP-1
+            mode</strong> — A dedicated mode for people on GLP-1
+            medications, with protein-forward guidance, portion help, and
+            awareness of common nausea triggers.</li>
+    seo_description: >-
+        Track meals with a photo, import recipes, see your inflammation score,
+        connect your CGM, and get personalised nutrition goals.
+    jsonld_description: >-
+        AI-powered nutrition tracking: photo meal logging, recipe
+        import, a dietary inflammation score, CGM glucose insights,
+        and personalised nutrition goals.
+    logging:
+        items: >-
+            <li><strong>Snap-a-photo nutrition</strong> — Take a picture of
+            your meal and NouriLoop's AI estimates calories, protein, carbs,
+            fat, fibre, sugar, and a full panel of vitamins and
+            minerals.</li> <li><strong>Confirm &amp; Refine</strong> — Every
+            estimate gets a quick review screen where you can adjust
+            ingredients, answer a clarifying question or two, and fine-tune
+            before saving.</li> <li><strong>Portion control</strong> — Ate
+            half? Ate double? Set how many servings you actually had and
+            every number scales instantly.</li> <li><strong>Add a label for
+            accuracy</strong> — Attach a second photo, like a
+            nutrition-facts label, and the AI combines both for a sharper
+            estimate.</li> <li><strong>Log on your schedule</strong> —
+            Forgot to log at the table? Backdate a meal to when you actually
+            ate it.</li> <li><strong>Favourites</strong> — Save the meals you
+            eat often and re-log them in one tap — no re-analysis, no
+            waiting.</li>
+            <li><strong>Import a recipe</strong> — Photograph a
+            cookbook page or a handwritten recipe card, and
+            NouriLoop reads the ingredients and yield, works out
+            per-serving nutrition, and saves it as a favourite —
+            keeping the ingredients and steps so you can cook
+            from it later.</li>
+    loop:
+        items: >-
+            <li><strong>Dietary inflammation score</strong> — A daily,
+            easy-to-read signal of how pro- or anti-inflammatory your food
+            choices were, based on established nutrition research.</li>
+            <li><strong>Symptom check-ins</strong> — Track the symptoms that
+            matter to you (joint pain, digestion, headaches, energy, mental
+            clarity, or your own custom ones) with a quick daily slider whose
+            mood face keeps the scale reading the same way every time.</li>
+            <li><strong>Per-symptom relationships</strong> — Each symptom gets
+            its own view, charting it against your diet (protein, carbs, fat,
+            fibre, and your inflammation score) and your body metrics (steps,
+            glucose, weight, sleep). NouriLoop runs the statistics and shows
+            only the relationships that are statistically significant in your
+            own data — both same-day and next-day, since some effects
+            lag.</li> <li><strong>"What if?" predictions</strong>
+            <em>(Loop+)</em> — Wondering what eating your favourite meal every
+            day for two weeks would do? NouriLoop projects how your
+            inflammation score, nutrition, weight, and symptoms would likely
+            trend — computed from your own history and explained in plain
+            English.</li> <li><strong>Glucose response insights</strong> — If
+            you use a continuous glucose monitor, NouriLoop maps each meal's
+            blood-sugar response, compares it to what your meal's nutrition
+            predicted, and ranks which meals spiked you most and least.</li>
+            <li><strong>AI Pattern Coach</strong> <em>(Loop+)</em> — Goes a
+            step further: an AI deep-dive reads your own glucose responses
+            across meals — the foods, timing, and combinations behind them —
+            and writes a personalised coaching summary, calling out the
+            patterns it sees and a few concrete adjustments to try. Grounded
+            entirely in your data.</li>
+    goals:
+        heading: Personalised goals & coaching
+        items: >-
+            <li><strong>Conversational goal setup</strong> — Tell NouriLoop
+            something like "I want to eat more fibre," and an AI coach turns
+            it into a concrete, measurable goal grounded in your own eating
+            habits.</li> <li><strong>Scheduled check-ins</strong> — NouriLoop
+            evaluates your progress on a schedule you choose and delivers a
+            friendly summary, chart, or report straight to your inbox.</li>
+            <li><strong>Coaching in your voice</strong> — Three simple sliders
+            tune how NouriLoop's AI writes to you — from clinical to warm,
+            buttoned-up to playful, plain-and-simple to expert — so your
+            check-ins and insights sound the way you like.</li>
+            <li><strong>Safe, realistic targets</strong> — Goals are checked
+            against safe limits, and you're warned before setting a target
+            that could be unsafe.</li>
+pricing_page:
+    seo_description: >-
+        Free and Loop+ plans for AI nutrition tracking, recipe
+        import, CGM glucose insights, and personalised goal
+        check-ins.
+    free_note: >-
+        Every account — including Free — gets goal setup with
+        {limit, plural, one {its first # goal check-in} other {its
+        first # goal check-ins}}, plus {photoLimit, plural, one {#
+        AI analysis} other {# AI analyses}} each month — meal photos
+        or recipe imports. Favourite meals are included on every
+        plan — re-logging a saved favourite never uses an analysis.
+lp:
+    diabetes:
+        price_heading: No proprietary hardware. No $200-a-year programme.
+        price_body: >-
+            Apps like Nutrisense and Levels charge $200+ a year and want you
+            on their sensor programme. NouriLoop Loop+ is
+            <strong>${price}/year</strong> and works with the
+            over-the-counter sensor you already wear.
+        compare_them_sub: Proprietary sensor programmes, subscription required
+        founder: >-
+            <strong>Why NouriLoop exists:</strong> it was built by a
+            developer in his 60s who wears the same Lingo sensor this page
+            talks about — because after months of logging meals in one app
+            and watching glucose in another, no tool would connect the two
+            without a $200-a-year hardware programme. So he built it.
+        one_place_items: >-
+            <li><strong>Snap a photo of your meal.</strong> The nutrition — carbs,
+            sugar, fibre, protein, and more — is estimated from the image. No database
+            searching.</li> <li><strong>Your CGM readings arrive automatically.</strong>
+            On iPhone, a scheduled export from Apple Health does it — a guided setup
+            walks you through it once. On Android, you can import your readings from a
+            compatible file today, and we're working on making it automatic.</li>
+            <li><strong>Every meal gets a response curve:</strong> your baseline, your
+            peak, how long it took to get there, and how long it took to come back
+            down.</li> <li><strong>Meals are ranked against each other</strong> — your
+            biggest spikes, your gentlest meals, and the meals that spiked you more than
+            their nutrition predicted.</li> <li><strong>Import your own
+            recipes.</strong> Photograph a cookbook page or a recipe card once —
+            NouriLoop reads the ingredients, estimates per-serving carbs and sugar, and
+            saves it as a favourite, so logging home cooking takes one tap.</li>
+    fiber:
+        seo_description: >-
+            Track fibre, vitamins, and minerals from a photo of your meal —
+            no database lookup. See which nutrients you are consistently
+            missing.
+        title: Track Your Fibre Intake From a Photo
+        headline: >-
+            Your doctor said to eat more fibre.<br>Here's how to know if you
+            are.
+        lead: >-
+            Most apps don't track fibre at all — or hide it behind manual
+            database entry, where you have to know the exact food item
+            first. NouriLoop estimates fibre, vitamins, and minerals from a
+            photo of your meal, and shows you whether you're actually
+            hitting your target, day after day.
+        cta: Track your fibre intake free
+        summary_alt: >-
+            A logged meal's Nutrition Summary: AI confidence, calories and
+            macros, then fibre, sodium, potassium, calcium, iron, magnesium,
+            zinc, and vitamins A and C
+        photo_heading: Fibre from a photo — no database searching
+        photo_items: >-
+            <li><strong>Snap a photo of your plate.</strong> NouriLoop
+            estimates fibre alongside a full nutrient panel — folate,
+            magnesium, potassium, vitamins A through E, and 15+ others —
+            from the image itself.</li> <li><strong>Every estimate comes
+            with a confidence score</strong>, and a quick review screen lets
+            you adjust ingredients or attach the nutrition-facts label for a
+            sharper number. Honest estimates, not false precision.</li>
+            <li><strong>Your daily dashboard shows where today stands</strong>
+            — so "eat more fibre" becomes a number you can actually
+            watch.</li>
+            <li><strong>Cook at home? Import the recipe
+            once.</strong> Photograph the cookbook page or
+            recipe card, and NouriLoop reads the ingredients,
+            works out fibre and the full nutrient panel per
+            serving, and saves it as a favourite you can log in
+            one tap.</li>
+        gaps_items: >-
+            <li><strong>Gap analysis over 7, 14, 30, or 90 days</strong> —
+            see whether your fibre average is trending where it should.</li>
+            <li><strong>Supplements counted in:</strong> scan a supplement
+            label with your camera and NouriLoop folds what you already take
+            into the picture, so the gaps it flags are the real ones.</li>
+            <li><strong>Trends over time</strong> — charts of your intake so
+            you can show yourself (and your doctor) the direction you're
+            heading.</li>
+    inflammation:
+        score_items: >-
+            <li><strong>Snap a photo of each meal</strong> — the nutrition
+            is estimated from the image, in seconds. No manual database
+            entry.</li> <li><strong>Every day gets a score from −10 to
+            +10:</strong> saturated fat, sugar, and sodium push it toward
+            pro-inflammatory; fibre, antioxidant vitamins, fatty fish, olive
+            oil, leafy greens, and berries pull it the other way.</li>
+            <li><strong>It's transparent, rule-based scoring</strong> built
+            on published nutrition research — the same directionality as the
+            Dietary Inflammatory Index — not a black box.</li>
+            <li><strong>It works retroactively:</strong> a day scored last
+            Tuesday is a data point, so your chart fills in as you log.</li>
+        chart_alt: >-
+            A Trends relationship panel stacking a symptom against protein,
+            carbs, fat, fibre, and inflammation score
+
+recipe:
+    imported: Saved “{name}” to your favourites — log it from there any time.
+    scan:
+        lead: >-
+            Photograph a recipe — a cookbook page, a printed page, or a
+            handwritten card. Up to {max} photos of one recipe (front and
+            back, or several pages). NouriLoop reads the ingredients and
+            yield, works out the nutrition per serving, and saves it as a
+            favourite you can log in one tap.
+    confirm:
+        servings_help: Nutrition is divided by this, so the favourite stores one serving.
+        save: Save as favourite

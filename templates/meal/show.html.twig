@@ -1,0 +1,410 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'meal.show.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 800px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> {{ 'meal.show.back'|trans }}
+        </a>
+        <h2 class="fw-bold mb-0">{{ entry.mealType.transKey|trans }} · {{ entry.loggedAt|local_date('yMMMdjm') }}</h2>
+        {# The edit audit-trail marker (meal-history plan §6): data-trust for
+           health tracking — a corrected entry says so. #}
+        {% if entry.editedAt %}
+        <small class="text-muted text-nowrap">
+            <i class="bi bi-pencil"></i> {{ 'meal.show.edited'|trans({'date': entry.editedAt|local_date('yMMMd')}) }}
+        </small>
+        {% endif %}
+    </div>
+
+    {# First-meal success moment (E16): a one-time celebratory callout after the very
+       first meal saves, pointing at the payoff (the dashboard score, where the next
+       onboarding step is also waiting). The flash value is 'today' or 'backdated' —
+       a backdated first meal contributes nothing to today's dashboard, so its copy
+       and CTA stay date-neutral instead of promising a score that isn't there. #}
+    {% for when in app.flashes('first_meal') %}
+    {% set backdated = when == 'backdated' %}
+    <div class="alert alert-success d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+        <div>
+            <strong>{{ 'meal.show.first_meal_strong'|trans }}</strong>
+            {{ (backdated ? 'meal.show.first_meal_text_backdated' : 'meal.show.first_meal_text')|trans }}
+        </div>
+        <a href="{{ path('app_dashboard') }}" class="btn btn-success btn-sm">
+            {{ (backdated ? 'meal.show.first_meal_cta_backdated' : 'meal.show.first_meal_cta')|trans }} <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    {% endfor %}
+
+    {# Duplicate guard: the same photo was already logged at this date/time. Make the
+       remedy explicit — a one-click Delete Entry — rather than a vague warning. #}
+    {% for _flash in app.flashes('meal_duplicate') %}
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+        <div>
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>{{ 'meal.show.duplicate_strong'|trans }}</strong>
+            {{ 'meal.show.duplicate_text'|trans }}
+        </div>
+        <form method="post" action="{{ path('app_meal_delete', {id: entry.id}) }}"
+              onsubmit="return confirm('{{ 'meal.show.duplicate_confirm'|trans|e('js') }}')">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete-meal-' ~ entry.id) }}">
+            <button type="submit" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i> {{ 'meal.show.delete'|trans }}
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+
+    <div class="row g-4">
+        {# The left column renders whenever it has ANY content — a photo-free
+           (described) meal still shows its AI description, ingredients, and
+           notes (which are editable via the Edit action). #}
+        {% if entry.imagePath or entry.aiDescription or entry.ingredients is not empty or entry.notes %}
+        <div class="col-md-5">
+            {% if entry.imagePath %}
+            <div class="card p-2">
+                <img src="{{ asset(entry.imagePath) }}" alt="{{ 'meal.photo_alt'|trans }}" class="img-fluid rounded">
+            </div>
+            {% endif %}
+
+            {% if entry.aiDescription %}
+            <div class="card p-3 mt-3">
+                <small class="text-muted fw-semibold text-uppercase">{{ 'meal.show.ai_description'|trans }}</small>
+                <p class="mb-0 mt-1 small">{{ entry.aiDescription }}</p>
+            </div>
+            {% endif %}
+
+            {% if entry.ingredients is not empty %}
+            <div class="card p-3 mt-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-2">{{ 'meal.ingredients'|trans }}</small>
+                <ul class="list-unstyled mb-0">
+                    {# amount/unit are optional in stored ingredient rows (e.g. the
+                       demo seeder omits unit) — default them so strict_variables
+                       doesn't 500 a photo-free meal's newly-visible ingredient list. #}
+                    {% for item in entry.ingredients %}
+                    <li class="d-flex justify-content-between small py-1 border-bottom">
+                        <span>{{ item.name|default('') }}</span>
+                        <span class="text-muted">{{ item.amount|default('') }} {{ item.unit|default('') }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if entry.notes %}
+            <div class="card p-3 mt-3">
+                <small class="text-muted fw-semibold text-uppercase">{{ 'meal.show.notes'|trans }}</small>
+                <p class="mb-0 mt-1">{{ entry.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="col-md-7">
+            {% set n = entry.nutritionData %}
+            {% if n %}
+            <div class="card p-4 mb-3">
+                <h5 class="fw-bold mb-3">{{ 'meal.show.nutrition_heading'|trans }}</h5>
+
+                {# Provenance: once the user has corrected/rescaled the numbers
+                   they're no longer the AI estimate, so the confidence bar
+                   would mislabel them — show the edited marker instead. #}
+                {% if entry.nutritionEditedAt %}
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="bi bi-pencil-square"></i>
+                        {{ 'meal.show.nutrition_edited'|trans({'date': entry.nutritionEditedAt|local_date('yMMMd')}) }}
+                    </small>
+                </div>
+                {% elseif n.confidenceScore %}
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <small class="text-muted">{{ 'meal.show.ai_confidence'|trans }}</small>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ (n.confidenceScore * 100)|round }}%"></div>
+                    </div>
+                    <small class="fw-semibold">{{ (n.confidenceScore * 100)|round }}%</small>
+                    {# The confidence above describes THIS run when a re-analysis
+                       produced it, not the original logging — so say which. #}
+                    {% if entry.reanalyzedAt %}
+                    <small class="text-muted text-nowrap">
+                        · {{ 'meal.show.reanalyzed'|trans({'date': entry.reanalyzedAt|local_date('yMMMd')}) }}
+                    </small>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="row g-2 text-center mb-3">
+                    <div class="col-6 col-sm-3">
+                        <div class="bg-warning bg-opacity-10 rounded p-2">
+                            <div class="fw-bold fs-5">{{ n.calories|format_number({fraction_digit: 0}) }}</div>
+                            <small class="text-muted">{{ 'macro.kcal'|trans }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="bg-danger bg-opacity-10 rounded p-2">
+                            <div class="fw-bold fs-5">{{ n.protein|format_number({fraction_digit: 1}) }}g</div>
+                            <small class="text-muted">{{ 'macro.protein'|trans }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="bg-primary bg-opacity-10 rounded p-2">
+                            <div class="fw-bold fs-5">{{ n.carbohydrates|format_number({fraction_digit: 1}) }}g</div>
+                            <small class="text-muted">{{ 'macro.carbs'|trans }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="bg-info bg-opacity-10 rounded p-2">
+                            <div class="fw-bold fs-5">{{ n.fat|format_number({fraction_digit: 1}) }}g</div>
+                            <small class="text-muted">{{ 'macro.fat'|trans }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                        {% for row in [
+                            ['nutrient.fiber'|trans,         n.fiber,       'g'],
+                            ['nutrient.sugar'|trans,         n.sugar,       'g'],
+                            ['nutrient.saturated_fat'|trans, n.saturatedFat,'g'],
+                            ['nutrient.sodium'|trans,        n.sodium,      'mg'],
+                            ['nutrient.potassium'|trans,     n.potassium,   'mg'],
+                            ['nutrient.calcium'|trans,       n.calcium,     'mg'],
+                            ['nutrient.iron'|trans,          n.iron,        'mg'],
+                            ['nutrient.magnesium'|trans,     n.magnesium,   'mg'],
+                            ['nutrient.zinc'|trans,          n.zinc,        'mg'],
+                            ['nutrient.vitamin_a'|trans,     n.vitaminA,    'mcg'],
+                            ['nutrient.vitamin_c'|trans,     n.vitaminC,    'mg'],
+                            ['nutrient.vitamin_d'|trans,     n.vitaminD,    'mcg'],
+                            ['nutrient.vitamin_b12'|trans,   n.vitaminB12,  'mcg'],
+                        ] %}
+                        {% if row[1] is not null %}
+                        <tr>
+                            <td class="text-muted">{{ row[0] }}</td>
+                            <td class="text-end fw-semibold">{{ row[1]|format_number({fraction_digit: 1}) }} {{ row[2] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if n %}
+            <form method="post" action="{{ path('app_favorite_new') }}" class="card p-3 mb-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('favorite-new-' ~ entry.id) }}">
+                <input type="hidden" name="meal_id" value="{{ entry.id }}">
+                <label class="form-label fw-semibold small mb-1">
+                    <i class="bi bi-star text-warning"></i> {{ 'meal.show.save_favorite'|trans }}
+                </label>
+                <div class="input-group">
+                    <input type="text" name="name" class="form-control" maxlength="200"
+                           value="{{ favoriteDefault }}" placeholder="{{ 'meal.show.favorite_ph'|trans }}">
+                    <button type="submit" class="btn btn-outline-warning">
+                        <i class="bi bi-star-fill"></i> {{ 'meal.show.save'|trans }}
+                    </button>
+                </div>
+                <div class="form-text">{{ 'meal.show.favorite_hint'|trans }}</div>
+            </form>
+            {% endif %}
+
+            {# Phase 3: the only meal action that costs a Claude call, so it's
+               its own card with the cost stated — not a peer of Edit/Delete in
+               the button row. #}
+            <div class="card p-3 mb-3">
+                <label class="form-label fw-semibold small mb-1">
+                    <i class="bi bi-cpu text-brick"></i> {{ 'meal.show.reanalyze'|trans }}
+                </label>
+                <div class="form-text mt-0 mb-2">{{ 'meal.show.reanalyze_hint'|trans }}</div>
+                <div>
+                    <a href="{{ path('app_meal_reanalyze', {id: entry.id}) }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-arrow-repeat"></i> {{ 'meal.show.reanalyze_cta'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_meal_edit', {id: entry.id}) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil"></i> {{ 'meal.show.edit'|trans }}
+                </a>
+                <form method="post" action="{{ path('app_meal_delete', {id: entry.id}) }}"
+                      onsubmit="return confirm('{{ 'meal.show.delete_confirm'|trans|e('js') }}')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete-meal-' ~ entry.id) }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i> {{ 'meal.show.delete'|trans }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if glucoseResponse %}
+    {% set g = glucoseResponse %}
+    <div class="card p-4 mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-activity text-success"></i> {{ 'meal.show.glucose.heading'|trans }}
+            </h5>
+            {% if g.hasCurve %}
+                {% set band = g.delta is null ? 'secondary'
+                    : (g.delta < 30 ? 'success' : (g.delta <= 50 ? 'warning' : 'danger')) %}
+                <span class="badge bg-{{ band }} bg-opacity-25 text-{{ band }} border border-{{ band }} border-opacity-25">
+                    {{ 'meal.show.glucose.confidence'|trans({'level': g.confidence}) }}
+                </span>
+            {% endif %}
+        </div>
+
+        {% if g.hasCurve %}
+            <div style="position: relative; height: 260px;">
+                <canvas id="glucoseChart"></canvas>
+            </div>
+
+            <div class="row g-2 text-center mt-3">
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold fs-5">{{ glucose_display(g.peak) }}</div>
+                        <small class="text-muted">{{ 'meal.show.glucose.peak'|trans({'unit': glucose_unit()}) }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold fs-5">{{ g.delta > 0 ? '+' : '' }}{{ glucose_display(g.delta) }}</div>
+                        <small class="text-muted">{{ 'meal.show.glucose.rise'|trans }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold fs-5">{{ g.timeToPeakMin }}<small class="fs-6"> min</small></div>
+                        <small class="text-muted">{{ 'meal.show.glucose.time_to_peak'|trans }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold fs-5">
+                            {{ g.returnToBaselineMin is null ? '—' : g.returnToBaselineMin ~ '' }}{% if g.returnToBaselineMin is not null %}<small class="fs-6"> min</small>{% endif %}
+                        </div>
+                        <small class="text-muted">{{ 'meal.show.glucose.back_to_baseline'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <p class="small text-muted mt-3 mb-0">
+                {{ 'meal.show.glucose.narrative'|trans({
+                    'baseline': glucose_display(g.baseline),
+                    'peak': glucose_display(g.peak),
+                    'delta': (g.delta > 0 ? '+' : '') ~ glucose_display(g.delta),
+                    'unit': glucose_unit(),
+                    'minutes': g.timeToPeakMin,
+                    'count': g.readingCount,
+                    'return_clause': g.returnToBaselineMin is null ? ''
+                        : 'meal.show.glucose.return_clause'|trans({'minutes': g.returnToBaselineMin}),
+                })|raw }}
+            </p>
+
+            {% if glycemicImpact %}
+            {% set gi = glycemicImpact %}
+            {% set bandColor = {'much_lower': 'info', 'lower': 'primary', 'as_expected': 'success', 'higher': 'warning', 'much_higher': 'danger'}[gi.band] ?? 'secondary' %}
+            {% set pct = ((gi.ratio - 1) * 100)|round %}
+            <div class="border-top pt-3 mt-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <small class="text-muted fw-semibold text-uppercase">{{ 'meal.show.glucose.vs_estimate'|trans }}</small>
+                    <span class="badge rounded-pill text-bg-secondary"
+                          title="{{ 'meal.show.glucose.gl_badge_title'|trans }}">
+                        GL {{ gi.estimatedGL|format_number({fraction_digit: 0}) }} · {{ ('meal.show.glucose.gl_' ~ gi.glCategory)|trans }}
+                    </span>
+                    <span class="badge rounded-pill text-bg-{{ bandColor }}">
+                        {{ pct >= 0 ? '+' ~ pct : pct }}%
+                    </span>
+                </div>
+                <p class="small text-muted mb-0">
+                    {{ ('meal.show.glucose.band_' ~ gi.band)|trans|raw }}
+                    {{ 'meal.show.glucose.band_closing'|trans }}
+                </p>
+            </div>
+            {% endif %}
+        {% else %}
+            <p class="small text-muted mb-0">
+                {{ 'meal.show.glucose.sparse'|trans({'count': g.readingCount}) }}
+            </p>
+        {% endif %}
+    </div>
+    {% elseif cgmLocked %}
+    <div class="card p-4 mt-4 text-center">
+        <h5 class="fw-bold mb-2">
+            <i class="bi bi-lock text-muted"></i> {{ 'meal.show.glucose.heading'|trans }}
+            <span class="badge text-bg-light border ms-1">Loop+</span>
+        </h5>
+        <p class="text-muted mb-3" style="max-width: 52ch; margin-inline: auto;">
+            {{ 'meal.show.locked.lead'|trans }}
+        </p>
+        <div>
+            <a href="{{ path('app_pricing') }}" class="btn btn-success">
+                <i class="bi bi-stars"></i> {{ 'meal.show.locked.upgrade'|trans }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{% if glucoseResponse and glucoseResponse.hasCurve %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const series   = {{ glucose_series_value(glucoseResponse.series)|json_encode|raw }};
+    const baseline = {{ glucose_value(glucoseResponse.baseline) }};
+    const peakMin  = {{ glucoseResponse.timeToPeakMin }};
+    const points   = series.map(p => ({ x: p.minutes, y: p.value }));
+    const minX     = points.length ? points[0].x : 0;
+    const maxX     = points.length ? points[points.length - 1].x : 180;
+
+    new Chart(document.getElementById('glucoseChart'), {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: {{ 'meal.show.glucose.chart_glucose'|trans({'unit': glucose_unit()})|json_encode|raw }},
+                    data: points,
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: points.map(p => p.x === peakMin ? 4 : 0),
+                    pointBackgroundColor: '#dc3545',
+                },
+                {
+                    label: {{ 'meal.show.glucose.chart_baseline'|trans|json_encode|raw }},
+                    data: [{ x: minX, y: baseline }, { x: maxX, y: baseline }],
+                    borderColor: '#adb5bd',
+                    borderWidth: 1,
+                    borderDash: [6, 4],
+                    pointRadius: 0,
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: { display: true, text: {{ 'meal.show.glucose.chart_minutes'|trans|json_encode|raw }} },
+                    grid: { color: ctx => ctx.tick.value === 0 ? '#dc3545' : 'rgba(0,0,0,0.05)' },
+                },
+                y: { title: { display: true, text: {{ glucose_unit()|json_encode|raw }} } },
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => items[0].parsed.x + ' min',
+                        label: item => item.dataset.label + ': ' + item.parsed.y,
+                    },
+                },
+            },
+        },
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+# CSRF protection.
+#
+# dev/prod use *stateless* CSRF: these token ids are validated by Symfony's
+# SameOriginCsrfTokenManager, which enforces CSRF from the request's
+# Origin/Referer/Sec-Fetch-Site headers (same-origin passes, cross-site is rejected).
+# NOTE: the double-submit-cookie fallback (Symfony's `csrf-protection` Stimulus
+# controller) is NOT active here — this app never renders importmap(), so Stimulus
+# never loads. The same-origin header check is what actually protects forms; see the
+# Forms & CSRF section in CLAUDE.md. Stateless is intentionally NOT enabled under
+# `test` (the same-origin/JS path is awkward for the Panther suite): with the stateless
+# ids unset, these ids fall back to stateful (session-backed) tokens rendered
+# server-side — CSRF stays ON everywhere, the test env just needs no headers/JS.
+framework:
+    form:
+        csrf_protection:
+            token_id: submit
+
+when@dev: &stateless_csrf
+    framework:
+        csrf_protection:
+            stateless_token_ids:
+                - submit
+                - authenticate
+                - logout
+
+when@prod: *stateless_csrf

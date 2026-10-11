@@ -1,0 +1,64 @@
+{% extends 'lp/_layout.html.twig' %}
+
+{# Campaign B (Weight Loss / Calorie Tracking) rebuild landing page — B was the
+   last campaign still landing on /about. Copy rule (Comprehensive Review §9,
+   both directions): goal setup is free with the first 6 check-ins included;
+   unlimited weekly check-ins are Loop, daily + email/SMS delivery are Loop+ —
+   labeled truthfully wherever mentioned. Pinned by LandingPagesTest. #}
+
+{% block lp_title %}{{ 'lp.weight_loss.title'|trans }} — NouriLoop{% endblock %}
+{% block lp_headline %}{{ 'lp.weight_loss.headline'|trans }}{% endblock %}
+{% block lp_lead %}{{ 'lp.weight_loss.lead'|trans }}{% endblock %}
+{% block lp_cta_label %}{{ 'lp.weight_loss.cta'|trans }}{% endblock %}
+
+{% block lp_body %}
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 mx-auto" style="max-width: 430px;">
+    <img src="{{ asset('images/lp/nutrition-summary.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="{{ 'lp.weight_loss.summary_alt'|trans }}">
+</figure>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.weight_loss.photo_heading'|trans }}</h2>
+    <ul class="mb-0">{{ 'lp.weight_loss.photo_items'|trans|raw }}</ul>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.weight_loss.day_heading'|trans }}</h2>
+    <figure class="figure d-block border rounded shadow-sm overflow-hidden mb-3 w-100">
+        <img src="{{ asset('images/help/dashboard.png') }}" class="figure-img img-fluid mb-0 w-100"
+             alt="{{ 'lp.weight_loss.day_alt'|trans }}">
+    </figure>
+    <ul class="mb-0">{{ 'lp.weight_loss.day_items'|trans|raw }}</ul>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.weight_loss.goal_heading'|trans }}</h2>
+    <figure class="figure d-block border rounded shadow-sm overflow-hidden mb-3 w-100">
+        <img src="{{ asset('images/help/goals.png') }}" class="figure-img img-fluid mb-0 w-100"
+             alt="{{ 'lp.weight_loss.goal_alt'|trans }}">
+    </figure>
+    <p>{{ 'lp.weight_loss.goal_body'|trans }}</p>
+    <p class="small text-muted mb-0">
+        {{ 'lp.weight_loss.goal_tier_note'|trans({
+            'loop_price': subscription_price('loop', 'annual'),
+            'plus_price': subscription_price('loop_plus', 'annual'),
+            'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
+        }) }}
+    </p>
+</section>
+
+<section class="mb-4">
+    <div class="border rounded-3 p-3 bg-light">
+        <p class="mb-0">{{ 'lp.weight_loss.founder'|trans|raw }}</p>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block lp_footnote %}
+    {{ 'lp.weight_loss.footnote'|trans({
+        'price': subscription_price('loop', 'annual'),
+        'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
+    }) }}
+{% endblock %}

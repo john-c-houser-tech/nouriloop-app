@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.glp1.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.glp1.heading'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.glp1.lead'|trans }}</p>
+
+    <div class="card p-4 mt-3">
+        {{ form_start(form) }}
+
+        <div class="mb-3">
+            <div class="form-check form-switch">
+                {{ form_widget(form.glp1Mode, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                {{ form_label(form.glp1Mode, null, {'label_attr': {'class': 'form-check-label fw-semibold'}}) }}
+            </div>
+            <div class="form-text">{{ form_help(form.glp1Mode) }}</div>
+            {{ form_errors(form.glp1Mode) }}
+        </div>
+
+        <ul class="text-muted small">
+            <li>{{ 'settings.glp1.feature_protein'|trans|raw }}</li>
+            <li>{{ 'settings.glp1.feature_nausea'|trans|raw }}</li>
+            <li>{{ 'settings.glp1.feature_portion'|trans|raw }}</li>
+        </ul>
+
+        <button type="submit" class="btn btn-success fw-semibold mt-2">{{ 'settings.glp1.save'|trans }}</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

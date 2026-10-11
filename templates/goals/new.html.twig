@@ -1,0 +1,225 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'goal.form.heading'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 760px;">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-bullseye text-brick"></i> {{ 'goal.form.heading'|trans }}</h2>
+        <a href="{{ path('app_goals') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> {{ 'goal.form.back'|trans }}
+        </a>
+    </div>
+
+    <div class="alert alert-light border d-flex align-items-center gap-2 py-2 small">
+        <i class="bi bi-chat-dots text-success"></i>
+        <span>{{ 'goal.form.chat_hint'|trans({
+            'link': '<a href="' ~ path('app_goals_new') ~ '" class="fw-semibold">',
+            'link_end': '</a>',
+        })|raw }}</span>
+    </div>
+
+    {% if warnings is not empty %}
+    <div class="alert alert-warning">
+        <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle"></i> {{ 'goal.form.double_check'|trans }}</div>
+        <ul class="mb-2">
+            {% for w in warnings %}<li>{{ w }}</li>{% endfor %}
+        </ul>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="acknowledge_warnings" value="1"
+                   id="ack" form="goal-form">
+            <label class="form-check-label" for="ack">{{ 'goal.form.ack'|trans }}</label>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ path('app_goals_create') }}" id="goal-form" class="card p-4">
+        <input type="hidden" name="_token" value="{{ csrf_token('goal-create') }}">
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">{{ 'goal.form.name'|trans }} <span class="text-muted fw-normal">{{ 'goal.form.optional'|trans }}</span></label>
+            <input type="text" name="name" class="form-control" maxlength="120"
+                   value="{{ submitted.name|default('') }}" placeholder="{{ 'goal.form.name_ph'|trans }}">
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'goal.form.track'|trans }}</label>
+                <select name="metric" class="form-select" id="metric">
+                    {% for m in metrics %}
+                    <option value="{{ m.value }}" {{ submitted.metric|default('sugar') == m.value ? 'selected' }}>
+                        {{ m.transKey|trans }} ({{ m.unit }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'goal.form.direction'|trans }}</label>
+                <select name="direction" class="form-select" id="direction">
+                    {% for d in directions %}
+                    <option value="{{ d.value }}" {{ submitted.direction|default('at_most') == d.value ? 'selected' }}>
+                        {{ d.transKey|trans }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'goal.form.target'|trans }} <span id="target-unit" class="text-muted fw-normal"></span></label>
+                <div class="input-group">
+                    <input type="number" name="target_value" class="form-control" step="any" min="0" required
+                           value="{{ submitted.target_value|default('') }}" placeholder="{{ 'goal.form.target_ph'|trans }}">
+                    <span class="input-group-text" id="target-to" style="display:none;">{{ 'goal.form.to'|trans }}</span>
+                    <input type="number" name="target_max" class="form-control" step="any" min="0" id="target-max"
+                           value="{{ submitted.target_max|default('') }}" placeholder="{{ 'goal.form.upper_ph'|trans }}" style="display:none;">
+                </div>
+            </div>
+        </div>
+        <div class="mb-3 small text-muted" id="metric-hint"></div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+                <label class="form-label fw-semibold">{{ 'goal.form.measured_as'|trans }}</label>
+                <select name="aggregation" class="form-select">
+                    {% for a in aggregations %}
+                    <option value="{{ a.value }}" {{ submitted.aggregation|default('daily_average') == a.value ? 'selected' }}>
+                        {{ a.transKey|trans }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label fw-semibold">{{ 'goal.form.window_days'|trans }}</label>
+                <input type="number" name="window_days" class="form-control" min="1" max="90"
+                       value="{{ submitted.window_days|default(7) }}">
+            </div>
+        </div>
+
+        <hr class="my-3">
+        <h6 class="fw-bold text-muted text-uppercase small mb-3">{{ 'goal.form.schedule'|trans }}</h6>
+
+        <div class="row g-3 mb-3">
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'goal.form.frequency'|trans }}</label>
+                <select name="frequency" class="form-select" id="frequency">
+                    {% for f in frequencies %}
+                    {# Daily cadence is Loop+ — disabled (not hidden) so the ladder is
+                       visible; GoalFactory coerces server-side as the backstop. #}
+                    {% set dailyLocked = f.value == 'daily' and not canDaily %}
+                    <option value="{{ f.value }}" {{ dailyLocked ? 'disabled' }}
+                            {{ not dailyLocked and submitted.frequency|default('weekly') == f.value ? 'selected' }}>
+                        {{ f.transKey|trans }}{{ dailyLocked ? ' — Loop+' }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if not canDaily %}
+                <div class="form-text">{{ 'goal.form.daily_locked'|trans({
+                    'link': '<a href="' ~ path('app_pricing') ~ '">',
+                    'link_end': '</a>',
+                })|raw }}</div>
+                {% endif %}
+            </div>
+            <div class="col-sm-4" id="dow-wrap">
+                <label class="form-label fw-semibold">{{ 'goal.form.day'|trans }}</label>
+                <select name="day_of_week" class="form-select">
+                    {% set days = {1: 'goal.day.1'|trans, 2: 'goal.day.2'|trans, 3: 'goal.day.3'|trans, 4: 'goal.day.4'|trans, 5: 'goal.day.5'|trans, 6: 'goal.day.6'|trans, 7: 'goal.day.7'|trans} %}
+                    {% for num, label in days %}
+                    <option value="{{ num }}" {{ submitted.day_of_week|default(7) == num ? 'selected' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label fw-semibold">{{ 'goal.form.time'|trans }}</label>
+                <div class="input-group">
+                    <input type="number" name="hour" class="form-control" min="0" max="23"
+                           value="{{ submitted.hour|default(18) }}" aria-label="{{ 'goal.form.hour_aria'|trans }}">
+                    <span class="input-group-text">:</span>
+                    <input type="number" name="minute" class="form-control" min="0" max="59"
+                           value="{{ submitted.minute|default(0) }}" aria-label="{{ 'goal.form.minute_aria'|trans }}">
+                </div>
+                <div class="form-text">{{ 'goal.form.time_note'|trans }}</div>
+            </div>
+        </div>
+
+        <hr class="my-3">
+        <h6 class="fw-bold text-muted text-uppercase small mb-3">{{ 'goal.form.delivery'|trans }}</h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+                <label class="form-label fw-semibold">{{ 'goal.form.output_format'|trans }}</label>
+                <select name="output_format" class="form-select">
+                    {% for f in formats %}
+                    <option value="{{ f.value }}" {{ submitted.output_format|default('summary') == f.value ? 'selected' }}>
+                        {{ f.transKey|trans }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-text pt-4 mt-1">{{ 'goal.form.channel_note'|trans({'link': '<a href="' ~ path('app_settings_notifications') ~ '">', 'link_end': '</a>'})|raw }}</div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success fw-semibold">
+            <i class="bi bi-check-lg"></i> {{ 'goal.form.create'|trans }}
+        </button>
+    </form>
+</div>
+
+<script>
+    // Hide the day-of-week picker for daily goals.
+    (function () {
+        const freq = document.getElementById('frequency');
+        const dow = document.getElementById('dow-wrap');
+        function sync() { dow.style.display = freq.value === 'weekly' ? '' : 'none'; }
+        freq.addEventListener('change', sync);
+        sync();
+    })();
+
+    // Reference values + the user's current average, surfaced as a hint per metric.
+    const REF = {
+        {% for m in metrics %}
+        "{{ m.value }}": {
+            unit: "{{ m.unit }}",
+            ref: {{ references[m.value].value is null ? 'null' : references[m.value].value }},
+            note: {{ references[m.value].note|json_encode|raw }},
+            baseline: {{ baselines[m.value] is null ? 'null' : baselines[m.value] }}
+        },
+        {% endfor %}
+    };
+
+    (function () {
+        const metric = document.getElementById('metric');
+        const direction = document.getElementById('direction');
+        const hint = document.getElementById('metric-hint');
+        const unitLbl = document.getElementById('target-unit');
+        const toLbl = document.getElementById('target-to');
+        const maxInput = document.getElementById('target-max');
+
+        function round(n) { return Math.round(n * 10) / 10; }
+
+        function syncHint() {
+            const r = REF[metric.value];
+            if (!r) { hint.textContent = ''; return; }
+            unitLbl.textContent = '(' + r.unit + ')';
+            let parts = [r.note];
+            if (r.baseline !== null) {
+                parts.push({{ 'goal.form.hint_baseline'|trans({'n': '@n@', 'unit': '@u@'})|json_encode|raw }}
+                    .replace('@n@', round(r.baseline)).replace('@u@', r.unit));
+            } else {
+                parts.push({{ 'goal.form.hint_none'|trans|json_encode|raw }});
+            }
+            hint.textContent = parts.join(' ');
+        }
+
+        function syncRange() {
+            const isRange = direction.value === 'maintain';
+            toLbl.style.display = isRange ? '' : 'none';
+            maxInput.style.display = isRange ? '' : 'none';
+        }
+
+        metric.addEventListener('change', syncHint);
+        direction.addEventListener('change', syncRange);
+        syncHint();
+        syncRange();
+    })();
+</script>
+{% endblock %}

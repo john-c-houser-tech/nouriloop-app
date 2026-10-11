@@ -1,0 +1,25 @@
+# Hindi translations for the app's custom constraint messages. The validators
+# domain uses the English message string itself as the key (Symfony's own
+# convention for constraint messages), and is deliberately NOT an intl-icu
+# domain — constraint placeholders use the validator's {{ limit }} syntax,
+# which ICU MessageFormat would fail to parse. Symfony ships translations for
+# its built-in default messages; only messages we override live here.
+'Please enter your name': 'कृपया अपना नाम लिखें'
+'Please enter your email': 'कृपया अपना ईमेल लिखें'
+'Please enter your email.': 'कृपया अपना ईमेल लिखें।'
+'Please enter a valid email address.': 'कृपया एक मान्य ईमेल पता लिखें।'
+'Passwords must match.': 'पासवर्ड एक जैसे होने चाहिए।'
+'Please enter a password': 'कृपया एक पासवर्ड लिखें'
+'Password must be at least {{ limit }} characters': 'पासवर्ड कम से कम {{ limit }} अक्षरों का होना चाहिए'
+'Your password should be at least {{ limit }} characters': 'आपका पासवर्ड कम से कम {{ limit }} अक्षरों का होना चाहिए'
+'The password fields must match.': 'पासवर्ड फ़ील्ड एक जैसे होने चाहिए।'
+'This password has appeared in a known data breach — please choose a different one.': 'यह पासवर्ड एक ज्ञात डेटा लीक में सामने आ चुका है — कृपया कोई दूसरा चुनें।'
+'Enter a valid number in E.164 format, e.g. +15555550123.': 'E.164 प्रारूप में मान्य नंबर लिखें, जैसे +919876543210।'
+'Please upload at least one photo.': 'कृपया कम से कम एक फ़ोटो अपलोड करें।'
+'Please upload valid images (JPEG, PNG, WebP, or HEIC).': 'कृपया मान्य इमेज अपलोड करें (JPEG, PNG, WebP या HEIC)।'
+'Please upload a valid image (JPEG, PNG, WebP, or HEIC).': 'कृपया एक मान्य इमेज अपलोड करें (JPEG, PNG, WebP या HEIC)।'
+'Please enter your feedback.': 'कृपया अपनी प्रतिक्रिया लिखें।'
+'Please upload at most {{ limit }} photos of one meal.': 'कृपया एक भोजन की अधिकतम {{ limit }} फ़ोटो अपलोड करें।'
+'Please upload at most {{ limit }} photos of one recipe.': 'कृपया एक रेसिपी की अधिकतम {{ limit }} फ़ोटो अपलोड करें।'
+'Please upload at most {{ limit }} photos of one supplement label.': 'कृपया एक सप्लीमेंट लेबल की अधिकतम {{ limit }} फ़ोटो अपलोड करें।'
+'There is already an account with this email': 'इस ईमेल से पहले से एक खाता मौजूद है'

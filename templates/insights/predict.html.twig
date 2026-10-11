@@ -1,0 +1,299 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'predict.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width:760px">
+
+    <div class="d-flex align-items-center gap-2 mb-1">
+        <h1 class="h3 mb-0">{{ 'predict.title'|trans }}</h1>
+        <span class="badge bg-warning text-dark">Loop+</span>
+    </div>
+    <p class="text-muted mb-4">{{ 'predict.lead'|trans }}</p>
+
+    {% for msg in app.flashes('warning') %}
+        <div class="alert alert-warning">{{ msg }}</div>
+    {% endfor %}
+
+    {% if errors is not empty %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {# ── Step 1: Scenario form ─────────────────────────────────────────────── #}
+    <form method="post" action="{{ path('app_predict_run') }}" class="card shadow-sm mb-4">
+        <input type="hidden" name="_token" value="{{ csrf_token('predict-run') }}">
+        <div class="card-body">
+            <h2 class="h5 mb-3">{{ 'predict.step1'|trans }}</h2>
+
+            {# Scenario type #}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">{{ 'predict.scenario_type'|trans }}</label>
+                <div class="d-flex flex-wrap gap-2" id="type-radios">
+                    {% set typeLabels = {
+                        'favorite_daily':    'predict.type_favorite'|trans,
+                        'supplement_add':    'predict.type_supp_add'|trans,
+                        'supplement_remove': 'predict.type_supp_remove'|trans,
+                        'free_text':         'predict.type_free'|trans
+                    } %}
+                    {% for st in scenarioTypes %}
+                        {% set checked = (posted.type ?? '') == st.value %}
+                        <div class="form-check form-check-inline border rounded px-3 py-2 type-card{% if checked %} border-primary bg-primary bg-opacity-10{% endif %}">
+                            <input class="form-check-input" type="radio" name="type" id="type_{{ st.value }}"
+                                   value="{{ st.value }}" {% if checked %}checked{% endif %} required>
+                            <label class="form-check-label" for="type_{{ st.value }}">
+                                {{ typeLabels[st.value] ?? st.label() }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Favorite picker — shown for favorite_daily #}
+            <div class="mb-3 sub-field" id="field-favorite" style="display:none">
+                <label class="form-label fw-semibold" for="favorite_id">{{ 'predict.which_favorite'|trans }}</label>
+                <input type="text" class="form-control form-control-sm mb-1" id="fav-search"
+                       placeholder="{{ 'predict.search_favorites'|trans }}" autocomplete="off">
+                <select class="form-select" name="favorite_id" id="favorite_id">
+                    <option value="">{{ 'predict.select'|trans }}</option>
+                    {% for fav in favorites %}
+                        <option value="{{ fav.id }}"
+                                {% if (posted.favorite_id ?? '') == fav.id %}selected{% endif %}
+                                data-name="{{ fav.name|lower }}">
+                            {{ fav.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# Supplement picker — shown for supplement_add / supplement_remove #}
+            <div class="mb-3 sub-field" id="field-supplement" style="display:none">
+                <label class="form-label fw-semibold" for="supplement_id">{{ 'predict.which_supplement'|trans }}</label>
+                <select class="form-select" name="supplement_id" id="supplement_id">
+                    <option value="">{{ 'predict.select'|trans }}</option>
+                    {% for supp in supplements %}
+                        <option value="{{ supp.id }}"
+                                data-active="{{ supp.isActive ? '1' : '0' }}"
+                                {% if (posted.supplement_id ?? '') == supp.id %}selected{% endif %}>
+                            {{ supp.name }}{% if not supp.isActive %} {{ 'predict.inactive_suffix'|trans }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text text-muted" id="supp-hint"></div>
+            </div>
+
+            {# Free text — shown for free_text #}
+            <div class="mb-3 sub-field" id="field-freetext" style="display:none">
+                <label class="form-label fw-semibold" for="free_text">{{ 'predict.describe'|trans }}</label>
+                <textarea class="form-control" name="free_text" id="free_text" rows="3"
+                          maxlength="300" placeholder="{{ 'predict.describe_ph'|trans }}">{{ posted.free_text ?? '' }}</textarea>
+                <div class="d-flex justify-content-end">
+                    <small class="text-muted" id="freetext-counter">{{ 'predict.remaining'|trans({'count': 300}) }}</small>
+                </div>
+            </div>
+
+            {# Duration #}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">{{ 'predict.window'|trans }}</label>
+                <div class="d-flex gap-3">
+                    {% for w in [1, 2, 4] %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration_weeks"
+                                   id="weeks_{{ w }}" value="{{ w }}"
+                                   {% if (posted.duration_weeks ?? 2) == w %}checked{% endif %}>
+                            <label class="form-check-label" for="weeks_{{ w }}">{{ 'predict.weeks'|trans({'count': w}) }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Dimensions #}
+            <div class="mb-4">
+                <label class="form-label fw-semibold">{{ 'predict.dimensions'|trans }}</label>
+                {% set dimLabels = {
+                    'inflammation': 'predict.dim_inflammation'|trans,
+                    'nutrition':    'predict.dim_nutrition'|trans,
+                    'weight':       'predict.dim_weight'|trans,
+                    'symptoms':     'predict.dim_symptoms'|trans
+                } %}
+                <div class="d-flex flex-wrap gap-3">
+                    {% for dim, dimLabel in dimLabels %}
+                        {% set checkedDim = (posted.dimensions is not defined) or (dim in (posted.dimensions ?? [])) %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="dimensions[]" id="dim_{{ dim }}" value="{{ dim }}"
+                                   {% if checkedDim %}checked{% endif %}>
+                            <label class="form-check-label" for="dim_{{ dim }}">{{ dimLabel }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <span class="spinner-border spinner-border-sm d-none me-1" id="submit-spinner" role="status" aria-hidden="true"></span>
+                {{ 'predict.submit'|trans }}
+            </button>
+        </div>
+    </form>
+
+    {# ── Step 2: Results ───────────────────────────────────────────────────── #}
+    {% if insight is not null %}
+    <div id="results" class="mb-4">
+        <h2 class="h5 mb-3">{{ 'predict.step2'|trans }}</h2>
+
+        {% if insight.isFreeTextEstimate %}
+        <div class="alert alert-info py-2 mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            {{ 'predict.qualitative'|trans }}
+        </div>
+        {% endif %}
+
+        {% if insight.beforeAfter is not empty %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>{{ 'predict.col_dimension'|trans }}</th>
+                        <th>{{ 'predict.col_current'|trans }}</th>
+                        <th>{{ 'predict.col_projected'|trans }}</th>
+                        <th>{{ 'predict.col_change'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in insight.beforeAfter %}
+                    {% set rowClass = row.direction == 'better' ? 'table-success' : (row.direction == 'worse' ? 'table-warning' : '') %}
+                    <tr class="{{ rowClass }}">
+                        <td>{{ row.label }}</td>
+                        <td>{{ row.currentValue }}{% if row.unit %} <small class="text-muted">{{ row.unit }}</small>{% endif %}</td>
+                        <td>{{ row.projectedValue }}{% if row.unit and row.projectedValue is not same as('predict.row.see_narrative'|trans) %} <small class="text-muted">{{ row.unit }}</small>{% endif %}</td>
+                        <td>
+                            {% if row.direction == 'better' %}
+                                <span class="text-success"><i class="bi bi-arrow-up-circle-fill"></i> {{ 'predict.row_better'|trans }}</span>
+                            {% elseif row.direction == 'worse' %}
+                                <span class="text-warning"><i class="bi bi-arrow-down-circle-fill"></i> {{ 'predict.row_watch'|trans }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="card bg-light border-0 mb-3">
+            <div class="card-body">
+                <h3 class="h6 fw-semibold mb-2">{{ 'predict.means'|trans }}</h3>
+                <p class="mb-0">{{ insight.narrative | inline_md }}</p>
+            </div>
+        </div>
+
+        <p class="text-muted small mb-0">
+            <i class="bi bi-shield-exclamation me-1"></i>{{ insight.confidenceNote }}
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const PREDICT_L = {{ {
+    'hintAdd': 'predict.hint_add'|trans,
+    'hintRemove': 'predict.hint_remove'|trans,
+    'remainingOne': 'predict.remaining'|trans({'count': 1}),
+    'remainingTpl': 'predict.remaining_tpl'|trans({'count': '@n@'}),
+}|json_encode|raw }};
+(function () {
+    const typeRadios   = document.querySelectorAll('[name="type"]');
+    const fieldFav     = document.getElementById('field-favorite');
+    const fieldSupp    = document.getElementById('field-supplement');
+    const fieldText    = document.getElementById('field-freetext');
+    const suppHint     = document.getElementById('supp-hint');
+    const suppSelect   = document.getElementById('supplement_id');
+    const favSearch    = document.getElementById('fav-search');
+    const favSelect    = document.getElementById('favorite_id');
+    const freetextarea = document.getElementById('free_text');
+    const counter      = document.getElementById('freetext-counter');
+    const form         = document.querySelector('form');
+    const spinner      = document.getElementById('submit-spinner');
+
+    function showFields(type) {
+        fieldFav.style.display  = type === 'favorite_daily'                             ? '' : 'none';
+        fieldSupp.style.display = (type === 'supplement_add' || type === 'supplement_remove') ? '' : 'none';
+        fieldText.style.display = type === 'free_text'                                  ? '' : 'none';
+
+        // Remove → only active supplements (those folded into the baseline);
+        // Add → only inactive ones (adding an active one would double-count it).
+        if (suppSelect) {
+            const opts = suppSelect.querySelectorAll('option[data-active]');
+            opts.forEach(function(opt) {
+                const isActive = opt.dataset.active === '1';
+                if (type === 'supplement_remove') {
+                    opt.hidden = !isActive;
+                } else if (type === 'supplement_add') {
+                    opt.hidden = isActive;
+                } else {
+                    opt.hidden = false;
+                }
+            });
+            // Reset the selection if the current option is now hidden.
+            if (suppSelect.selectedOptions[0] && suppSelect.selectedOptions[0].hidden) {
+                suppSelect.value = '';
+            }
+            suppHint.textContent = type === 'supplement_add'
+                ? PREDICT_L.hintAdd
+                : PREDICT_L.hintRemove;
+        }
+    }
+
+    // Init on page load
+    const checkedType = document.querySelector('[name="type"]:checked');
+    if (checkedType) { showFields(checkedType.value); }
+
+    typeRadios.forEach(function(r) {
+        r.addEventListener('change', function() { showFields(this.value); });
+    });
+
+    // Favorite search filter
+    if (favSearch && favSelect) {
+        favSearch.addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            favSelect.querySelectorAll('option[data-name]').forEach(function(opt) {
+                opt.hidden = q !== '' && !opt.dataset.name.includes(q);
+            });
+        });
+    }
+
+    // Free-text character counter
+    if (freetextarea && counter) {
+        function updateCounter() {
+            const remaining = 300 - freetextarea.value.length;
+counter.textContent = remaining === 1
+                ? PREDICT_L.remainingOne
+                : PREDICT_L.remainingTpl.replace('@n@', remaining);
+            counter.className   = remaining < 50 ? 'text-warning' : 'text-muted';
+        }
+        freetextarea.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+
+    // Spinner on submit
+    if (form && spinner) {
+        form.addEventListener('submit', function() {
+            spinner.classList.remove('d-none');
+        });
+    }
+
+    // Scroll to results if present
+    const results = document.getElementById('results');
+    if (results) {
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+})();
+</script>
+{% endblock %}

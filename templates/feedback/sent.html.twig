@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thanks for the feedback — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-4 text-center" style="max-width: 620px;">
+    <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="72" height="72" class="mb-2">
+    <h2 class="fw-bold mb-2">Thanks for the feedback!</h2>
+    <p class="text-muted">
+        We've received your message and appreciate you taking the time. If you left an
+        email, we'll be in touch if a reply is needed.
+    </p>
+    <a href="{{ app.user ? path('app_dashboard') : path('app_login') }}" class="btn btn-outline-secondary mt-2">
+        {{ app.user ? 'Back to dashboard' : 'Back to sign in' }}
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}NouriLoop — {{ 'about.title'|trans }}{% endblock %}
+
+{% block seo_jsonld %}<script type="application/ld+json">{{ jsonld_web_application()|raw }}</script>{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 820px;">
+
+    {# Hero #}
+    <div class="text-center mb-4">
+        <h1 class="fw-bold mb-2">NouriLoop</h1>
+        <p class="lead mb-3">{{ 'about.hero_lead'|trans }}</p>
+        <a href="{{ localized_path('app_register') }}" class="btn btn-success fw-semibold">{{ 'about.create_account'|trans }}</a>
+        <a href="{{ localized_path('app_login') }}" class="btn btn-outline-success fw-semibold">{{ 'about.sign_in'|trans }}</a>
+        <p class="small text-muted mt-2 mb-0">{{ 'about.any_phone'|trans }}</p>
+        <p class="small text-muted mt-3 mb-0">{{ 'about.plans'|trans({
+            'plans_link': '<a href="' ~ localized_path('app_pricing') ~ '">',
+            'link_end': '</a>',
+        })|raw }}</p>
+    </div>
+
+    <div class="alert alert-light border small text-muted">
+        {{ 'about.disclaimer'|trans }}
+    </div>
+
+    {# Effortless food logging #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">📸 {{ 'about.logging.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.logging.items'|trans|raw }}</ul>
+    </section>
+
+    {# Understand your nutrition #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">📊 {{ 'about.nutrition.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.nutrition.items'|trans|raw }}</ul>
+    </section>
+
+    {# Close the loop #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">🔄 {{ 'about.loop.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.loop.items'|trans|raw }}</ul>
+    </section>
+
+    {# Goals & coaching #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">🎯 {{ 'about.goals.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.goals.items'|trans|raw }}</ul>
+    </section>
+
+    {# Health data #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">🩺 {{ 'about.health.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.health.items'|trans|raw }}</ul>
+    </section>
+
+    {# Built for real life #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">🔔 {{ 'about.real_life.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.real_life.items'|trans|raw }}</ul>
+    </section>
+
+    {# Privacy #}
+    <section class="mb-4">
+        <h2 class="h4 fw-bold mt-4">🔒 {{ 'about.privacy.heading'|trans }}</h2>
+        <ul class="mb-0">{{ 'about.privacy.items'|trans({
+            'health_link': '<a href="' ~ path('app_privacy_health') ~ '">',
+            'link_end': '</a>',
+        })|raw }}</ul>
+    </section>
+
+    {# Closing CTA #}
+    <hr class="my-4">
+    <div class="text-center">
+        <p class="fst-italic text-muted mb-3">
+            {{ 'about.closing'|trans }}
+        </p>
+        <a href="{{ localized_path('app_register') }}" class="btn btn-success fw-semibold">{{ 'about.create_account'|trans }}</a>
+        <a href="{{ localized_path('app_login') }}" class="btn btn-outline-success fw-semibold">{{ 'about.sign_in'|trans }}</a>
+        <p class="small text-muted mt-3 mb-0">{{ 'about.plans'|trans({
+            'plans_link': '<a href="' ~ localized_path('app_pricing') ~ '">',
+            'link_end': '</a>',
+        })|raw }}</p>
+    </div>
+
+    {# Company note — the public breadcrumb for the Google Ads API review: their
+       compliance team checks the company website for content related to the
+       application, so Campaigner must be mentioned somewhere public/indexable. #}
+    <p class="small text-muted text-center mt-4 mb-0">
+        {{ 'about.company'|trans|raw }}
+    </p>
+
+</div>
+{% endblock %}

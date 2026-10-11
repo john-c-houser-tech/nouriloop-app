@@ -1,0 +1,58 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Importing a Recipe{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/import-recipe.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Import a Recipe screen, where you upload photos of a recipe">
+</figure>
+<p>Have a recipe you cook again and again — a cookbook page, a printed recipe, or a handwritten card from the
+family box? Photograph it once and NouriLoop reads the whole thing: the ingredients, how many servings it
+makes, and the preparation steps. It works out the nutrition <strong>per serving</strong> and saves the recipe
+as a <strong>favorite</strong>, so logging that dish is one tap from then on — no new photo, no waiting.</p>
+
+<h2 class="h5 fw-bold mt-4">Importing a recipe</h2>
+<ol>
+    <li>Go to <strong>Log → Favorites</strong> and tap <strong>Import a recipe</strong> (it's also on your
+        dashboard, next to Log Meal).</li>
+    <li>Take up to 5 photos of <em>one</em> recipe — the front and back of a card, or each page of a
+        spread. Handwriting is fine.</li>
+    <li>Tap <strong>Read This Recipe</strong> and give it a few seconds.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">Checking what it read</h2>
+<p>You'll see everything NouriLoop read, ready to correct: the recipe's name, the ingredient lines, and the
+number of servings it makes. That servings number matters — the nutrition is divided by it, so the favorite
+stores exactly one serving. If the recipe doesn't say how many it serves (common on handwritten cards), the
+AI makes its best guess and asks you to confirm.</p>
+<p>If something was hard to read, the AI asks a question or two. You can answer and have it re-read the
+recipe, or simply fix the fields yourself — whichever is easier.</p>
+
+<h2 class="h5 fw-bold mt-4">Cooking from it later</h2>
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-3 w-100">
+    <img src="{{ asset('images/help/import-recipe-reference.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="An imported recipe on the Favorites page with its ingredients and steps open"
+         onerror="this.closest('figure').style.display='none'">
+</figure>
+<p>Your imported recipe lives with your other favorites, marked with a small <strong>From a recipe</strong>
+badge. Tap <strong>Ingredients &amp; steps</strong> on its card to see the full recipe — the ingredient
+quantities for the whole batch, and the preparation steps as written — so you can cook from your phone
+without digging out the card.</p>
+
+<h2 class="h5 fw-bold mt-4">Logging it</h2>
+<p>Log it like any favorite: pick the meal type, set how many servings you ate, and tap
+<strong>Log it</strong>. The nutrition scales to your portion automatically.</p>
+
+<p class="text-muted small">On the Free plan, a recipe import counts as one of your monthly AI analyses —
+the same allowance as meal photos. Logging from the saved favorite afterwards never needs another photo
+or AI analysis.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'favorites'}) }}">Favorite Meals</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'log-meal'}) }}">Logging a Meal</a></li>
+</ul>
+{% endblock %}

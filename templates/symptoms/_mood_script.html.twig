@@ -1,0 +1,31 @@
+{# Live mood-emoji updates for symptom sliders. Shared by the /symptoms page and the
+   dashboard card. The ramp comes from App\Content\SymptomMood (via symptom_mood_ramp())
+   so it matches the server-rendered face exactly. Each slider carries
+   data-mood-target (the emoji span's id); the span carries data-higher-better +
+   data-label so the face reflects goodness, not the raw number. #}
+<script>
+(function () {
+    var RAMP = {{ symptom_mood_ramp()|json_encode|raw }};
+    {# Localized aria-label pattern with placeholder tokens the JS swaps in —
+       otherwise this script would clobber the server-rendered label with
+       English on init (i18n; caught by review on PR #141). #}
+    var ARIA_TPL = {{ 'symptom.level_aria'|trans({'label': '@label@', 'level': '@level@'})|json_encode|raw }};
+
+    window.updateSymptomMood = function (slider) {
+        var out = document.getElementById(slider.dataset.moodTarget);
+        if (!out) { return; }
+        var value = parseInt(slider.value, 10) || 0;
+        var higherBetter = out.dataset.higherBetter === '1';
+        var goodness = higherBetter ? value : 10 - value;
+        goodness = Math.max(0, Math.min(10, goodness));
+        out.textContent = RAMP[goodness];
+        out.setAttribute('aria-label', ARIA_TPL.replace('@label@', out.dataset.label).replace('@level@', value));
+        out.setAttribute('title', value + ' / 10');
+    };
+
+    // Sync every slider on load (covers prefilled values and the middle default).
+    document.querySelectorAll('[data-mood-slider]').forEach(function (s) {
+        window.updateSymptomMood(s);
+    });
+})();
+</script>

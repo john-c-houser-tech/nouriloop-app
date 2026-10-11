@@ -1,0 +1,83 @@
+{# Timezone-mismatch nudge — rendered hidden on every authenticated page; the inline
+   JS below reveals it only when the browser's IANA zone differs from the account's
+   AND their current wall-clock actually differs (so America/Los_Angeles vs
+   America/Vancouver never nags), and the user hasn't dismissed that suggestion
+   (localStorage, keyed by the suggested zone so travel to a new zone re-asks).
+   Accepting POSTs the browser zone to the quick-set route; the server re-validates
+   against the IANA whitelist. In-flow top bar like _deletion_banner (not fixed).
+
+   ⚠️ Deliberately contains NO <form> and NO .alert class: this partial rides on
+   every authenticated page, so a server-rendered form would become the page's
+   first <form> (breaking naive crawler form selection in tests — it did) and
+   .alert would match flash-message assertions. The accept button builds and
+   submits the form in JS at click time from the data attributes below. #}
+<div id="tz-banner" class="d-none py-2 px-3 text-center border-bottom bg-info bg-opacity-10" role="status"
+     data-account-tz="{{ app.user.timezone }}"
+     data-endpoint="{{ path('app_settings_timezone_quick') }}"
+     data-csrf="{{ csrf_token('timezone-quick') }}">
+    <span>{{ 'chrome.tz_banner.text'|trans({
+        'account': '<strong>' ~ app.user.timezone|replace({'_': ' '}) ~ '</strong>',
+        'browser': '<strong data-tz-browser></strong>',
+    })|raw }}</span>
+    <button type="button" class="btn btn-sm btn-success fw-semibold ms-2" data-tz-accept>
+        {{ 'chrome.tz_banner.switch'|trans }}
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-1" data-tz-dismiss>
+        {{ 'chrome.tz_banner.dismiss'|trans }}
+    </button>
+</div>
+<script>
+(function () {
+    const banner = document.getElementById('tz-banner');
+    if (!banner) return;
+    let browserTz = '';
+    try { browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return; }
+    const accountTz = banner.dataset.accountTz;
+    if (!browserTz || browserTz === accountTz) return;
+    const dismissKey = 'nouriloopTzDismiss:' + browserTz;
+    try { if (localStorage.getItem(dismissKey)) return; } catch (e) { /* private mode — still show */ }
+    // Truly equivalent zones → no nudge. One instant isn't enough: LA and
+    // Phoenix agree all summer but diverge when DST ends, so probe the full
+    // wall-clock (date included — catches 24h-apart zones too) both now and
+    // ~6 months out; any difference means schedules will drift.
+    const clock = (tz, d) => {
+        try {
+            return new Intl.DateTimeFormat('en-US', {
+                timeZone: tz,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hour12: false,
+            }).format(d);
+        } catch (e) { return null; }
+    };
+    const probes = [new Date(), new Date(Date.now() + 182 * 24 * 3600 * 1000)];
+    let differs = false;
+    for (const d of probes) {
+        const a = clock(accountTz, d), b = clock(browserTz, d);
+        if (a === null || b === null) return;
+        if (a !== b) { differs = true; break; }
+    }
+    if (!differs) return;
+    banner.querySelectorAll('[data-tz-browser]').forEach(el => { el.textContent = browserTz.replace(/_/g, ' '); });
+    banner.querySelector('[data-tz-accept]').addEventListener('click', () => {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = banner.dataset.endpoint;
+        const add = (name, value) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        };
+        add('_token', banner.dataset.csrf);
+        add('timezone', browserTz);
+        document.body.appendChild(form);
+        form.submit();
+    });
+    banner.querySelector('[data-tz-dismiss]').addEventListener('click', () => {
+        try { localStorage.setItem(dismissKey, '1'); } catch (e) { /* ignore */ }
+        banner.classList.add('d-none');
+    });
+    banner.classList.remove('d-none');
+})();
+</script>

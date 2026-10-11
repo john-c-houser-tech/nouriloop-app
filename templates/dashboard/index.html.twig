@@ -1,0 +1,283 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'dashboard.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-0">{{ 'dashboard.greeting'|trans({'period': greeting, 'name': app.user.displayName}) }}</h2>
+            <p class="text-muted mb-0">{{ today|local_date('yMMMMEEEEd') }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ path('app_meal_log') }}" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i> {{ 'dashboard.log_meal'|trans }}
+            </a>
+            <a href="{{ path('app_recipe_scan') }}" class="btn btn-outline-success">
+                <i class="bi bi-journal-text"></i> {{ 'recipe.import_cta'|trans }}
+            </a>
+        </div>
+    </div>
+
+    {# ── Health-data sync confirmation ──────────────────────────────────── #}
+    <div class="small mb-4">
+        {% if lastHealthSync is null %}
+            <span class="text-muted"><i class="bi bi-heart-pulse"></i> {{ 'dashboard.sync.none'|trans }}</span>
+            <a href="{{ path('app_health_metrics_import') }}" class="text-decoration-none">{{ 'dashboard.sync.import_cta'|trans }}</a>
+        {% elseif healthSyncDaysAgo == 0 %}
+            <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill"></i> {{ 'dashboard.sync.today'|trans }}</span>
+            <span class="text-muted">· {{ 'dashboard.sync.latest'|trans({'time': lastHealthSync|local_date('MMMdjm')}) }}</span>
+        {% elseif healthSyncDaysAgo <= 7 %}
+            <span class="text-muted">
+                <i class="bi bi-heart-pulse"></i>
+                {{ 'dashboard.sync.last_reading'|trans({
+                    'date': lastHealthSync|local_date('MMMd'),
+                    'count': healthSyncDaysAgo,
+                }) }}
+            </span>
+        {% else %}
+            <span class="text-warning-emphasis fw-semibold">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {{ 'dashboard.sync.stale'|trans({'count': healthSyncDaysAgo}) }}
+            </span>
+            <a href="{{ path('app_health_metrics_import') }}" class="text-decoration-none">{{ 'dashboard.sync.check_cta'|trans }}</a>
+        {% endif %}
+    </div>
+
+    {% if dailyCalories > 0 %}
+    <div class="card p-3 mb-4 d-flex flex-row align-items-center gap-3">
+        <div class="text-center" style="min-width: 80px;">
+            <div class="fw-bold fs-3 text-success">{{ dailyCalories|format_number({fraction_digit: 0}) }}</div>
+            <small class="text-muted">{{ 'dashboard.calories.kcal_today'|trans }}</small>
+        </div>
+        <div class="flex-grow-1">
+            <div class="progress" style="height: 12px;">
+                {% set pct = min(((dailyCalories / 2000) * 100)|round, 100) %}
+                <div class="progress-bar bg-success" style="width: {{ pct }}%"></div>
+            </div>
+            <small class="text-muted">{{ 'dashboard.calories.target'|trans({'percent': pct}) }}</small>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── GLP-1 protein focus (only when GLP-1 mode is on) ────────────────── #}
+    {% if proteinFocus %}
+    <div class="card p-3 mb-4 d-flex flex-row align-items-center gap-3">
+        <div class="text-center" style="min-width: 80px;">
+            <div class="fw-bold fs-3 text-success">{{ proteinFocus.consumed|format_number({fraction_digit: 0}) }}<small class="fs-6 text-muted">g</small></div>
+            <small class="text-muted">{{ 'dashboard.protein.today'|trans }}</small>
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between">
+                <span class="fw-semibold"><i class="bi bi-egg-fried"></i> {{ 'dashboard.protein.focus'|trans }}</span>
+                {% if proteinFocus.remaining > 0 %}
+                <small class="text-muted">{{ 'dashboard.protein.to_go'|trans({'grams': proteinFocus.remaining|round}) }}</small>
+                {% else %}
+                <small class="text-success">{{ 'dashboard.protein.reached'|trans }} <i class="bi bi-check-circle"></i></small>
+                {% endif %}
+            </div>
+            <div class="progress mt-1" style="height: 12px;">
+                <div class="progress-bar bg-success" style="width: {{ proteinFocus.percent }}%"></div>
+            </div>
+            <small class="text-muted">
+                {{ 'dashboard.protein.target'|trans({
+                    'percent': proteinFocus.percent,
+                    'grams': proteinFocus.target|round,
+                }) }}
+                {%- if proteinFocus.basedOnWeight %} {{ 'dashboard.protein.scaled'|trans }}{% else %} {{ 'dashboard.protein.set_weight'|trans }}{% endif %}
+            </small>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Your food's effect today (the feedback loop, foregrounded) ──────── #}
+    {% if inflammationToday %}
+    {% set bandKey = inflammationToday.band|replace({'-': '_'}) %}
+    {% set band = {
+        'color': {'strong-anti': 'success', 'mild-anti': 'success', 'neutral': 'secondary',
+                  'mild-pro': 'warning', 'strong-pro': 'danger'}[inflammationToday.band],
+        'label': ('dashboard.inflammation.band.' ~ bandKey)|trans,
+        'takeaway': ('dashboard.inflammation.takeaway.' ~ bandKey)|trans,
+    } %}
+    <div class="card p-3 mb-4 consequence-accent">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="text-center" style="min-width: 90px;"
+                 title="{{ 'dashboard.inflammation.tooltip'|trans }}">
+                <div class="fw-bold fs-3 text-{{ band.color }}">{{ inflammationToday.score > 0 ? '+' : '' }}{{ inflammationToday.score }}</div>
+                <span class="badge bg-{{ band.color }}-subtle text-{{ band.color }}-emphasis">{{ band.label }}</span>
+            </div>
+            <div class="flex-grow-1" style="min-width: 200px;">
+                <div class="fw-semibold text-consequence mb-1">
+                    <i class="bi bi-arrow-repeat"></i> {{ 'dashboard.inflammation.heading'|trans }}
+                </div>
+                <div class="small text-muted mb-2">{{ band.takeaway }}</div>
+                {% if inflammationToday.factors is not empty %}
+                <div class="d-flex flex-wrap gap-1">
+                    {% for f in inflammationToday.factors|slice(0, 4) %}
+                    {% set fc = f.value > 0 ? 'danger' : 'success' %}
+                    <span class="badge bg-{{ fc }}-subtle text-{{ fc }}-emphasis fw-normal"
+                          title="{{ f.value > 0 ? 'dashboard.inflammation.pushed_pro'|trans : 'dashboard.inflammation.pushed_anti'|trans }}">
+                        {{ f.value > 0 ? '▲' : '▼' }} {{ f.label|replace({('inflammation.factor.food'|trans({'name': ''})): ''}) }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <a href="{{ path('app_trends') }}" class="btn btn-sm btn-outline-secondary align-self-start">
+                {{ 'dashboard.inflammation.see_trends'|trans }} <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── First-run ghost previews (E15) — static "here's what you'll unlock" cards
+       shown only while onboarding is active AND the real card has no data yet, so a
+       brand-new user's dashboard sells the differentiators instead of showing an
+       empty page. Pure markup — no data queries. #}
+    {% if app.user.needsOnboarding %}
+        {% if not inflammationToday %}
+        <div class="card p-3 mb-4 text-muted" style="border-style: dashed; opacity: .8;">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="text-center" style="min-width: 90px;">
+                    <div class="fw-bold fs-3">±0</div>
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ 'dashboard.ghost.preview'|trans }}</span>
+                </div>
+                <div class="flex-grow-1" style="min-width: 200px;">
+                    <div class="fw-semibold mb-1">
+                        <i class="bi bi-arrow-repeat"></i> {{ 'dashboard.inflammation.heading'|trans }}
+                    </div>
+                    <div class="small">{{ 'dashboard.ghost.inflammation_text'|trans }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if not hasGlucose %}
+        <div class="card p-3 mb-4 text-muted" style="border-style: dashed; opacity: .8;">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="flex-grow-1" style="min-width: 200px;">
+                    <div class="fw-semibold mb-1">
+                        <i class="bi bi-activity"></i> {{ 'dashboard.glucose.heading'|trans }}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">{{ 'dashboard.ghost.preview'|trans }}</span>
+                    </div>
+                    <div class="small">{{ 'dashboard.ghost.glucose_text'|trans }}</div>
+                </div>
+                <a href="{{ path('app_connect_cgm') }}" class="btn btn-sm btn-outline-success align-self-center">
+                    {{ 'dashboard.ghost.glucose_cta'|trans }} <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {# ── Daily symptom check-in (only the symptoms the user opted into) ──── #}
+    {% if enabledSymptomTypes is not empty %}
+    <div class="card p-3 mb-4">
+        <form method="post" action="{{ path('app_symptoms_save') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('symptom-save') }}">
+            <input type="hidden" name="logged_date" value="{{ today|date('Y-m-d') }}">
+            <input type="hidden" name="redirect" value="dashboard">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-semibold"><i class="bi bi-activity text-brick"></i> {{ 'dashboard.symptoms.heading'|trans }}</div>
+                <a href="{{ path('app_symptoms') }}" class="small text-muted text-decoration-none">{{ 'dashboard.symptoms.manage'|trans }}</a>
+            </div>
+            {% for type in enabledSymptomTypes %}
+            {% set lvl = symptomLevels[type.id] ?? 5 %}
+            <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                <div style="min-width: 130px;">{{ symptom_label(type) }}</div>
+                <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 200px;">
+                    <input type="range" name="level_{{ type.id }}" class="form-range flex-grow-1" min="0" max="10" step="1"
+                           value="{{ lvl }}"
+                           data-mood-slider data-mood-target="dash-lvl-{{ type.id }}"
+                           oninput="updateSymptomMood(this)">
+                    <span class="symptom-mood lh-1" id="dash-lvl-{{ type.id }}" role="img"
+                          data-higher-better="{{ type.higherBetter ? '1' : '0' }}"
+                          data-label="{{ symptom_label(type) }}"
+                          aria-label="{{ 'symptom.level_aria'|trans({'label': symptom_label(type), 'level': lvl}) }}"
+                          title="{{ lvl }} / 10">{{ symptom_emoji(lvl, type.higherBetter) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            {% include 'symptoms/_mood_script.html.twig' %}
+            <button type="submit" class="btn btn-sm btn-outline-success mt-1">{{ 'dashboard.symptoms.save'|trans }}</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {# ── Today's glucose responses (anyone tracking glucose) ───────────────── #}
+    {% if hasGlucose %}
+    {% set bandColor = {'much_lower': 'info', 'lower': 'primary', 'as_expected': 'success', 'higher': 'warning', 'much_higher': 'danger'} %}
+    <div class="card p-3 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="fw-semibold"><i class="bi bi-activity text-success"></i> {{ 'dashboard.glucose.heading'|trans }}</div>
+            <a href="{{ path('app_glucose_insights') }}" class="small text-muted text-decoration-none">{{ 'dashboard.glucose.insights'|trans }}</a>
+        </div>
+        {% if glucoseMealsToday is empty %}
+        <p class="small text-muted mb-0">{{ 'dashboard.glucose.empty'|trans }}</p>
+        {% else %}
+        <ul class="list-unstyled mb-0">
+            {% for a in glucoseMealsToday %}
+            <li class="d-flex align-items-center justify-content-between py-1 {% if not loop.last %}border-bottom{% endif %}">
+                <a href="{{ path('app_meal_show', {id: a.meal.id}) }}" class="text-decoration-none text-truncate me-2">
+                    {{ a.meal.mealType.transKey|trans }}
+                    <span class="text-muted small">· {{ a.meal.loggedAt|local_date('jm') }}</span>
+                </a>
+                <span class="flex-shrink-0">
+                    <span class="fw-bold">{{ a.response.delta > 0 ? '+' : '' }}{{ glucose_display(a.response.delta) }}</span>
+                    <small class="text-muted">{{ glucose_unit() }}</small>
+                    {% if a.impact %}
+                        {% set pct = ((a.impact.ratio - 1) * 100)|round %}
+                        <span class="badge rounded-pill text-bg-{{ bandColor[a.impact.band] ?? 'secondary' }}">{{ pct >= 0 ? '+' ~ pct : pct }}%</span>
+                    {% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if todayMeals is empty %}
+    <div class="card p-5 text-center text-muted">
+        <i class="bi bi-camera fs-1 text-brick mb-2"></i>
+        <p class="mb-2">{{ 'dashboard.meals.empty'|trans }}</p>
+        <a href="{{ path('app_meal_log') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> {{ 'dashboard.meals.log_first'|trans }}
+        </a>
+        {# Nothing today ≠ nothing ever — past meals live in the history view. #}
+        <div class="mt-3">
+            <a href="{{ path('app_meal_history') }}" class="small">{{ 'dashboard.meals.history_link'|trans }}</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-bold mb-0">{{ 'dashboard.meals.heading'|trans }}</h5>
+        <a href="{{ path('app_meal_history') }}" class="small text-decoration-none">
+            {{ 'dashboard.meals.history_link'|trans }} <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-3">
+        {% for meal in todayMeals %}
+        <div class="col-sm-6 col-lg-4">
+            <a href="{{ path('app_meal_show', {id: meal.id}) }}" class="text-decoration-none">
+                <div class="card h-100 p-3">
+                    {% if meal.imagePath %}
+                    <img src="{{ asset(meal.imagePath) }}" class="rounded mb-3"
+                         style="width: 100%; height: 160px; object-fit: cover;" alt="{{ 'dashboard.meals.photo_alt'|trans }}">
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success-subtle text-success-emphasis">{{ meal.mealType.transKey|trans }}</span>
+                        <small class="text-muted">{{ meal.loggedAt|local_date('jm') }}</small>
+                    </div>
+                    {% if meal.nutritionData %}
+                    <div class="mt-2 d-flex gap-3">
+                        <small><strong>{{ meal.nutritionData.calories|format_number({fraction_digit: 0}) }}</strong> kcal</small>
+                        <small><strong>{{ meal.nutritionData.protein|format_number({fraction_digit: 1}) }}g</strong> {{ 'dashboard.meals.protein'|trans }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

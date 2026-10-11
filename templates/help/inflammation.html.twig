@@ -1,0 +1,36 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Inflammation Score{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/inflammation.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Insights & Trends overview, led by the daily inflammation-score tile">
+</figure>
+<p>The inflammation score is a daily estimate of how <strong>pro-inflammatory</strong> or
+<strong>anti-inflammatory</strong> your food was, on a scale from −10 (strongly anti-inflammatory) to +10
+(strongly pro-inflammatory). It's an educational wellness signal — <em>not</em> a medical measurement.</p>
+
+<h2 class="h5 fw-bold mt-4">How it's calculated</h2>
+<p>It's a transparent, rule-based estimate (no AI guesswork), blending two signals:</p>
+<ul>
+    <li><strong>Nutrients</strong> — saturated fat, sugar, and sodium push the score up (more inflammatory);
+        fiber and antioxidant vitamins (A, C, D, E, B-vitamins, plus magnesium, zinc, selenium) push it
+        down.</li>
+    <li><strong>Food types</strong> — items like processed meat, fried food, and sugary drinks nudge it up;
+        fatty fish, olive oil, leafy greens, berries, and turmeric nudge it down.</li>
+</ul>
+
+<h2 class="h5 fw-bold mt-4">Where to see it</h2>
+<p>Today's score is a badge on your <a href="{{ path('app_help_show', {topic: 'dashboard'}) }}">Dashboard</a>.
+Over time, <strong>Insights &amp; Trends</strong> charts it day by day, with colored points by band and a
+tooltip breaking down what pushed each day up or down.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'symptoms'}) }}">Symptom Tracking</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'dashboard'}) }}">Your Dashboard</a></li>
+</ul>
+{% endblock %}

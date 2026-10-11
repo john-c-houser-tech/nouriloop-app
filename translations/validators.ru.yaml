@@ -1,0 +1,25 @@
+# Русские переводы наших собственных сообщений валидации. Домен validators
+# использует саму английскую фразу как ключ (соглашение Symfony для сообщений
+# ограничений) и намеренно НЕ является intl-icu доменом — плейсхолдеры
+# ограничений используют синтаксис валидатора {{ limit }}, который ICU
+# MessageFormat не смог бы разобрать. Symfony поставляет переводы своих
+# встроенных сообщений; здесь живут только наши переопределения.
+'Please enter your name': 'Укажите ваше имя'
+'Please enter your email': 'Укажите ваш адрес электронной почты'
+'Please enter your email.': 'Укажите ваш адрес электронной почты.'
+'Please enter a valid email address.': 'Укажите корректный адрес электронной почты.'
+'Passwords must match.': 'Пароли должны совпадать.'
+'Please enter a password': 'Введите пароль'
+'Password must be at least {{ limit }} characters': 'Пароль должен содержать не менее {{ limit }} символов'
+'Your password should be at least {{ limit }} characters': 'Ваш пароль должен содержать не менее {{ limit }} символов'
+'The password fields must match.': 'Поля пароля должны совпадать.'
+'This password has appeared in a known data breach — please choose a different one.': 'Этот пароль встречался в известной утечке данных — выберите другой.'
+'Enter a valid number in E.164 format, e.g. +15555550123.': 'Введите корректный номер в формате E.164, напр. +79991234567.'
+'Please upload at least one photo.': 'Загрузите хотя бы одну фотографию.'
+'Please upload valid images (JPEG, PNG, WebP, or HEIC).': 'Загрузите корректные изображения (JPEG, PNG, WebP или HEIC).'
+'Please upload a valid image (JPEG, PNG, WebP, or HEIC).': 'Загрузите корректное изображение (JPEG, PNG, WebP или HEIC).'
+'Please enter your feedback.': 'Напишите ваш отзыв.'
+'Please upload at most {{ limit }} photos of one meal.': 'Загрузите не более {{ limit }} фото одного приёма пищи.'
+'Please upload at most {{ limit }} photos of one recipe.': 'Загрузите не более {{ limit }} фото одного рецепта.'
+'Please upload at most {{ limit }} photos of one supplement label.': 'Загрузите не более {{ limit }} фото этикетки одной добавки.'
+'There is already an account with this email': 'Аккаунт с этим адресом эл. почты уже существует'

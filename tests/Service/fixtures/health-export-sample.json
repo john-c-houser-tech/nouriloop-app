@@ -1,0 +1,38 @@
+{
+  "exportInfo": {
+    "appVersion": "1.4.0",
+    "measurementSystem": "us",
+    "startDate": "2026-06-09",
+    "endDate": "2026-06-10",
+    "exportDate": "2026-06-11T15:39:36Z"
+  },
+  "weight": [
+    { "date": "2026-06-10", "unit": "lb", "value": 213.50000000000003 }
+  ],
+  "bodyFat": [],
+  "bmi": [],
+  "oxygenSaturation": [
+    { "date": "2026-06-10", "unit": "%", "value": 0.9651111111111109 }
+  ],
+  "restingHeartRate": [
+    { "date": "2026-06-10", "unit": "bpm", "value": 63 }
+  ],
+  "stepCount": [
+    { "date": "2026-06-09", "unit": "count", "value": 1795.4 },
+    { "date": "2026-06-10", "unit": "count", "value": 1686.6160267111854 }
+  ],
+  "sleepTime": [
+    {
+      "date": "2026-06-09",
+      "unit": "min",
+      "value": 306.0,
+      "stages": { "awake": 147.0, "core": 167.0, "deep": 67.0, "rem": 72.0, "unspecified": 0 }
+    },
+    {
+      "date": "2026-06-10",
+      "unit": "min",
+      "value": 158.0,
+      "stages": { "awake": 181.0, "core": 79.0, "deep": 37.0, "rem": 42.0, "unspecified": 0 }
+    }
+  ]
+}

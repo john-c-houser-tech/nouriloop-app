@@ -1,0 +1,3068 @@
+# French catalog (i18n Phase 1) — first-pass translation of the en source.
+# ICU MessageFormat domain — plural categories follow French CLDR rules
+# (one covers 0 and 1, other covers the rest). Keys mirror the en catalog
+# exactly; product names (NouriLoop, Loop, Loop+) and third-party UI terms
+# (Health Auto Export, Summarize Data, …) deliberately stay English.
+common:
+    heic_failed: >-
+        Nous n'avons pas pu traiter ce format d'image. Veuillez le convertir
+        en JPEG ou PNG et réessayer.
+    session_expired: Votre session a expiré — veuillez réessayer.
+chrome:
+    nav:
+        today: Aujourd'hui
+        log: Enregistrer
+        history: Historique des repas
+        trends: Analyses et tendances
+        goals: Objectifs
+        more: Plus
+        supplements: Compléments
+        health_metrics: Données de santé
+        glucose_insights: Analyses de glucose
+        symptoms: Symptômes
+        predict: Prédiction « Et si… »
+        notifications: Notifications
+        help: Aide
+        upgrade: S'abonner
+        settings: Paramètres
+        admin_users: Utilisateurs
+        admin_favorites: Économies des favoris
+        logout: Déconnexion
+    bell:
+        aria: Notifications
+        unread_sr: notifications non lues
+        header: Notifications
+        new_count: '{count, plural, one {# nouvelle} other {# nouvelles}}'
+        empty: Aucune notification pour le moment.
+        see_all: Voir toutes les notifications
+    help_button:
+        title: Aide — posez une question
+        aria: Ouvrir l'aide NouriLoop
+    footer:
+        feedback: Envoyez-nous vos commentaires
+    deletion_banner:
+        text: Votre compte sera définitivement supprimé le {date}.
+        cancel: Annuler la suppression
+    tz_banner:
+        text: Les heures dans NouriLoop utilisent {account}, mais votre appareil semble être en {browser}.
+        switch: Utiliser le fuseau horaire de mon appareil
+        dismiss: Conserver le réglage actuel
+    verify_banner:
+        text: >-
+            Veuillez confirmer votre adresse e-mail pour que les liens de
+            connexion et les rappels puissent vous parvenir.
+        resend: Renvoyer l'e-mail de confirmation
+    cookies:
+        aria: Consentement aux cookies
+        text: >-
+            Nous utilisons Google Analytics et le pixel Meta pour comprendre
+            comment les gens découvrent et utilisent NouriLoop. Leurs cookies
+            restent désactivés tant que vous n'acceptez pas, et vos repas et
+            données de santé ne leur sont jamais transmis. Consultez nos
+            {link}Conditions{link_end}.
+        decline: Refuser
+        accept: Accepter
+auth:
+    or: ou
+    back_to_sign_in: Retour à la connexion
+    honeypot: Laissez ce champ vide
+    passphrase_tip: >-
+        Astuce : trois ou quatre mots au hasard (« café érable rossignol »)
+        forment un mot de passe à la fois solide et facile à retenir.
+    human_check_failed: Nous n'avons pas pu vérifier que vous êtes humain. Veuillez réessayer.
+    password_toggle:
+        show: Afficher le mot de passe
+        hide: Masquer le mot de passe
+    login:
+        title: Connexion
+        hero_headline: Voyez ce que votre alimentation vous fait
+        hero_lead: >-
+            Prenez une photo de votre repas. Nous l'analysons. Voyez le lien
+            avec votre nutrition, votre score d'inflammation, votre glycémie
+            et votre sommeil.
+        hero_cycle_alt: >-
+            Le cycle NouriLoop : enregistrez votre repas, nous l'analysons,
+            vous voyez les tendances, puis vous recommencez.
+        hero_log: Enregistrer
+        hero_analyze: Analyser
+        hero_effect: Voir les tendances
+        heading: Connexion
+        email: E-mail
+        password: Mot de passe
+        forgot: Mot de passe oublié ?
+        submit: Se connecter
+        magic_link: Envoyez-moi un lien de connexion
+        new_here: Nouveau sur NouriLoop ?
+        sign_up: Créer un compte gratuit
+        no_card: Aucune carte bancaire requise.
+        learn_more: En savoir plus sur NouriLoop
+    register:
+        title: Créer un compte
+        subtitle: Créez votre compte
+        display_name: Nom affiché
+        email: Adresse e-mail
+        coupon: Code promo (facultatif)
+        coupon_help: >-
+            Vous avez un code promo ? Saisissez-le ci-dessous. Pas de code ?
+            Laissez le champ vide — vous commencerez avec le plan gratuit.
+        password: Mot de passe
+        confirm_password: Confirmez le mot de passe
+        submit: Créer un compte
+        have_account: Vous avez déjà un compte ?
+        sign_in: Se connecter
+        agree: >-
+            En créant un compte, vous acceptez nos {terms_link}Conditions
+            d'utilisation{link_end}. Notre {privacy_link}Avis de
+            confidentialité des données de santé{link_end} explique comment
+            nous traitons vos données.
+        success: Compte créé ! Veuillez vous connecter.
+        welcome: Bienvenue sur NouriLoop ! Votre compte est prêt.
+        have_coupon: Vous avez un code promo ?
+        pw_length_ok: Au moins 8 caractères
+        pw_length_short: Au moins 8 caractères requis
+        pw_match: Les mots de passe correspondent
+        pw_mismatch: Les mots de passe ne correspondent pas encore
+        email_warn_typo: "{domain} ressemble à une faute de frappe."
+        email_warn_use: "Utiliser {suggestion}"
+        email_warn_no_mx: >-
+            Nous n'avons pas trouvé de serveur de messagerie pour {domain} —
+            vérifiez bien votre adresse e-mail.
+        email_warn_confirm: >-
+            Une adresse erronée signifie aucun rappel et aucun moyen de
+            réinitialiser votre mot de passe. Si l'adresse est correcte,
+            saisissez à nouveau votre mot de passe et renvoyez le formulaire —
+            nous ne demandons qu'une fois.
+        invalid_coupon: Code promo invalide ou expiré.
+    reset:
+        title: Réinitialiser le mot de passe
+        subtitle: Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation
+        email: E-mail
+        submit: Envoyer le lien de réinitialisation
+        check_heading: Consultez votre boîte mail
+        check_lead: >-
+            Si un compte correspond à cette adresse, nous venons d'envoyer un
+            lien pour réinitialiser votre mot de passe. Ce lien expirera dans
+            {expiration}.
+        retry: Rien reçu ?
+        try_again: Réessayer
+        new_title: Nouveau mot de passe
+        new_subtitle: Choisissez un nouveau mot de passe pour votre compte
+        new_password: Nouveau mot de passe
+        repeat_password: Répétez le mot de passe
+        submit_new: Réinitialiser le mot de passe
+        done: Votre mot de passe a été réinitialisé. Veuillez vous connecter.
+    link:
+        title: Recevoir un lien de connexion
+        heading: Connexion par e-mail
+        subtitle: Sans mot de passe
+        lead: >-
+            Saisissez votre e-mail et nous vous enverrons un lien qui vous
+            connecte — aucun mot de passe à retenir ni à taper. Le lien est
+            valable 15 minutes.
+        email: E-mail
+        submit: Envoyez-moi un lien de connexion
+        new_here: Nouveau sur NouriLoop ?
+        create_account: Créez votre compte
+        sent_title: Consultez votre boîte mail
+        sent_heading: Consultez votre boîte mail
+        sent_lead: >-
+            Si un compte existe pour cette adresse, un lien de connexion est
+            en route. Ouvrez l'e-mail et touchez le bouton — le lien est
+            valable 15 minutes.
+        sent_nothing: >-
+            Rien ne vous parvient ? Vérifiez votre dossier spam, ou
+            {link}demandez un autre lien{link_end}.
+        confirm_title: Terminer la connexion
+        confirm_heading: Vous y êtes presque
+        confirm_lead: Un appui sur le bouton, et vous êtes connecté.
+        confirm_submit: Terminer la connexion
+        confirm_footer: >-
+            Vous n'avez rien demandé ? Vous pouvez fermer cette page en toute
+            sécurité.
+        too_many: Trop de liens de connexion demandés. Veuillez réessayer plus tard.
+        to_phone_sent: >-
+            Envoyé. Ouvrez l'e-mail sur votre téléphone et appuyez sur le bouton
+            pour reprendre où vous en étiez — le lien est valable 15 minutes.
+        to_phone_failed: Nous n'avons pas pu envoyer ce lien pour le moment. Veuillez réessayer.
+dashboard:
+    ghost:
+        preview: "Aperçu"
+        inflammation_text: >-
+            Enregistrez quelques repas et NouriLoop évalue à quel point votre
+            alimentation du jour était inflammatoire — cette carte se remplit
+            toute seule.
+        glucose_text: >-
+            Vous portez un capteur de glucose (Lingo ou Stelo) ? Connectez-le
+            et chaque repas enregistré aura ici sa propre courbe de réponse
+            glycémique.
+        glucose_cta: "Connecter votre capteur"
+    title: Tableau de bord
+    greeting: >-
+        {period, select, morning {Bonjour} afternoon {Bonjour}
+        other {Bonsoir}}, {name} !
+    log_meal: Enregistrer un repas
+    sync:
+        none: Pas encore de données de santé.
+        import_cta: Importez ou synchronisez vos données de santé
+        today: Données de santé synchronisées aujourd'hui
+        latest: dernière mesure {time}
+        last_reading: >-
+            Dernière mesure de santé {date} ({count, plural, one {il y a #
+            jour} other {il y a # jours}})
+        stale: >-
+            {count, plural, one {Aucune mesure de santé depuis # jour}
+            other {Aucune mesure de santé depuis # jours}}
+        check_cta: Importez ou vérifiez votre synchronisation
+    calories:
+        kcal_today: kcal aujourd'hui
+        target: "{percent} % de l'objectif de 2000 kcal"
+    protein:
+        today: de protéines aujourd'hui
+        focus: Priorité protéines
+        to_go: encore {grams} g
+        reached: Objectif atteint
+        target: "{percent} % de l'objectif de {grams} g"
+        scaled: (ajusté à votre poids corporel)
+        set_weight: (enregistrez un poids pour un objectif personnalisé)
+    inflammation:
+        heading: L'effet de vos repas aujourd'hui
+        tooltip: >-
+            Estimation éducative à partir des aliments enregistrés
+            aujourd'hui, pas un avis médical.
+        see_trends: Voir les tendances
+        pushed_pro: A poussé vers le pro-inflammatoire
+        pushed_anti: A poussé vers l'anti-inflammatoire
+        band:
+            strong_anti: Anti-inflammatoire
+            mild_anti: Légèrement anti-infl.
+            neutral: Neutre
+            mild_pro: Légèrement pro-infl.
+            strong_pro: Pro-inflammatoire
+        takeaway:
+            strong_anti: Les repas du jour penchent vers l'anti-inflammatoire — bravo.
+            mild_anti: Les repas du jour penchent légèrement vers l'anti-inflammatoire.
+            neutral: Les repas du jour sont à peu près neutres côté inflammation pour l'instant.
+            mild_pro: Les repas du jour penchent légèrement vers le pro-inflammatoire.
+            strong_pro: >-
+                Les repas du jour penchent vers le pro-inflammatoire — pensez
+                à rééquilibrer.
+    symptoms:
+        heading: Comment vous sentez-vous aujourd'hui ?
+        manage: Gérer…
+        save: Enregistrer le bilan
+    glucose:
+        heading: Réponses glycémiques du jour
+        insights: Analyses…
+        empty: >-
+            Pas encore de repas avec assez de mesures de glucose aujourd'hui.
+            Les réponses apparaissent ici à mesure que les données de votre
+            capteur arrivent après chaque repas.
+    meals:
+        empty: Aucun repas enregistré aujourd'hui pour le moment.
+        log_first: Enregistrez votre premier repas
+        heading: Repas du jour
+        photo_alt: Photo du repas
+        history_link: Voir l'historique des repas
+        protein: protéines
+goal:
+    summary_pattern: '{metric} : {aggregation} {direction} {target} {unit}'
+    metric:
+        calories: Calories
+        protein: Protéines
+        carbohydrates: Glucides
+        fat: Lipides
+        saturated_fat: Graisses saturées
+        fiber: Fibres
+        sugar: Sucre
+        sodium: Sodium
+    direction:
+        at_most: au plus
+        at_least: au moins
+        maintain: autour de
+    aggregation:
+        daily_average: moyenne quotidienne
+        window_total: total sur la fenêtre
+    frequency:
+        daily: Quotidien
+        weekly: Hebdomadaire
+    output:
+        summary: Résumé texte
+        chart: Résumé avec graphique
+        report: Rapport complet
+    status:
+        achieved: Objectif atteint
+        on_track: Sur la bonne voie
+        off_track: Pas sur la bonne voie
+        no_data: Aucun repas enregistré
+        error: Échec de l'évaluation
+        on_track_hint_first: Premier bilan — rien à comparer pour le moment
+        on_track_hint_improving: >-
+            {direction, select, at_least {Sous la cible, en progression}
+            at_most {Au-dessus de la cible, en baisse} other {Hors de la
+            plage, en rapprochement}}
+    checkin:
+        no_data: >-
+            Aucun repas n'a été enregistré au cours des {days} derniers
+            jours, il n'y a donc encore rien à mesurer pour « {name} ».
+            Enregistrez quelques repas et votre prochain bilan aura quelque
+            chose à vous montrer.
+        fallback: "{status} : vous êtes à {current} {unit} pour une cible de {target}. {trend}"
+        trend_first: >-
+            C'est le premier bilan, il n'y a donc pas de période précédente à
+            comparer.
+        trend_improving: >-
+            En progrès — {current} {unit} maintenant contre {prev} {unit}
+            sur les {days} jours précédents.
+        trend_slipping: >-
+            En recul — {current} {unit} maintenant contre {prev} {unit} sur
+            les {days} jours précédents.
+        trend_holding: >-
+            Stable — {current} {unit} maintenant contre {prev} {unit} sur
+            les {days} jours précédents.
+    day:
+        1: Lundi
+        2: Mardi
+        3: Mercredi
+        4: Jeudi
+        5: Vendredi
+        6: Samedi
+        7: Dimanche
+    day_short:
+        1: Lun
+        2: Mar
+        3: Mer
+        4: Jeu
+        5: Ven
+        6: Sam
+        7: Dim
+    ref:
+        calories: >-
+            Il n'existe pas de cible calorique universelle — elle dépend de
+            votre corpulence, de votre activité et de vos objectifs. La
+            plupart des adultes se situent entre 1600 et 2800 kcal/jour.
+        protein: >-
+            La valeur quotidienne de référence pour les protéines est de 50
+            g/jour ; les personnes actives visent souvent plus haut (environ
+            1,2–1,6 g par kg de poids corporel).
+        carbohydrates: >-
+            La valeur quotidienne de référence pour les glucides totaux est
+            de 275 g/jour (base 2000 kcal).
+        fat: La valeur quotidienne de référence pour les lipides totaux est de 78 g/jour (base 2000 kcal).
+        saturated_fat: >-
+            La valeur quotidienne de référence pour les graisses saturées est
+            de 20 g/jour ; les alimentations pauvres en graisses saturées
+            sont généralement encouragées.
+        fiber: >-
+            La valeur quotidienne de référence pour les fibres est de 28
+            g/jour (environ 14 g pour 1000 kcal). La plupart des adultes en
+            consomment bien moins.
+        sugar: >-
+            La valeur quotidienne de référence pour les sucres ajoutés est de
+            50 g/jour ; moins, c'est généralement mieux.
+        sodium: La valeur quotidienne de référence pour le sodium est de 2300 mg/jour.
+    warning:
+        positive_target: La valeur cible doit être supérieure à zéro.
+        maintain_range: Un objectif « maintenir » nécessite une borne haute supérieure à la borne basse.
+        window_range: La fenêtre d'évaluation doit être comprise entre 1 et 90 jours.
+        calorie_floor: >-
+            Un plafond de {target} kcal/jour est en dessous de {floor} kcal —
+            très bas pour la plupart des adultes. Pensez à en parler avec un
+            professionnel de santé.
+        calorie_ceiling: Un plancher de {target} kcal/jour est inhabituellement élevé.
+        at_least_limit: >-
+            Se fixer comme objectif de consommer *au moins* {target} {unit}
+            de {metric} est inhabituel — ce sont en général des choses à
+            limiter. Vérifiez bien la direction.
+    index:
+        title: Objectifs
+        heading: Objectifs nutritionnels
+        new: Nouvel objectif
+        lead: >-
+            Fixez un objectif mesurable et NouriLoop comparera régulièrement
+            vos repas enregistrés à cet objectif, en vous envoyant une note
+            de progression. Ce sont des repères bien-être, pas des avis
+            médicaux.
+        empty: Vous n'avez pas encore défini d'objectif.
+        create_first: Créez votre premier objectif
+        paused: En pause
+        due_now: à lancer maintenant
+        next: prochain {time}
+    chat:
+        title: Nouvel objectif
+        heading: Définir un objectif
+        manual: Le configurer manuellement
+        back: Objectifs
+        greeting: >-
+            Bonjour ! Je peux vous aider à définir un objectif nutritionnel.
+            Dites-moi ce que vous aimeriez travailler — par exemple « manger
+            moins de sucre », « plus de fibres » ou « garder mes calories
+            stables » — et je vous aiderai à en faire quelque chose de
+            mesurable que nous pourrons suivre.
+        proposal_fallback: Votre objectif
+        target: "Cible :"
+        window: "Fenêtre :"
+        window_val: '{days, plural, one {le dernier jour} other {les # derniers jours}} ({aggregation})'
+        checkin: "Bilan :"
+        at: '{frequency} à {time}'
+        output: "Format :"
+        warnings_heading: "À regarder de plus près :"
+        ack: Je comprends et je veux quand même créer cet objectif.
+        create: Créer cet objectif
+        keep_chatting: ou continuez la conversation ci-dessous pour l'ajuster.
+        reply_ph: Écrivez votre réponse…
+        message_aria: Message
+        start_over: Recommencer
+        error_reply: Désolé — je n'ai pas réussi à répondre à l'instant. Veuillez réessayer.
+        too_long: Veuillez limiter chaque message à moins de {max} caractères.
+        turn_limit: Cette conversation est devenue longue. Recommencez ci-dessous avec un bref résumé de ce sur quoi vous souhaitez travailler.
+        rate_limited: Vous avez envoyé beaucoup de messages au cours de la dernière heure. Veuillez réessayer un peu plus tard.
+        no_proposal: >-
+            Il n'y a pas encore d'objectif à confirmer — continuez la
+            conversation jusqu'à ce que j'en propose un.
+        daily_note: >-
+            Les bilans quotidiens font partie de Loop+, cet objectif fera
+            donc son bilan chaque semaine. {link}Voir les plans{link_end}.
+    starter:
+        heading: Démarrage rapide
+        lead: Les objectifs les plus courants, en un geste chacun — choisissez-en un, c'est fait.
+        note: >-
+            Un geste crée l'objectif avec un bilan hebdomadaire. Les cibles
+            partent des valeurs quotidiennes standard, ajustées à votre propre
+            historique — vous pouvez modifier ou supprimer l'objectif à tout
+            moment.
+        or_chat: Ou décrivez votre propre objectif dans la discussion ci-dessous.
+        fiber: Manger plus de fibres
+        protein: Atteindre un objectif quotidien de protéines
+        sugar: Réduire le sucre
+        calories: Rester sous un objectif de calories
+        name_fiber: Plus de fibres
+        name_protein: Plus de protéines
+        name_sugar: Moins de sucre
+        name_calories: Objectif calories
+    created: Objectif créé. Votre premier bilan est prévu pour {time}.
+    form:
+        heading: Nouvel objectif
+        back: Retour
+        chat_hint: >-
+            Vous hésitez sur la cible à choisir ? {link}Configurez-le plutôt avec
+            la conversation guidée{link_end} — elle suggère des valeurs
+            raisonnables à partir de vos enregistrements.
+        double_check: "Merci de vérifier cet objectif :"
+        ack: Je comprends et je veux quand même définir cet objectif.
+        name: Nom de l'objectif
+        optional: (facultatif)
+        name_ph: p. ex. Réduire le sucre
+        track: Suivre
+        direction: Direction
+        target: Cible
+        to: à
+        upper_ph: borne haute
+        target_ph: p. ex. 30
+        measured_as: Mesuré comme
+        window_days: Fenêtre d'évaluation (jours)
+        schedule: Calendrier des bilans
+        frequency: Fréquence
+        daily_locked: >-
+            Les bilans quotidiens font partie de Loop+ — {link}voir les
+            plans{link_end}.
+        day: Jour
+        time: Heure
+        hour_aria: Heure
+        minute_aria: Minute
+        time_note: Format 24 h, votre heure locale.
+        delivery: Envoi
+        output_format: Format de sortie
+        channel_note: >-
+            Les bilans sont envoyés via votre {link}réglage de canal de
+            notification{link_end}.
+        create: Créer l'objectif
+        hint_baseline: Vous êtes actuellement à environ {n} {unit}/jour en moyenne.
+        hint_none: Aucun repas récent enregistré, il n'y a donc pas encore de référence.
+    show:
+        all_goals: Tous les objectifs
+        paused: En pause
+        definition: Définition
+        metric: "Métrique :"
+        target: "Cible :"
+        window: "Fenêtre :"
+        window_val: '{days, plural, one {le dernier jour} other {les # derniers jours}}, {aggregation}'
+        by: "Par :"
+        schedule_delivery: Calendrier et envoi
+        runs: "Rythme :"
+        runs_at: à {time}
+        next_run: "Prochain bilan :"
+        last_run: "Dernier bilan :"
+        never: jamais
+        output: "Format :"
+        channel: "Canal :"
+        channel_val: via votre {link}réglage de canal de notification{link_end}
+        channel_inapp: >-
+            dans l'application (la cloche et cette page) — l'envoi par
+            e-mail/SMS arrive avec Loop+
+        allowance: '{used} des {limit} bilans inclus utilisés.'
+        allowance_link: Passez à un plan payant pour des bilans illimités.
+        paused_allowance_heading: Bilans en pause
+        paused_allowance_body: >-
+            Vous avez utilisé les {limit} bilans inclus avec votre compte
+            gratuit. Votre objectif et tout son historique restent ici —
+            passez à un plan payant pour que les bilans continuent.
+        upgrade_resume: Passer à un plan payant pour reprendre les bilans
+        resume_locked: >-
+            Vous avez utilisé les {limit} bilans inclus — passez à un plan
+            payant pour reprendre les bilans de cet objectif.
+        pause: Mettre en pause
+        resume: Reprendre
+        delete: Supprimer
+        delete_confirm: Supprimer cet objectif et son historique de bilans ?
+        prompt_heading: Prompt d'évaluation
+        prompt_advanced: (avancé)
+        prompt_note: >-
+            Voici le prompt que NouriLoop envoie à Claude à chaque bilan. Les
+            chiffres de progression sont calculés dans l'application et
+            insérés via les {placeholders} ; vous pouvez reformuler le reste.
+        prompt_save: Enregistrer le prompt
+        prompt_too_long: >-
+            Ce prompt est trop long ({chars} caractères ; la limite est
+            {limit}). Veuillez le raccourcir.
+        prompt_updated: 'Prompt de « {name} » mis à jour (désormais v{version}).'
+        prompt_no_changes: Aucun changement au prompt d'évaluation.
+        checkins: Historique des bilans
+        no_checkins: Pas encore de bilan.
+        first_runs: Le premier bilan aura lieu {time}.
+        vs_target: '{value} {unit} contre une cible de {target} {unit}'
+        chart_alt: Graphique de progression
+        tokens: '{count, plural, one {# jeton} other {# jetons}}'
+        resumed: Objectif repris.
+        paused_flash: Objectif mis en pause.
+        deleted: Objectif supprimé.
+    notice:
+        allowance_paused_title: Bilans en pause pour « {name} »
+        allowance_paused_body: >-
+            Vous avez utilisé les {limit} bilans inclus avec votre compte
+            gratuit. Votre objectif et son historique restent intacts —
+            passez à un plan payant pour continuer à recevoir des bilans
+            hebdomadaires.
+        daily_to_weekly_title: « {name} » fait désormais son bilan chaque semaine
+        daily_to_weekly_body: >-
+            Les bilans quotidiens font partie de Loop+, cet objectif fait
+            donc désormais son bilan chaque semaine. Tout le reste est
+            inchangé.
+cgm:
+    title: Connecter votre CGM
+    heading: Connectez votre Lingo ou Stelo
+    lead: >-
+        Une configuration à faire une seule fois qui envoie automatiquement
+        vos mesures de glucose à NouriLoop, pour que chaque repas enregistré
+        ait sa propre courbe de réponse glycémique.
+    need_heading: Ce qu'il vous faut
+    need_items: >-
+        <li>Un capteur <strong>Abbott Lingo</strong> ou <strong>Dexcom
+        Stelo</strong> qui affiche déjà des mesures dans l'app
+        <strong>Santé</strong> d'Apple sur votre iPhone.</li> <li>Votre
+        <strong>iPhone</strong> et environ <strong>10 minutes</strong>.</li>
+        <li>Une petite app assistante appelée <strong>Health Auto
+        Export</strong> (Étape 1). C'est elle qui fait l'envoi ; sa fonction
+        de synchronisation automatique nécessite son propre petit abonnement
+        (Basic à 2,99 $, ou 6,99 $ pour un an de Premium).</li>
+    need_note: >-
+        Avant de commencer : ouvrez l'app Santé et vérifiez que vous y voyez
+        des mesures de glucose récentes. Si Santé n'a aucune mesure,
+        NouriLoop ne peut rien recevoir non plus — vérifiez d'abord l'app de
+        votre capteur.
+    step1_heading: Installer « Health Auto Export »
+    step1_install: >-
+        Sur votre iPhone, installez {link}Health Auto Export –
+        JSON+CSV{link_end} depuis l'App Store. Vous lisez ceci sur un
+        ordinateur ? Pointez l'appareil photo de votre iPhone vers le code QR
+        ci-dessous pour y aller directement.
+    qr_alt: Code QR App Store
+    step1_permissions: >-
+        À la première ouverture, elle demande la permission de lire vos
+        données Santé. Toucher <strong>Turn On All</strong> (tout activer)
+        est le plus simple — mais vous gardez la main : si vous préférez,
+        activez seulement ce que vous voulez que NouriLoop voie.
+        <strong>Blood Glucose</strong> (glycémie) est la donnée dont cette
+        configuration a besoin ; <strong>le poids, les pas, le sommeil, la
+        fréquence cardiaque et la tension artérielle</strong> sont eux aussi
+        bien utilisés dans vos graphiques et tendances.
+    permissions_alt: Demande d'accès à Santé avec Blood Glucose activé
+    step2_heading: Créez votre jeton d'accès NouriLoop
+    step2_lead: >-
+        Le jeton est comme un mot de passe spécial qui permet à l'app
+        assistante — et à elle seule — d'envoyer des données de santé à votre
+        compte NouriLoop.
+    token_reveal: Votre nouveau jeton — vous le collerez à l'Étape 3
+    copy: Copier
+    copied: Copié
+    token_once: >-
+        Pour votre sécurité, il ne s'affiche que cette fois-ci — mais pas
+        besoin de le mémoriser : l'Étape 3 ci-dessous l'inclut déjà, prêt à
+        copier.
+    token_again: >-
+        Vous avez déjà un jeton, mais pour votre sécurité un jeton ne
+        s'affiche qu'une seule fois. Pas de souci — créez-en simplement un
+        nouveau et utilisez-le ci-dessous.
+    create_token: Créer mon jeton
+    step3_heading: Configurez l'automatisation dans Health Auto Export
+    step3_lead: >-
+        Dans l'app Health Auto Export, ouvrez <strong>Automations</strong> et
+        créez une nouvelle automatisation <strong>REST API</strong>.
+        Saisissez exactement ces valeurs — utilisez les boutons Copier et
+        collez sur votre téléphone (si vous êtes connecté à iCloud des deux
+        côtés, copier ici permet souvent de coller là-bas) :
+    row_url: URL
+    row_method: Méthode
+    row_format: Format d'export
+    row_header_name: Nom d'en-tête
+    row_header_value: Valeur d'en-tête
+    bearer_hint: >-
+        <code>Bearer</code> + un espace + votre jeton — faites d'abord
+        {link}l'Étape 2{link_end} et ce champ se remplit tout seul.
+    row_data_type: Type de données
+    data_type_body: >-
+        <strong>Health Metrics</strong>, puis sous « Select Health Metrics »
+        toucher <strong>Select All</strong> est le plus simple — NouriLoop
+        trace le glucose, le poids, les pas, le sommeil, la fréquence
+        cardiaque et la tension artérielle, et ignore simplement tout le
+        reste. Vous préférez partager moins ? Sélectionnez seulement
+        <strong>Blood Glucose</strong> (la donnée dont cette configuration a
+        besoin) plus celles des autres que vous voulez que NouriLoop voie.
+    row_cadence: Cadence de synchronisation
+    cadence_body: >-
+        Une fois par <strong>jour</strong> suffit largement — la
+        synchronisation de chaque matin apporte les courbes de la veille.
+        Vous préférez des courbes le jour même ? Une cadence plus rapide (par
+        exemple toutes les heures) convient aussi ; NouriLoop ignore les
+        mesures qu'il a déjà.
+    summarize_warning: >-
+        <strong>Un réglage compte plus que tous les autres :</strong> dans
+        Export Settings, désactivez <strong>Summarize Data</strong>. Quand il
+        est activé, l'app envoie des résumés quotidiens au lieu de vos
+        mesures réelles — ils s'importent quand même, mais une journée
+        entière se réduit à un seul chiffre, et NouriLoop a besoin des
+        mesures toutes les ~5 minutes pour tracer vos courbes de repas. Le
+        reste peut rester tel quel (Export Format <code>JSON</code>, Export
+        Version v2, Date Range Default) ; activer <strong>Batch
+        Requests</strong> est une bonne idée — cela découpe une première
+        grosse exportation en envois plus petits.
+    hae_screen_alt: Health Auto Export — écran {name}
+    step4_heading: Envoyez votre première exportation
+    step4_body: >-
+        Enregistrez l'automatisation, puis lancez-la une fois à la main —
+        ouvrez-la et touchez son bouton manuel <strong>export /
+        update</strong>. (Après cette première fois, l'app envoie les
+        nouvelles mesures selon le calendrier choisi.)
+    manual_export_alt: Health Auto Export — déclenchement manuel de l'export
+    step5_heading: Regardez les données arriver
+    step5_lead: >-
+        Cette page vérifie automatiquement l'arrivée de vos données toutes
+        les quelques secondes — laissez-la ouverte pendant que vous terminez
+        les étapes sur votre téléphone.
+    noscript: (JavaScript est désactivé dans ce navigateur — actualisez la page pour mettre à jour.)
+    rung_token: Jeton créé
+    rung_token_sub: Étape 2 — votre jeton d'accès existe.
+    rung_phone: Votre téléphone a contacté NouriLoop
+    rung_phone_sub: Le jeton a été utilisé récemment — l'automatisation s'est connectée.
+    rung_arrived: Des mesures de glucose sont arrivées
+    rung_arrived_sub: >-
+        {count, plural, one {# mesure} other {# mesures}} au cours des
+        {hours} dernières heures
+    rung_arrived_tpl: '{count} mesures au cours des {hours} dernières heures'
+    rung_latest: "(dernière : {time})"
+    rung_quality: Les mesures semblent bonnes
+    rung_quality_sub: Mesures fréquentes — assez de détail pour les courbes de repas.
+    state_no_token: >-
+        Créez votre jeton à {link}l'Étape 2{link_end}, puis configurez
+        l'automatisation sur votre téléphone.
+    state_token_unused: >-
+        Jeton prêt ✓ — dès que vous aurez terminé les Étapes 3 et 4 sur
+        votre téléphone, sa première exportation apparaîtra ici.
+    state_waiting: >-
+        Votre téléphone s'est connecté ✓ — nous attendons maintenant des
+        mesures de glucose. Après avoir lancé l'exportation (Étape 4), elles
+        apparaissent généralement en moins d'une minute. Si rien n'arrive,
+        vérifiez dans l'app Santé que votre capteur enregistre bien des
+        mesures de Blood Glucose.
+    state_sparse: >-
+        <strong>Presque !</strong> Des mesures sont arrivées, mais trop peu
+        nombreuses ou trop espacées ({count} sur les deux derniers jours)
+        pour des courbes de repas. C'est presque toujours le réglage
+        <strong>Summarize Data</strong> : dans les Export Settings de votre
+        automatisation, désactivez-le, puis exportez à nouveau.
+    state_dense: >-
+        <strong>Ça fonctionne !</strong> {count} mesures, espacées d'environ
+        {gap} minutes — exactement ce qu'il faut pour les courbes de repas.
+    success_heading: Tout est connecté
+    success_lead: >-
+        Désormais, votre glucose arrive automatiquement selon le calendrier
+        choisi dans Health Auto Export. Et maintenant :
+    success_chart: '{link}Voyez votre graphique de glucose{link_end} sur la page Données de santé.'
+    success_meal: >-
+        {link}Enregistrez votre prochain repas{link_end} — avec le glucose
+        qui arrive, chaque repas obtient sa courbe de réponse environ 3
+        heures après avoir mangé.
+    success_insights: >-
+        {link}Ouvrez Analyses de glucose{link_end} pour voir quels repas
+        font le plus (et le moins) bouger votre glycémie.
+    upsell: >-
+        <strong>Votre glucose arrive — Loop+ le met au travail.</strong>
+        Loop+ corrèle chaque repas que vous enregistrez avec vos mesures :
+        courbes de réponse par repas, classements des plus fortes hausses et
+        des repas les plus doux, et plus encore. {link}Voir les
+        plans{link_end}
+glucose_page:
+    title: Analyses de glucose
+    heading: Analyses de glucose
+    vs_est: '% vs est.'
+    locked_heading: Corrélation glycémique (CGM)
+    locked_lead: >-
+        Connectez vos données de glucose en continu pour voir quels repas ont
+        fait monter votre glycémie le plus et le moins, et lesquels ont
+        grimpé plus que leur nutrition ne le prédisait. C'est une
+        fonctionnalité Loop+.
+    upgrade: Passer à Loop+
+    not_connected: >-
+        Capteur pas encore connecté ? {link}La configuration
+        guidée{link_end} prend environ 10 minutes.
+    empty: Pas encore de repas suivis en glucose sur cette période.
+    empty_sub: >-
+        Une fois que vous enregistrerez des repas en portant un capteur de
+        glucose en continu, cette page classera les repas qui ont fait monter
+        votre glycémie le plus et le moins.
+    empty_cta: >-
+        Vous portez un Lingo ou un Stelo mais ne voyez pas de données ?
+        {link}Connectez-le avec la configuration guidée{link_end}.
+    meals_analyzed: '{count, plural, one {Repas analysé} other {Repas analysés}}'
+    avg_rise: Hausse moyenne ({unit})
+    avg_iauc: iAUC moyenne ({unit})
+    window: Fenêtre
+    biggest: Plus fortes hausses de glucose
+    gentlest: Les plus doux pour vous
+    above_expected: Ont grimpé plus que leur nutrition ne le prédisait
+    above_note: >-
+        Ces repas ont fait monter votre glycémie plus qu'une estimation de
+        charge glycémique fondée sur leurs glucides, fibres, sucres, lipides
+        et protéines ne le suggérait — un point à surveiller pour repérer
+        des habitudes.
+    coach: Coach IA des habitudes
+    coach_note: >-
+        Généré à partir de vos propres réponses glycémiques — un repère
+        bien-être éducatif, pas un avis médical.
+    coach_unavailable: Coach indisponible pour le moment — veuillez réessayer sous peu.
+    premium: Premium
+    coach_pitch: >-
+        Allez au-delà des classements : une analyse IA approfondie lit vos
+        réponses glycémiques à la lumière des aliments, des horaires et des
+        combinaisons derrière elles — pour dégager des habitudes
+        personnelles (« le riz fait grimper votre glycémie, mais pas avec
+        des haricots ») et des substitutions concrètes à essayer.
+    coming_soon: Bientôt disponible
+    footer: >-
+        Ce sont des repères bien-être éducatifs, pas des mesures médicales.
+        Les classements couvrent les repas ayant assez de mesures de glucose
+        en continu pour tracer une réponse.
+predict:
+    title: Prédiction « Et si… »
+    lead: >-
+        Voyez comment un changement alimentaire affecterait votre score
+        d'inflammation, votre nutrition, votre poids et vos symptômes —
+        calculé à partir de votre historique réel des 30 derniers jours.
+    step1: 1. Décrivez votre scénario
+    scenario_type: Type de scénario
+    type_favorite: Manger un favori chaque jour
+    type_supp_add: Ajouter un complément
+    type_supp_remove: Retirer un complément
+    type_free: Décrire un changement
+    which_favorite: Quel repas favori ?
+    search_favorites: Rechercher dans les favoris…
+    select: — sélectionner —
+    which_supplement: Quel complément ?
+    inactive_suffix: (inactif)
+    describe: Décrivez le changement
+    describe_ph: p. ex. Je réduis de moitié le sucre ajouté pendant deux semaines
+    remaining: '{count, plural, one {# caractère restant} other {# caractères restants}}'
+    # Plain-placeholder twin of `remaining` for the client-side counter (JS can't
+    # run ICU plurals; it picks the one-branch or fills this template).
+    remaining_tpl: '{count} caractères restants'
+    hint_add: Seuls les compléments que vous ne prenez pas actuellement sont affichés.
+    hint_remove: Seuls vos compléments actifs sont affichés.
+    row_better: Mieux
+    row_watch: À surveiller
+    free_text_failed: >-
+        Impossible de générer une projection pour ce scénario pour le
+        moment. Réessayez ou choisissez un type de scénario concret pour un
+        résultat calculé.
+    window: Fenêtre de projection
+    weeks: '{count, plural, one {# semaine} other {# semaines}}'
+    dimensions: Dimensions à projeter
+    dim_inflammation: Score d'inflammation
+    dim_nutrition: Nutrition (macros et manques)
+    dim_weight: Poids
+    dim_symptoms: Symptômes
+    submit: Projeter ce scénario
+    step2: 2. Résultats de la projection
+    qualitative: >-
+        Cette projection est une estimation qualitative de l'IA fondée sur
+        la description de votre scénario, pas un résultat calculé par le
+        moteur de scoring de NouriLoop.
+    col_dimension: Dimension
+    col_current: Actuel (moy. 30 jours)
+    col_projected: Projeté
+    col_change: Variation
+    means: Ce que cela signifie
+    loop_plus_only: La prédiction « Et si… » est une fonctionnalité Loop+. Passez à Loop+ pour y accéder.
+    rate_limited: >-
+        Vous avez atteint la limite de projections pour le moment — veuillez
+        réessayer plus tard.
+    err_type: Veuillez sélectionner un type de scénario.
+    err_window: Veuillez sélectionner une fenêtre de projection valide (1, 2 ou 4 semaines).
+    err_dimensions: Veuillez sélectionner au moins une dimension à projeter.
+    err_favorite: Veuillez sélectionner un repas favori valide.
+    err_supplement: Veuillez sélectionner un complément valide.
+    err_remove_inactive: Vous ne pouvez retirer qu'un complément que vous prenez actuellement.
+    err_add_active: Ce complément fait déjà partie de votre routine quotidienne.
+    err_free_text: Veuillez décrire votre scénario.
+    err_free_text_len: La description du scénario doit faire {max} caractères au maximum.
+    row:
+        infl_avg: Score d'inflammation (moy.)
+        see_narrative: Voir le commentaire
+        gaps: Manques en nutriments (< 75 % des AJR)
+        gaps_count: '{count, plural, one {# nutriment} other {# nutriments}}'
+        weight_after: Poids (est. après {weeks, plural, one {# semaine} other {# semaines}})
+        symptom_trend: '{label} (tendance)'
+    note:
+        computed: >-
+            Les projections d'inflammation et de nutrition sont calculées par
+            le moteur de scoring de NouriLoop sur vos 30 derniers jours ; le
+            poids utilise une estimation standard de bilan énergétique.
+            Estimations éducatives, pas des avis médicaux.
+        gaps: >-
+            Les projections de manques nutritionnels sont calculées à partir
+            de vos moyennes alimentaires actuelles plus l'apport quotidien en
+            nutriments du complément (ses nutriments par portion × vos
+            portions par jour). Estimations éducatives, pas des avis
+            médicaux.
+        removed: >-
+            Les projections montrent vos manques nutritionnels estimés si ce
+            complément est retiré. Estimations éducatives, pas des avis
+            médicaux.
+        qualitative: >-
+            Il s'agit d'une estimation qualitative de l'IA fondée sur la
+            description de votre scénario, pas d'une projection calculée.
+            Estimations éducatives, pas des avis médicaux.
+    fallback:
+        infl: >-
+            Votre score d'inflammation {direction, select, down {baisserait}
+            other {augmenterait}} de {points} points pour atteindre {score}.
+        calories: >-
+            Votre apport calorique quotidien {direction, select, up
+            {augmenterait} other {baisserait}} d'environ {kcal} kcal.
+        closing: Ceci est une estimation éducative fondée sur vos données enregistrées.
+symptom_page:
+    title: Symptômes
+    heading: Symptômes
+    vs_inflammation: Voir vs inflammation
+    none_tracked: Vous ne suivez encore aucun symptôme.
+    none_tracked_sub: >-
+        Activez-en un ci-dessous pour démarrer un bilan quotidien et voir
+        comment il évolue avec votre alimentation.
+    checkin_today: Bilan du jour
+    checkin_date: Bilan du {date}
+    date: Date
+    note: Note
+    optional: (facultatif)
+    note_ph: p. ex. poussée après le dîner, mal dormi
+    save_today: Enregistrer le bilan du jour
+    update_today: Mettre à jour le bilan du jour
+    save_this: Enregistrer ce bilan
+    update_this: Mettre à jour ce bilan
+    manage: Gérer les symptômes
+    manage_lead: >-
+        Activez ou désactivez des symptômes, ou ajoutez les vôtres. Seuls
+        les symptômes activés apparaissent dans votre bilan et dans les
+        Tendances.
+    builtin: intégré
+    custom: personnalisé
+    higher_better: plus haut = mieux
+    higher_worse: plus haut = pire
+    delete_confirm: Supprimer « {name} » et son historique ?
+    add_custom: Ajouter un symptôme personnalisé
+    add_ph: p. ex. brouillard mental, éruption cutanée, humeur
+    add_higher_better: Plus haut = mieux
+    add: Ajouter
+    history: Historique
+    no_history: >-
+        Pas encore de bilans. Notez comment vous vous sentez chaque jour
+        pour voir le lien avec votre alimentation.
+    col_date: Date
+    col_symptoms: Symptômes
+    col_note: Note
+    slider:
+        low: Faible
+        none: Aucun
+        high: Élevé
+        worst: Maximal
+    saved: Bilan des symptômes enregistré.
+    name_required: Saisissez un nom pour le symptôme.
+    added: '« {name} » ajouté à vos symptômes.'
+    builtin_no_delete: Les symptômes intégrés peuvent être désactivés mais pas supprimés.
+    removed: Symptôme supprimé.
+metric_summary:
+    total_daily: totaux quotidiens
+    total_hourly: totaux horaires
+    average_daily: moyennes quotidiennes, plage ombrée
+    average_hourly: moyennes horaires, plage ombrée
+    reading_daily: mesures quotidiennes
+    reading_hourly: mesures horaires
+health:
+    connect_cgm_cta: "Connecter votre capteur"
+    title: Données de santé
+    heading: Données de santé
+    import_btn: Importer
+    days_btn: '{days} j'
+    cgm_pitch: >-
+        <strong>Vous portez un Lingo ou un Stelo ?</strong> Connectez-le une
+        fois et votre glucose arrive automatiquement — chaque repas
+        enregistré obtient sa propre courbe de réponse glycémique.
+        {link}Lancer la configuration guidée{link_end}
+    empty: Pas encore de données de santé pour cette période.
+    import_data: Importer des données
+    readings: '{count, plural, one {# mesure} other {# mesures}} · {bucket}'
+    privacy: >-
+        Comment nous traitons vos données de santé : {link}Avis de
+        confidentialité des données de santé{link_end}
+    import:
+        title: Importer des données de santé
+        back: Retour
+        upload: Téléverser
+        upload_kinds: (XML, JSON ou CSV)
+        file_hint: >-
+            Accepte les exports XML d'Apple Santé, le JSON de Health Export
+            ou les fichiers CSV. Les gros historiques (un
+            <code>export.xml</code> complet peut peser des centaines de Mo)
+            ne passeront pas en téléversement — utilisez plutôt la CLI de
+            synchronisation / l'API.
+        source: Libellé de source
+        source_note: (CSV uniquement — facultatif)
+        source_ph: p. ex. Garmin, Dexcom, manuel
+        source_hint: Ignoré pour le XML Apple Santé (la source est lue dans le fichier).
+        json_app: App source
+        json_app_note: (JSON uniquement — facultatif)
+        auto_detect: Détection automatique
+        json_app_hint: Laissez la détection automatique sauf si le format n'est pas reconnu.
+        agree: >-
+            En important, vous acceptez la façon dont NouriLoop traite vos
+            données de santé — consultez notre {link}Avis de confidentialité
+            des données de santé{link_end}.
+        submit: Importer
+        tab_apple: XML Apple Santé
+        tab_json: JSON Health Export
+        tab_csv: CSV
+        hint_csv: CSV détecté — vous pouvez définir un libellé de source ci-dessous.
+        hint_xml: XML Apple Santé détecté — le libellé de source sera lu dans le fichier.
+        hint_json: >-
+            JSON health-export détecté — choisissez une app source seulement
+            si la détection automatique échoue.
+        choose_file: Veuillez choisir un fichier à téléverser.
+        upload_failed: "Échec du téléversement : {error}"
+        failed: "Échec de l'importation : {error}"
+        done: >-
+            {imported, plural, one {# nouvelle mesure importée} other {#
+            nouvelles mesures importées}} depuis {format}, {skipped, plural,
+            one {# doublon ou enregistrement non reconnu ignoré} other {#
+            doublons ou enregistrements non reconnus ignorés}}.
+        apple_how: Comment exporter depuis Apple Santé
+        apple_steps: >-
+            <li>Ouvrez l'app <strong>Santé</strong> sur votre iPhone</li>
+            <li>Touchez votre photo de profil → <strong>Exporter toutes les
+            données de santé</strong></li> <li>Partagez / envoyez par AirDrop
+            le zip vers votre Mac</li> <li>Décompressez — le fichier voulu
+            est <code>apple_health_export/export.xml</code></li>
+            <li>Téléversez ce fichier <code>export.xml</code> ici</li>
+        apple_what: Ce qui est importé
+        apple_note: >-
+            Les phases de sommeil sont aussi importées ; les autres types
+            d'enregistrements (pas, entraînements, etc.) sont ignorés. Les
+            téléversements sont limités en taille (~100&nbsp;Mo sur le
+            serveur) ; pour un <code>export.xml</code> complet, utilisez
+            plutôt un {link}jeton API{link_end} avec le script de
+            synchronisation local
+            (<code>scripts/apple-health-sync.php</code>).
+        json_how: JSON health-export (apps iPhone)
+        json_lead: >-
+            Les exports JSON des apps iPhone prises en charge sont reconnus
+            automatiquement — laissez <strong>App source</strong> en
+            détection automatique (n'en choisissez une que si la détection
+            échoue). Actuellement pris en charge :
+        json_apps: >-
+            <li><strong>Health Auto Export</strong> — structure
+            <code>data.metrics[]</code> ; inclut la
+            <strong>glycémie</strong>, la fréquence cardiaque, le poids, les
+            pas et le sommeil.</li> <li><strong>Health Export</strong> —
+            en-tête <code>exportInfo</code> + clés camelCase ; poids, masse
+            grasse, fréquence cardiaque au repos, pas et sommeil.</li>
+        json_note: >-
+            Les unités propres à chaque app sont respectées (p. ex. lb→kg,
+            mmol/L→mg/dL). Les types que NouriLoop ne suit pas (calories,
+            IMC, VO₂max, totaux alimentaires, entraînements, etc.) sont
+            ignorés. Pour une synchronisation quotidienne automatisée,
+            pointez le script <code>scripts/apple-health-sync.php</code> vers
+            le fichier <code>.json</code> exporté (ou son dossier) avec un
+            {link}jeton API{link_end}.
+        csv_how: Formats CSV pris en charge
+        csv_lead: "Deux structures sont acceptées :"
+        csv_row: 1. Une ligne par mesure
+        csv_col: 2. En colonnes
+        csv_names: "Noms de métriques reconnus :"
+        more_errors: '… et {count, plural, one {# autre erreur} other {# autres erreurs}}.'
+supplement:
+    no_data_window: >-
+        Aucun repas enregistré {days, plural, one {au cours du dernier
+        jour} other {au cours des # derniers jours}} — choisissez une
+        période plus longue ou enregistrez des repas récents pour voir
+        votre couverture en nutriments.
+    title: Compléments
+    heading: Recommandations de compléments
+    scan_btn: Scanner un complément
+    day_avg: moy. sur {days} j
+    lead: >-
+        D'après votre nutrition quotidienne moyenne sur <strong>{days,
+        plural, one {le dernier jour} other {les # derniers
+        jours}}</strong>. Les nutriments sous 75 % des apports journaliers
+        recommandés (AJR) sont signalés.
+    no_meals: Pas encore de données de repas. Enregistrez quelques repas pour obtenir des recommandations.
+    log_meal: Enregistrer un repas
+    no_gaps: >-
+        Bonne nouvelle — aucun manque significatif en nutriments détecté sur
+        {days, plural, one {le dernier jour} other {les # derniers jours}} !
+    gaps_detected: >-
+        {count, plural, one {<strong># manque en nutriment
+        détecté.</strong>} other {<strong># manques en nutriments
+        détectés.</strong>}} Ce sont des estimations fondées sur l'analyse
+        IA des aliments. Consultez un professionnel de santé avant de
+        commencer des compléments.
+    pct_rda: '{pct} % des AJR'
+    avg_rda: "Moy. : {avg} {unit} / jour · AJR : {rda} {unit}"
+    yours: Vos compléments
+    none_yet: >-
+        Aucun pour le moment. {link}Scannez un flacon{link_end} et les
+        compléments actifs seront intégrés aux totaux de nutriments
+        ci-dessus.
+    active_note: Les compléments actifs sont comptés dans vos totaux quotidiens de nutriments ci-dessus.
+    per_serving: '{count, plural, one {# nutriment par portion} other {# nutriments par portion}}'
+    active: Actif
+    inactive: Inactif
+    servings_day: Portions/jour
+    save: Enregistrer
+    disable: Désactiver
+    enable: Activer
+    delete_confirm: Retirer {name} ?
+    scan:
+        title: Scanner un complément
+        back: Retour
+        lead: >-
+            Prenez une photo nette du panneau <strong>Supplement
+            Facts</strong> (valeurs nutritionnelles). Si l'étiquette fait le
+            tour du flacon, prenez-la en <strong>deux ou trois
+            photos</strong> et sélectionnez-les toutes — nous les lirons
+            ensemble et combinerons les résultats. Vous pourrez tout revoir
+            et modifier avant d'enregistrer.
+        photos: Photo(s) de l'étiquette du complément
+        submit: Lire l'étiquette
+        failed: Nous n'avons pas pu lire cette étiquette. Réessayez avec une photo plus nette.
+    confirm:
+        title: Vérifier le complément
+        lead: >-
+            Vérifiez ce que nous avons lu sur l'étiquette et ajustez si
+            besoin. Les valeurs vides ou à zéro sont ignorées.
+        confidence: '{pct} % de confiance'
+        name: Nom
+        serving_size: "Taille de portion : {size}"
+        servings_per_day: Portions / jour
+        macros: Macros par portion
+        micros: Vitamines et minéraux par portion
+        save: Enregistrer le complément
+        cancel: Annuler
+    added: '« {name} » ajouté à vos compléments.'
+    removed: Complément supprimé.
+nutrient_full:
+    fiber: Fibres
+    vitaminA: Vitamine A
+    vitaminB1: Vitamine B1 (thiamine)
+    vitaminB2: Vitamine B2 (riboflavine)
+    vitaminB3: Vitamine B3 (niacine)
+    vitaminB6: Vitamine B6
+    vitaminB9: Folate (B9)
+    vitaminB12: Vitamine B12
+    vitaminC: Vitamine C
+    vitaminD: Vitamine D
+    vitaminE: Vitamine E
+    vitaminK: Vitamine K
+    calcium: Calcium
+    iron: Fer
+    magnesium: Magnésium
+    phosphorus: Phosphore
+    potassium: Potassium
+    zinc: Zinc
+    selenium: Sélénium
+    calories: Calories
+    protein: Protéines
+    carbohydrates: Glucides
+    fat: Lipides totaux
+    saturatedFat: Graisses saturées
+    sugar: Sucre
+    sodium: Sodium
+supp_suggestion:
+    fiber: >-
+        Envisagez un complément de fibres (psyllium) ou mangez plus de
+        légumineuses, de céréales complètes et de légumes.
+    vitaminA: >-
+        Envisagez un complément de vitamine A ou consommez davantage de
+        foie, de patate douce et de carottes.
+    vitaminB1: Envisagez un complexe de vitamines B ou mangez plus de céréales complètes et de légumineuses.
+    vitaminB2: >-
+        Envisagez un complexe de vitamines B ou mangez plus de produits
+        laitiers, d'œufs et de viandes maigres.
+    vitaminB3: Envisagez un complexe de vitamines B ou mangez plus de volaille, de poisson et de cacahuètes.
+    vitaminB6: >-
+        Envisagez un complément de vitamine B6 ou mangez plus de volaille,
+        de poisson, de pommes de terre et de bananes.
+    vitaminB9: >-
+        Envisagez un complément de folate ou un complexe B. Bonnes sources
+        alimentaires : légumes-feuilles, haricots.
+    vitaminB12: >-
+        Envisagez un complément de vitamine B12 (particulièrement important
+        pour les alimentations végétales).
+    vitaminC: >-
+        Envisagez un complément de vitamine C ou mangez plus d'agrumes, de
+        poivrons et de brocoli.
+    vitaminD: >-
+        Envisagez un complément de vitamine D3 — la plupart des gens en
+        manquent, surtout en intérieur.
+    vitaminE: >-
+        Envisagez un complément de vitamine E ou mangez plus de noix, de
+        graines et d'huiles végétales.
+    vitaminK: >-
+        Envisagez un complément de vitamine K2 ou mangez plus de
+        légumes-feuilles et d'aliments fermentés.
+    calcium: >-
+        Envisagez un complément de calcium ou augmentez les produits
+        laitiers, les laits végétaux enrichis et les légumes-feuilles.
+    iron: >-
+        Envisagez un complément de fer — consultez d'abord votre médecin,
+        l'excès de fer étant nocif.
+    magnesium: >-
+        Envisagez un complément de glycinate de magnésium — un manque
+        courant, et il favorise le sommeil.
+    potassium: "Augmentez les aliments riches en potassium : bananes, avocats, patates douces, haricots."
+    zinc: Envisagez un complément de zinc ou mangez plus d'huîtres, de bœuf et de graines de courge.
+    selenium: >-
+        Deux noix du Brésil par jour couvrent les AJR en sélénium, ou
+        envisagez un complément.
+delivery:
+    digest:
+        subject: NouriLoop — quelques points qui méritent un coup d'œil
+        hi: "Bonjour {name}, voici ce qui mérite un coup d'œil :"
+        no_meals_title: Aucun repas enregistré aujourd'hui
+        no_meals_body: >-
+            Vous n'avez encore enregistré aucun repas aujourd'hui. Une photo
+            rapide garde vos totaux quotidiens et vos tendances
+            nutritionnelles à jour.
+        stale_title: Vos données de santé datent un peu
+        stale_last: "Votre mesure la plus récente date du {date}. Cela fait plus d'une semaine —"
+        stale_none: Vous n'avez encore enregistré aucune donnée de santé —
+        stale_tail: >-
+            importez vos dernières données de poids, de glucose ou de
+            sommeil pour garder vos tendances exactes.
+        calorie_title: >-
+            Les calories du {date} semblaient {direction, select, low
+            {basses} other {élevées}}
+        calorie_logged: Vous avez enregistré environ <strong>{value} kcal</strong>
+        calorie_vs_avg: ' contre vos ~{average} kcal/jour habituels'
+        calorie_low_note: Si ce n'était pas volontaire, vous mangez peut-être trop peu.
+        calorie_high_note: Un coup d'œil s'impose si vous surveillez vos apports.
+        supp_title: Manques en nutriments cette semaine
+        supp_lead: "Sur les 7 derniers jours, ces nutriments sont restés bas :"
+        supp_gap: '{label} — {pct} % de la cible.'
+        footer: >-
+            Vous recevez ce message parce que les notifications sont activées
+            sur votre compte. Vous pouvez modifier ce que vous recevez sur la
+            page Paramètres › Notifications.
+    inapp:
+        no_meals_title: Aucun repas enregistré aujourd'hui
+        no_meals_body: >-
+            Rien d'enregistré pour le {date} pour l'instant — prenez une
+            photo pour garder votre journal à jour.
+        stale_title: Vos données de santé ont besoin d'une mise à jour
+        stale_body: Votre dernière mesure date du {date}. Importez des données récentes quand vous le pouvez.
+        stale_body_none: >-
+            Nous n'avons encore aucune mesure de santé. Importez-en pour
+            débloquer vos tendances.
+        calorie_title: >-
+            Les calories semblaient {direction, select, low {basses} other
+            {élevées}} le {date}
+        calorie_body_avg: >-
+            Vous avez enregistré {value} kcal, {direction, select, low {en
+            dessous de} other {au-dessus de}} vos ~{average} kcal/jour
+            habituels.
+        calorie_body: >-
+            Vous avez enregistré {value} kcal, ce qui est {direction, select,
+            low {en dessous de} other {au-dessus de}} la plage saine
+            habituelle.
+        supp_title: Suggestions de compléments de la semaine
+        supp_body_none: >-
+            Quelques nutriments sont restés bas cette semaine — consultez
+            vos suggestions de compléments.
+        supp_body: >-
+            {count, plural, one {# nutriment est resté bas cette semaine :
+            {list}.} other {# nutriments sont restés bas cette semaine :
+            {list}.}}
+    sms:
+        no_meals: aucun repas enregistré aujourd'hui
+        stale: données de santé pas à jour
+        calories: "{date} : {value} kcal ({direction, select, low {bas} other {élevé}})"
+        supplements: >-
+            {count, plural, one {# nutriment bas cette semaine} other {#
+            nutriments bas cette semaine}}
+        wrapper: "NouriLoop : {body}. Voir l'application."
+    checkin:
+        subject: "Bilan d'objectif : {name}"
+        hi: 'Bonjour {name}, voici votre bilan pour <strong>{goal}</strong>.'
+        vs_target: vs cible {direction} {value} {unit}
+        chart_alt: Graphique de progression
+        view: Voir cet objectif
+        footer: >-
+            Ceci est un retour bien-être, pas un avis médical. Vous le
+            recevez parce que vous avez configuré un bilan d'objectif sur
+            NouriLoop — vous pouvez mettre l'objectif en pause ou le
+            supprimer à tout moment depuis sa page.
+        inapp_title: '{goal} — {status}'
+        sms: "Objectif NouriLoop « {name} » : {status}. Voir les détails dans l'application."
+    email:
+        hi: 'Bonjour {name},'
+        change_lead: >-
+            Vous avez demandé à passer votre e-mail de connexion NouriLoop à
+            cette adresse. Cliquez sur le bouton pour confirmer le changement.
+        change_cta: Confirmer le nouvel e-mail
+        change_note: >-
+            Si vous n'êtes pas à l'origine de cette demande, ignorez ce
+            message — rien ne change tant que le bouton n'est pas cliqué. Le
+            lien est valable 24 heures.
+        changed_notice: >-
+            L'e-mail de connexion de votre compte NouriLoop vient d'être changé
+            en {new}. Si c'était vous, aucune action n'est requise. Sinon,
+            contactez immédiatement info@nouriloop.com.
+        team: — L'équipe NouriLoop
+        link_lead: Touchez le bouton ci-dessous pour vous connecter à NouriLoop — aucun mot de passe nécessaire.
+        link_cta: Se connecter à NouriLoop
+        link_expiry: >-
+            Ce lien fonctionne une seule fois et expire dans {minutes,
+            plural, one {# minute} other {# minutes}}. S'il a expiré,
+            demandez-en simplement un nouveau depuis la page de connexion.
+        link_ignore: >-
+            Vous n'avez rien demandé ? Vous pouvez ignorer cet e-mail en
+            toute sécurité — personne ne peut se connecter sans ce lien.
+        verify_lead: >-
+            Touchez le bouton ci-dessous pour confirmer cette adresse e-mail
+            — cela vous connecte aussi.
+        verify_cta: Confirmer mon e-mail et me connecter
+        verify_note: >-
+            La confirmation permet aux liens de connexion et aux rappels que
+            vous activez de vous parvenir. Le lien expire sous 24 heures —
+            s'il a expiré, redemandez-en un depuis la bannière dans
+            l'application, ou connectez-vous par lien e-mail (cela le
+            confirme aussi).
+        reset_hi: Bonjour !
+        reset_lead: Pour réinitialiser votre mot de passe, veuillez visiter le lien suivant
+        reset_expiry: Ce lien expirera dans {duration}.
+        reset_bye: À bientôt !
+    transactional:
+        login_link_subject: Votre lien de connexion NouriLoop
+        verify_subject: Confirmez votre e-mail NouriLoop
+        reset_subject: Votre demande de réinitialisation de mot de passe
+        email_change_subject: Confirmez votre nouvel e-mail NouriLoop
+        email_changed_subject: Votre e-mail de connexion NouriLoop a été changé
+help_assistant:
+    fallback_none: >-
+        Je n'ai pas trouvé de correspondance proche. Parcourez les rubriques
+        d'aide ci-dessous, ou reformulez votre question.
+    fallback_intro: "Voici les pages d'aide les plus liées à votre question :"
+    # Lignes de mots-clés pour la recherche multilingue de l'assistant d'aide —
+    # texte non visible. Synonymes naturels qu'un utilisateur taperait ; les
+    # accents sont normalisés lors de la comparaison. Ne jamais utiliser `{`.
+    keywords:
+        dashboard: aujourd'hui aperçu accueil tableau bord résumé vue quotidienne
+        log-meal: >-
+            enregistrer journal repas aliment nourriture photo caméra
+            petit-déjeuner déjeuner dîner collation portion sauvegarder
+        favorites: favoris favori enregistrés répéter réutiliser rapide fréquents
+        import-recipe: >-
+            importer recette recettes livre de cuisine fiche
+            manuscrite scanner photographier portions rendement
+            cuisiner ingrédients étapes plat
+        health-metrics: >-
+            importer données santé poids glucose glycémie pas sommeil fréquence
+            cardiaque tension artérielle balance téléverser fichier
+        supplements: >-
+            compléments complément alimentaire vitamines minéraux étiquette
+            scanner gélules comprimés
+        inflammation: inflammation inflammatoire anti-inflammatoire score alimentation poussée
+        symptoms: >-
+            symptômes symptôme douleur raideur énergie tête migraine
+            ballonnements articulations suivre relation
+        glucose: glucose glycémie sucre sang pics hausse réponse courbe capteur
+        connect-cgm: >-
+            connecter capteur lingo stelo mesure continue configurer iphone
+            automatique lectures envoyer
+        goals: objectifs objectif progrès suivi rappels protéines fibres
+        settings: >-
+            paramètres réglages notifications fuseau horaire unités langue
+            courriel sms compte préférences ton voix glp-1 abonnement
+            forfait facturation résilier supprimer
+inbox:
+    title: Notifications
+    empty: Aucune notification pour le moment.
+    empty_sub: Les bilans d'objectifs et les rappels de NouriLoop apparaîtront ici.
+    new: Nouveau
+    gone: Cet élément n'est plus disponible.
+favorite:
+    empty_cta: "Enregistrez un repas pour commencer"
+    title: Favoris
+    heading: Repas favoris
+    log_photo: Enregistrer plutôt depuis une photo
+    sort: Trier
+    sort_recent: Utilisés récemment
+    sort_used: Les plus utilisés
+    sort_name: Nom
+    empty: >-
+        Pas encore de favoris. Enregistrez un repas comme favori depuis sa
+        page de détail ou l'écran de vérification pour le réutiliser ici
+        sans réanalyser de photo.
+    savings: Analyses Claude évitées grâce à la réutilisation des favoris
+    search_ph: Rechercher un favori par nom…
+    used: '{count, plural, one {Utilisé #×} other {Utilisé #×}}'
+    last_used: ', dernière fois {date}'
+    meal: Repas
+    servings: Portions
+    log_it: Ajouter au journal
+    edit: Modifier
+    delete: Supprimer
+    delete_confirm: Supprimer ce favori ? Les repas déjà enregistrés à partir de lui sont conservés.
+    name: Nom
+    protein_g: Protéines g
+    carbs_g: Glucides g
+    fat_g: Lipides g
+    save: Enregistrer les modifications
+    no_matches: Aucun favori ne correspond à votre recherche.
+    saved: '« {name} » enregistré dans vos favoris.'
+    logged: '« {name} » enregistré au journal.'
+    updated: '« {name} » mis à jour.'
+    removed: Favori supprimé.
+meal:
+    type:
+        breakfast: Petit-déjeuner
+        lunch: Déjeuner
+        dinner: Dîner
+        snack: Collation
+    form:
+        meal_type: Type de repas
+        photo: Photo du plat
+        notes: Notes (facultatif)
+        notes_ph: Indiquez à l'IA ce que la photo ne montre pas — nom du plat, restaurant, ingrédients, préparation…
+        describe: Décrivez votre repas
+        describe_ph: P. ex. salade César au poulet de Sweetgreen, grande, sans croûtons
+    history:
+        title: Historique des repas
+        heading: Historique des repas
+        lead: Tout ce que vous avez enregistré, du plus récent au plus ancien.
+        filter_from: Du
+        filter_to: Au
+        filter_type: Type de repas
+        filter_all: Tous les types
+        filter_apply: Filtrer
+        filter_clear: Effacer
+        empty: Vous n'avez encore enregistré aucun repas.
+        empty_cta: Enregistrer votre premier repas
+        no_match: Aucun repas ne correspond à ces filtres.
+        showing: Affichage de {first}–{last} sur {total, plural, one {# repas} other {# repas}}
+        prev: Précédent
+        next: Suivant
+    edit:
+        title: Modifier le repas
+        back: Retour au repas
+        lead: >-
+            Modifiez le type de repas, l'heure, les notes, les valeurs
+            nutritionnelles ou la portion — chaque graphique et moyenne se met
+            à jour automatiquement.
+        when_label: Date et heure
+        when_help: Déplacer ce repas vers un autre jour déplace aussi sa nutrition, son score et ses graphiques.
+        day_change_warning: >-
+            Vous déplacez ce repas vers un autre jour. Les totaux, scores et
+            graphiques des deux jours seront mis à jour.
+        day_change_confirm: Déplacer ce repas et ses totaux vers le nouveau jour
+        day_change_required: Veuillez confirmer le déplacement de ce repas vers un autre jour.
+        future_time: Cette date et cette heure sont dans le futur.
+        nutrition_heading: Nutrition
+        nutrition_hint: >-
+            Corrigez tout chiffre que l'IA a mal estimé — ce sont les valeurs
+            utilisées par tous les graphiques et moyennes. Laissez un champ
+            vide pour conserver la valeur actuelle.
+        portion_label: Ajustement de portion
+        portion_help: >-
+            Multiplie tout le repas une seule fois à l'enregistrement — 0.5 si
+            vous avez mangé la moitié, 2 pour le double.
+        scope_note: "Changer la photo ou relancer l'analyse IA se fait sur une page dédiée :"
+        reanalyze_link: Réanalyser ce repas
+        save: Enregistrer les modifications
+        cancel: Annuler
+        saved: Repas mis à jour.
+    reanalyze:
+        title: Réanalyser le repas
+        heading: Réanalyser ce repas
+        back: Retour au repas
+        lead: >-
+            Ajoutez ou remplacez la photo, corrigez la description, et l'IA
+            réestimera ce repas. Vous verrez exactement ce qui changerait avant
+            que quoi que ce soit ne soit enregistré.
+        cost_note: >-
+            Cela lance une nouvelle analyse IA et consomme l'une de vos
+            analyses mensuelles — le même quota que celui utilisé pour
+            enregistrer un repas.
+        has_manual_edits: >-
+            Vous avez corrigé les chiffres de ce repas à la main le {date}. Une
+            réanalyse peut les remplacer, une confirmation vous sera donc
+            demandée.
+        photo_label: Photo (facultatif)
+        photo_help: >-
+            Ajoutez jusqu'à 3 photos — une meilleure prise du repas ou son
+            étiquette nutritionnelle. Laissez vide pour réestimer uniquement à
+            partir de la description.
+        photo_help_reuse: >-
+            Ajoutez jusqu'à 3 photos — une meilleure prise du repas ou son
+            étiquette nutritionnelle. Laissez vide et l'IA relira la photo
+            actuelle de ce repas en même temps que votre description.
+        current_photo: Photo actuelle de ce repas
+        replace_photo: Utiliser ma première nouvelle photo comme photo de ce repas (remplace l'actuelle)
+        description_label: Description à utiliser par l'IA
+        description_help: >-
+            Corrigez ou ajoutez ce que la photo ne montre pas — nom du plat,
+            restaurant, ingrédients, mode de préparation. Enregistré comme
+            notes de ce repas si vous appliquez le résultat.
+        need_input: >-
+            Ajoutez une photo ou décrivez le repas — il n'y a rien à partir de
+            quoi réestimer.
+        photos_expired: >-
+            Les photos envoyées pour cette réanalyse ne sont plus disponibles :
+            l'estimation peut être appliquée, mais ce repas conserve sa photo
+            actuelle.
+        submit: Réanalyser ce repas
+        review_title: Vérifier la réanalyse
+        review_heading: Vérifier la nouvelle estimation
+        review_lead: >-
+            Rien n'a encore changé. Voici ce que l'application de cette
+            réanalyse ferait aux chiffres derrière vos graphiques et vos
+            moyennes.
+        no_changes: >-
+            L'IA est revenue avec les mêmes chiffres : l'appliquer ne
+            changerait donc rien. L'analyse a tout de même été comptée dans
+            votre quota mensuel.
+        new_photos: Nouvelles photos
+        photo_will_replace: La première deviendra la photo du repas lorsque vous appliquerez.
+        photo_aid_only: >-
+            Utilisées uniquement pour cette estimation — le repas conserve sa
+            photo actuelle, et celles-ci sont supprimées dans tous les cas.
+        new_description: Description proposée
+        old_description: Description actuelle
+        new_ingredients: Ingrédients proposés
+        ingredients_replaced: L'application remplace la liste d'ingrédients du repas par celle-ci.
+        ai_unsure: L'IA hésitait sur
+        diff_heading: Ce qui changerait
+        confidence_line: "Confiance de l'IA : {proposed}% pour cette estimation, contre {current}% avant."
+        col_nutrient: Nutriment
+        col_current: Actuel
+        col_proposed: Proposé
+        col_change: Écart
+        change_added: nouvellement estimé
+        change_removed: plus estimé
+        overwrite_strong: Cela remplacerait des chiffres que vous avez corrigés vous-même.
+        overwrite_text: >-
+            Vous avez modifié la nutrition de ce repas à la main le {date}.
+            Cochez la case ci-dessous si vous voulez que la nouvelle estimation
+            de l'IA remplace vos corrections.
+        overwrite_confirm: Remplacer mes corrections manuelles par cette estimation
+        overwrite_required: >-
+            Veuillez d'abord confirmer le remplacement de vos corrections
+            manuelles.
+        apply: Appliquer cette estimation
+        discard: Abandonner
+        discard_help: >-
+            Abandonner laisse le repas exactement tel qu'il est. Dans tous les
+            cas, l'analyse est déjà comptée.
+        applied: Nouvelle estimation appliquée.
+        discarded: Réanalyse abandonnée — le repas est inchangé.
+    ingredients: Ingrédients identifiés
+    photo_alt: Photo du repas
+    log:
+        title: Enregistrer un repas
+        heading: Enregistrer un repas
+        favorite_pitch: Vous mangez souvent ceci ? Enregistrez un favori
+        favorite_sub: Réutilisez un repas sauvegardé — sans photo, sans nouvelle analyse.
+        drop_hint: Glissez-déposez une photo ici, ou cliquez pour parcourir
+        drop_formats: JPEG, PNG, WebP, HEIC · 20 Mo max
+        submit: Analyser et enregistrer le repas
+        analyzing: Analyse de votre repas par l'IA… cela prend quelques secondes.
+        analyzing_btn: Analyse en cours…
+        limit_reached: >-
+            Vous avez utilisé vos 10 analyses gratuites ce mois-ci. Passez à
+            Loop pour des photos illimitées.
+        analyze_failed: Nous n'avons pas pu analyser cette photo. Veuillez réessayer dans un instant.
+        reanalyze_failed: Nous n'avons pas pu relancer l'analyse. Veuillez réessayer dans un instant.
+        retry_lead: Votre photo est enregistrée — inutile de la téléverser à nouveau.
+        retry_sub: Le type de repas et les notes sont aussi conservés. Réessayez quand vous voulez.
+        retry_button: Relancer l'analyse
+        need_photo_or_text: Ajoutez une photo ou décrivez votre repas — les deux fonctionnent.
+        multi_hint: Jusqu'à 3 photos d'un repas — p. ex. le plat et son étiquette nutritionnelle.
+        use_camera: Prendre une photo maintenant
+        preparing: Préparation de la photo…
+        describe_toggle: Pas de photo ? Décrivez votre repas
+        describe_hint: L'IA estime la nutrition à partir de votre texte — vous vérifierez et ajusterez avant d'enregistrer.
+        allowance_left: '{remaining, plural, one {# analyse IA gratuite sur {limit} restante ce mois-ci} other {# analyses IA gratuites sur {limit} restantes ce mois-ci}}'
+        allowance_upgrade: Passez à l'illimité
+        session_expired: Votre session a expiré — veuillez vérifier et soumettre à nouveau.
+        saved: Repas enregistré.
+        saved_portions: Repas enregistré ({count} portions).
+        deleted: Repas supprimé.
+        favorite_saved: '« {name} » enregistré dans vos favoris.'
+    clarify:
+        title: Préciser le repas
+        heading: Confirmer et affiner
+        round: Tour {round}
+        ai_confidence: Confiance de l'IA
+        hint_confident: >-
+            L'IA est confiante dans cette estimation — vous pouvez
+            l'enregistrer maintenant, ou d'abord ajuster les ingrédients.
+        hint_questions: >-
+            Pas encore totalement confiante — répondez aux questions
+            ci-dessous (ou corrigez les ingrédients) et relancez l'analyse
+            pour une estimation plus précise.
+        hint_no_more: >-
+            L'IA n'a pas pu gagner en confiance par elle-même — enregistrez
+            l'estimation telle quelle, ou corrigez les ingrédients et
+            relancez l'analyse.
+        your_meal_alt: Votre repas
+        described_as: Votre description
+        ingredients_count: '{count, plural, one {# ingrédient} other {# ingrédients}} — touchez pour vérifier ou modifier'
+        logging_for: Sera enregistré pour {datetime}
+        change: modifier
+        favorite_name_link: Nommer ce favori (facultatif)
+        ai_sees: Ce que voit l'IA
+        edit_hint: Corrigez tout ce qui est faux
+        col_ingredient: Ingrédient
+        col_amount: Quantité
+        col_unit: Unité
+        optional_ph: facultatif
+        unit_ph: g / tasse…
+        remove: Retirer
+        add_ingredient: Ajouter un ingrédient
+        amounts_note: >-
+            Les quantités sont <strong>facultatives</strong> — les étiquettes
+            des produits emballés ne les indiquent pas. NouriLoop relie les
+            <em>noms</em> de ces ingrédients à vos symptômes et à votre score
+            d'inflammation, et la nutrition ci-dessus vient directement de
+            l'étiquette.
+        questions_heading: "Questions complémentaires :"
+        answer_ph: Votre réponse…
+        extra_photo: Ajouter une autre photo
+        extra_photo_eg: — p. ex. une étiquette de valeurs nutritionnelles
+        extra_photo_lead: >-
+            Vous avez l'emballage ou l'étiquette ? Ajoutez-les ici et
+            <strong>relancez l'analyse</strong> — l'IA les lit avec la photo
+            de votre repas pour une estimation plus précise.
+        added_photo_alt: Photo ajoutée
+        previous_answers: Réponses précédentes
+        nutrition_heading: Nutrition estimée
+        for_one: — pour une portion
+        for_n: — pour {count} portions
+        servings_q: Combien de portions avez-vous mangées ?
+        servings_unit: portions
+        servings_note: >-
+            L'estimation ci-dessus vaut pour <strong>une portion</strong>.
+            Vous avez mangé plus ou moins — par exemple une pizza entière de
+            4 portions ? Modifiez cette valeur et les chiffres se mettent à
+            jour en direct ; c'est cela qui est enregistré. (La
+            <em>Quantité</em> d'un ingrédient n'est que la taille de cet
+            élément — elle ne change pas le total.)
+        glp1_tip: >-
+            <strong>Astuce GLP-1 :</strong> des portions plus petites,
+            protéines d'abord, sont plus faciles à tolérer et aident à
+            préserver la masse maigre. Si vous n'avez pas pu finir la
+            portion, réglez cette valeur sous 1 pour que votre journal
+            reflète ce que vous avez vraiment mangé.
+        when_q: Quand avez-vous mangé cela ?
+        when_note: >-
+            Par défaut, l'horodatage de la photo — ajustez si vous
+            l'enregistrez après coup.
+        backdate: >-
+            Attention — ce repas sera enregistré pour le {date}, pas pour
+            aujourd'hui. Modifiez la date ci-dessus si ce n'est pas ce que
+            vous vouliez.
+        favorite_name: Nom du favori
+        favorite_name_hint: — utilisé si vous l'enregistrez comme favori
+        favorite_ph: p. ex. Flocons d'avoine du mardi
+        save: Enregistrer au journal
+        save_fav: Enregistrer au journal et ajouter aux favoris
+        reanalyze: Relancer l'analyse avec les corrections
+        round_limit: "Cette estimation est affinée au maximum — ajustez les portions si besoin et enregistrez-la."
+        save_anyway: Enregistrer quand même
+    show:
+        first_meal_text_backdated: >-
+            NouriLoop a lu sa valeur nutritionnelle pour vous — aucune saisie
+            manuelle. Le repas est enregistré à sa propre date, et la
+            prochaine étape de configuration vous attend sur le tableau de
+            bord.
+        first_meal_cta_backdated: "Ouvrir le tableau de bord"
+        first_meal_strong: "Votre premier repas est enregistré ! 🎉"
+        first_meal_text: >-
+            NouriLoop a lu sa valeur nutritionnelle pour vous — aucune saisie
+            manuelle. Votre tableau de bord note désormais l'alimentation du
+            jour, et la prochaine étape de configuration vous y attend.
+        first_meal_cta: "Voir la note du jour"
+        title: Détail du repas
+        back: Tableau de bord
+        duplicate_strong: Doublon possible.
+        duplicate_text: >-
+            Vous avez déjà enregistré cette même photo à cette date et
+            heure. Si vous ne vouliez pas l'ajouter à nouveau, supprimez
+            cette entrée.
+        duplicate_confirm: Supprimer cette entrée en double ?
+        delete_confirm: Supprimer cette entrée de repas ?
+        delete: Supprimer l'entrée
+        edit: Modifier
+        edited: Modifié le {date}
+        nutrition_edited: Modifié par vous · {date}
+        reanalyzed: Réanalysé par l'IA le {date}
+        reanalyze: Réanalyser avec l'IA
+        reanalyze_hint: >-
+            Meilleure photo, ou description inexacte ? Relancez l'IA — vous
+            vérifierez les nouveaux chiffres avant que quoi que ce soit ne
+            change. Consomme une analyse mensuelle.
+        reanalyze_cta: Réanalyser ce repas
+        ai_description: Description de l'IA
+        notes: Notes
+        nutrition_heading: Résumé nutritionnel
+        ai_confidence: "Confiance de l'IA :"
+        save_favorite: Enregistrer comme favori
+        favorite_ph: Nom du favori
+        save: Enregistrer
+        favorite_hint: Réutilisez ce repas plus tard sans réanalyser de photo.
+        glucose:
+            heading: Réponse glycémique
+            confidence: >-
+                {level, select, high {Confiance élevée} moderate {Confiance
+                modérée} low {Confiance faible} other {Confiance {level}}}
+            peak: Pic ({unit})
+            rise: Hausse depuis la base
+            time_to_peak: Temps jusqu'au pic
+            back_to_baseline: Retour à la base
+            narrative: >-
+                Après ce repas, votre glycémie est passée d'une valeur de
+                base de <strong>{baseline} {unit}</strong> à un pic de
+                <strong>{peak} {unit}</strong> ({delta}) environ
+                <strong>{minutes} minutes</strong> plus tard{return_clause}.
+                D'après {count, plural, one {# mesure de glucose} other {#
+                mesures de glucose}} autour de ce repas. Ceci est un repère
+                bien-être éducatif, pas une mesure médicale.
+            return_clause: >-
+                , avec un retour à la base vers <strong>{minutes}
+                minutes</strong>
+            sparse: >-
+                Seulement {count, plural, one {# mesure de glucose} other {#
+                mesures de glucose}} près de ce repas — pas assez pour
+                tracer une courbe de réponse. Des données de glucose en
+                continu (p. ex. un capteur porté en permanence) donnent une
+                mesure complète toutes les quelques minutes.
+            vs_estimate: vs estimation nutritionnelle
+            gl_badge_title: >-
+                Charge glycémique estimée d'après les glucides, fibres,
+                sucres, lipides et protéines
+            band_much_lower: >-
+                Votre réponse a été <strong>nettement plus basse</strong> que
+                ne le suggère le profil nutritionnel de ce repas — les
+                lipides, les protéines ou la composition de l'aliment
+                freinent peut-être l'absorption.
+            band_lower: >-
+                Votre réponse a été <strong>modérément plus basse
+                qu'attendu</strong> pour ce profil nutritionnel.
+            band_as_expected: >-
+                Votre réponse est restée <strong>dans la plage
+                attendue</strong> pour le contenu nutritionnel de ce repas.
+            band_higher: >-
+                Votre réponse a été <strong>plus élevée qu'attendu</strong> —
+                ce repas a peut-être fait monter la glycémie plus que ses
+                macros seuls ne le prédisent.
+            band_much_higher: >-
+                Votre réponse a été <strong>nettement plus élevée
+                qu'attendu</strong> — à noter si ce schéma se répète.
+            band_closing: >-
+                L'estimation utilise un modèle de charge glycémique dérivé
+                des glucides, fibres, sucres, lipides et protéines de ce
+                repas.
+            gl_low: faible
+            gl_medium: moyenne
+            gl_high: élevée
+            chart_minutes: Minutes par rapport au repas (0 = repas)
+            chart_glucose: Glucose ({unit})
+            chart_baseline: Base
+        locked:
+            lead: >-
+                Vous avez des données de glucose autour de ce repas. Passez à
+                Loop+ pour voir la courbe de réponse, le pic et la
+                comparaison entre la hausse mesurée et la nutrition de ce
+                repas.
+            upgrade: Passer à Loop+
+confidence:
+    high: Élevée
+    medium: Moyenne
+    low: Faible
+macro:
+    kcal: kcal
+    abbr_protein: P
+    abbr_carbs: G
+    abbr_fat: L
+    protein: Protéines
+    carbs: Glucides
+    fat: Lipides
+nutrient:
+    fiber: Fibres
+    sugar: Sucre
+    saturated_fat: Graisses saturées
+    sodium: Sodium
+    potassium: Potassium
+    calcium: Calcium
+    iron: Fer
+    magnesium: Magnésium
+    zinc: Zinc
+    vitamin_a: Vitamine A
+    vitamin_c: Vitamine C
+    vitamin_d: Vitamine D
+    vitamin_b12: Vitamine B12
+trends:
+    title: Analyses et tendances
+    subtitle: >-
+        {days, plural, one {Vos tendances sur le dernier jour} other {Vos
+        tendances sur les # derniers jours}} — pas seulement aujourd'hui.
+    empty: Pas encore de données pour cette période.
+    log_first: Enregistrez votre premier repas
+    back: Retour à la vue d'ensemble
+    about: À propos de ce graphique
+    about_plural: À propos de ces graphiques
+    tap_hint: >-
+        Touchez une tuile pour ouvrir son graphique, avec une explication de
+        ce qu'il montre et de la façon dont il est calculé.
+    arrows_legend: >-
+        Les flèches indiquent la <strong>direction sur {days, plural, one
+        {le dernier jour} other {les # derniers jours}}</strong> — pas
+        seulement aujourd'hui : <span class="text-nowrap"><i class="bi
+        bi-arrow-up-right"></i> en hausse</span>, <span
+        class="text-nowrap"><i class="bi bi-arrow-down-right"></i> en
+        baisse</span>, <span class="text-nowrap"><i class="bi
+        bi-arrow-right"></i> stable</span>. La couleur de la tuile indique si
+        un changement est bon ou non (<span class="text-success
+        fw-semibold">vert</span> bon · <span class="text-warning
+        fw-semibold">ambre</span> à surveiller · <span class="text-danger
+        fw-semibold">rouge</span> attention).
+    trend_up: En hausse
+    trend_down: En baisse
+    trend_flat: Stable
+    trend_title: >-
+        {days, plural, one {{label} sur le dernier jour} other {{label} sur
+        les # derniers jours}}
+    last_days: '({days, plural, one {dernier jour} other {# derniers jours}})'
+    inflammation:
+        heading: Score d'inflammation alimentaire
+        legend: >-
+            −10 anti-inflammatoire · 0 neutre · +10 pro-inflammatoire. Une
+            estimation éducative à partir des aliments enregistrés — pas un
+            avis médical.
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            une estimation quotidienne de −10 (anti-) à +10
+            (pro-inflammatoire) de vos aliments enregistrés — un repère
+            bien-être éducatif, pas un avis médical.</p> <p
+            class="mb-1"><strong>Source des données :</strong> les repas
+            enregistrés chaque jour — leur nutrition analysée et leur liste
+            d'ingrédients.</p> <p class="mb-1"><strong>Comment c'est
+            calculé :</strong> une heuristique pure (sans IA) combine un
+            socle de nutriments (graisses saturées, sucre et sodium poussent
+            vers le pro ; fibres + micronutriments antioxydants A/C/D/E, B6,
+            folate, B12, Mg, Zn, Se en % des AJR poussent vers l'anti —
+            directionnalité selon le Dietary Inflammatory Index) avec des
+            ajustements par mots-clés d'aliments (charcuterie / friture /
+            sucré → pro ; poisson gras, huile d'olive, légumes-feuilles,
+            baies, curcuma → anti, plafonnés par repas), le tout sommé par
+            jour local et borné à −10…+10.</p>
+        track_symptom: >-
+            {link}Suivez un symptôme{link_end} (douleur articulaire,
+            ballonnements, mal de tête, énergie…) pour voir comment il évolue
+            avec ce score sur la tuile <strong>Symptômes</strong>.
+    symptom:
+        heading: Relations de {label}
+        legend: >-
+            Comment <strong>{label}</strong> évolue par rapport à ce que vous
+            avez mangé — et, si vous importez des données de santé, à vos
+            mesures corporelles. Chaque facteur a son propre mini-graphique
+            dans ses unités réelles, empilé sous {label} pour que vous
+            puissiez balayer verticalement et voir si un facteur a bougé le
+            même jour. Sous chaque graphique, nous listons uniquement les
+            facteurs présentant une corrélation <strong>statistiquement
+            significative</strong>.
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            le niveau quotidien de {label} (0–10) empilé au-dessus des autres
+            facteurs que vous suivez, chacun dans ses unités. La pile
+            <em>Alimentation</em> couvre les protéines, les glucides, les
+            lipides, les fibres et votre score d'inflammation alimentaire ;
+            la pile <em>Santé</em> couvre les pas, la glycémie, le poids et
+            le sommeil nocturne (affichés seulement si vous avez importé ces
+            mesures).</p> <p class="mb-1"><strong>Pourquoi empilés plutôt que
+            superposés :</strong> ces facteurs utilisent des unités très
+            différentes (grammes vs mg/dL vs pas) ; les superposer sur un
+            même axe cache les vrais chiffres ou noie la forme dans le
+            fouillis. L'empilement garde l'échelle réelle de chaque facteur
+            tout en alignant chaque panneau sur le même axe de dates —
+            survolez un point pour voir sa valeur exacte.</p> <p
+            class="mb-1"><strong>Corrélations significatives :</strong> pour
+            chaque facteur nous calculons un <em>r</em> de Pearson le jour
+            même et le lendemain (les effets peuvent être décalés), et un
+            test de significativité bilatéral. Seules les corrélations avec
+            au moins {minDays, plural, one {# jour apparié} other {# jours
+            appariés}} et p &lt; 0,05 sont listées — descriptives, pas
+            causales, et d'autant plus claires que vous enregistrez.</p>
+        diet_heading: Alimentation et {label}
+        health_heading: Données de santé et {label}
+        diet_corr: Corrélations alimentaires significatives
+        health_corr: Corrélations de santé significatives
+        corr_line: >-
+            <strong>{factor}</strong> {relation} {label} ({lag}, r = {r},
+            {n, plural, one {# jour} other {# jours}}).
+        corr_positive: a monté et baissé avec
+        corr_negative: a évolué à l'opposé de
+        same_day: le même jour
+        next_day: le lendemain
+        inflammation_heading: >-
+            Inflammation ↔ {label} — {n, plural, one {# jour apparié} other
+            {# jours appariés}}
+        same_day_avg: >-
+            Le même jour, {label} a été en moyenne de <strong>{pro}</strong>
+            les jours pro-inflammatoires contre <strong>{other}</strong> les
+            autres jours{r_note}.
+        next_day_avg: >-
+            Le lendemain, {label} a été en moyenne de <strong>{pro}</strong>
+            contre <strong>{other}</strong>{r_note}.
+        r_note: ' (corrélation r = {r})'
+        r_note_short: ' (r = {r})'
+        no_corr: >-
+            Pas encore de corrélation statistiquement significative sur cette
+            fenêtre — continuez à enregistrer et celles qui émergent
+            s'afficheront ici.
+    nausea:
+        heading: Déclencheurs possibles de nausées
+        insufficient: >-
+            Continuez vos bilans de nausées — avec quelques jours de plus
+            ({days, plural, one {# pour le moment} other {# pour le
+            moment}}), NouriLoop pourra repérer les aliments qui reviennent
+            souvent lors de vos jours de nausées plus fortes.
+        none: >-
+            Aucun aliment ne s'est distingué comme lié à des nausées plus
+            fortes sur {days, plural, one {votre dernier jour enregistré}
+            other {vos # derniers jours enregistrés}} (nausée moyenne
+            {avg}/10).
+        lead: >-
+            Aliments apparus plus souvent lors de vos jours de nausées plus
+            fortes sur {days, plural, one {# jour enregistré} other {# jours
+            enregistrés}} (nausée moyenne {avg}/10). C'est une association,
+            pas une cause — un repère bien-être, pas un avis médical.
+        stats: nausée {eaten} quand consommé vs {not} sinon
+        days_eaten: '{count, plural, one {# jour} other {# jours}}'
+    sleep:
+        heading: Sommeil
+        bars: Barres = heures totales de sommeil.
+        gap_line: Ligne orange = heures entre le dîner et l'endormissement.
+        glucose_dots: Points rouges = pic de glucose du soir (18 h–22 h).
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            les heures totales de sommeil par nuit, une ligne facultative de
+            délai dîner→sommeil et des points de glucose du soir.</p> <p
+            class="mb-1"><strong>Source des données :</strong> données de
+            phases de sommeil importées (Core/Deep/REM/inBed), horodatages
+            des repas et mesures de glucose.</p> <p
+            class="mb-1"><strong>Comment c'est calculé :</strong> heures
+            totales = somme des phases de sommeil d'une nuit ; délai = heures
+            entre le dîner et l'endormissement ; point de glucose du soir =
+            pic en {unit} de 18 h à 22 h. Le tableau ci-dessous associe pour
+            chaque nuit le dîner, le glucose du soir (pic 18 h–22 h), le
+            délai, le glucose nocturne (moyenne minuit–6 h) et le sommeil,
+            avec un code couleur à seuils fixes.</p>
+        table_heading: Dîner → Glucose → Sommeil
+        table_legend: >-
+            Glucose du soir = pic en {unit} de 18 h à 22 h. Glucose nocturne
+            = moyenne en {unit} de minuit à 6 h. Code couleur : <span
+            class="badge bg-success">bon</span> <span class="badge bg-warning
+            text-dark">à surveiller</span> <span class="badge
+            bg-danger">élevé</span>
+        col_night: Nuit
+        col_dinner: Dîner
+        col_cal: Cal
+        col_eve_glucose: Glucose du soir
+        col_gap: Délai
+        col_overnight: Glucose nocturne
+        col_sleep: Sommeil
+    health:
+        heading: Données de santé
+        legend: Bande ombrée = plage quotidienne min–max
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            vos mesures corporelles importées au fil du temps, avec une bande
+            de plage quotidienne. Touchez le bouton d'une métrique pour
+            ajouter ou retirer sa ligne.</p> <p class="mb-1"><strong>Source
+            des données :</strong> mesures importées via Apple Santé, Health
+            Auto Export ou l'API d'ingestion.</p> <p
+            class="mb-1"><strong>Comment c'est calculé :</strong> par jour
+            local, la ligne = moyenne quotidienne et la bande ombrée =
+            min–max quotidien ; aucune transformation au-delà de la
+            normalisation d'unités (p. ex. lb→kg). Le badge bon / à
+            surveiller / attention sur la tuile de chaque métrique évalue sa
+            dernière mesure selon des seuils simples, non médicaux.</p>
+    calories:
+        heading: Calories quotidiennes
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            le total de calories enregistrées par jour.</p> <p
+            class="mb-1"><strong>Source des données :</strong> les calories
+            analysées de vos repas enregistrés.</p> <p
+            class="mb-1"><strong>Comment c'est calculé :</strong> somme des
+            calories des repas par jour local. Le badge de la vue d'ensemble
+            s'allume quand la moyenne quotidienne descend sous 1200 ou
+            dépasse 3500 kcal.</p>
+    macros:
+        heading: Macros moyennes
+        about: >-
+            <p class="mt-2 mb-1"><strong>Ce que montre le graphique :</strong>
+            votre répartition quotidienne moyenne protéines / glucides /
+            lipides, en calories.</p> <p class="mb-1"><strong>Source des
+            données :</strong> les repas enregistrés sur la période
+            sélectionnée.</p> <p class="mb-1"><strong>Comment c'est
+            calculé :</strong> moyenne des grammes/jour sur {days, plural,
+            one {le dernier jour} other {les # derniers jours}} × 4
+            (protéines), 4 (glucides), 9 (lipides) kcal par gramme.</p>
+    js:
+        calories_label: Calories (kcal)
+        inflammation_label: Score d'inflammation
+        inflammation_axis: Inflammation
+        sleep_label: Sommeil (h)
+        hr: h
+        gap_label: Dîner → Sommeil (h)
+        gap_axis: h après le dîner
+        eve_glucose_label: Pic de glucose du soir ({unit})
+        tip_gap: "Dîner → Sommeil : {v} h"
+        tip_eve_glucose: "Glucose du soir : {v} {unit}"
+        tip_sleep: "Sommeil : {v} h"
+        protein: Protéines
+        carbs: Glucides
+        carbohydrates: Glucides
+        fat: Lipides
+        fiber: Fibres
+metric:
+    weight: Poids
+    blood_glucose: Glycémie
+    blood_pressure_systolic: Tension artérielle (systolique)
+    blood_pressure_diastolic: Tension artérielle (diastolique)
+    heart_rate: Fréquence cardiaque
+    body_fat_percentage: '% de masse grasse'
+    steps: Pas
+    sleep_in_bed: Sommeil (au lit)
+    sleep_asleep: Sommeil
+    sleep_core: Sommeil (fondamental)
+    sleep_deep: Sommeil (profond)
+    sleep_rem: Sommeil (paradoxal)
+metric_unit:
+    steps: pas
+insight:
+    theme:
+        consequences: Ce que votre alimentation vous a fait
+        body: Votre corps au fil du temps
+        intake: Ce que vous avez mangé
+    tile:
+        inflammation: Inflammation
+        sleep: Sommeil
+        symptom: Symptôme
+        calories: Calories
+        macros: Macros
+        micros: Micronutriments
+    unit:
+        hr_avg: h en moy.
+        kcal_avg: kcal en moy.
+        g_pcf: g P/G/L
+        out_of_10: / 10
+        below_target: sous la cible
+    note:
+        log_meals: Enregistrez des repas pour voir ceci
+        no_sleep: Pas encore de données de sommeil
+        no_checkins: Pas encore de bilans
+        on_track: sur la bonne voie
+        below_sleep_target: sous la cible de 7 h
+        band_strong_pro: fortement pro-inflammatoire
+        band_mild_pro: pro-inflammatoire
+        band_neutral: neutre
+        band_mild_anti: anti-inflammatoire
+        band_strong_anti: fortement anti-inflammatoire
+        low: bas
+        moderate: modéré
+        good: bon
+        high: élevé
+        elevated: légèrement élevé
+        in_range: dans la plage
+        above_range: au-dessus de la plage
+        below_range: sous la plage
+        latest: dernière mesure
+        trending_up: en hausse
+        trending_down: en baisse
+        holding_steady: stable
+        daily_average: moyenne quotidienne
+        all_at_target: tous à la cible
+        below_rda: sous 75 % des AJR
+        days_ago: '{count, plural, one {il y a # jour} other {il y a # jours}}'
+symptom:
+    level_aria: "{label} : {level} sur 10"
+    builtin:
+        joint_pain: Douleurs articulaires
+        joint_stiffness: Raideur articulaire
+        bloating: Ballonnements / digestion
+        headache: Maux de tête / migraine
+        energy: Niveau d'énergie
+        mental_acuity: Acuité mentale
+        nausea: Nausées
+        satiety: Satiété / rassasiement
+# Factor labels for InflammationScoreService (translator-injected, so the
+# dashboard chips and the Trends tooltips localize together).
+inflammation:
+    factor:
+        saturatedFat: Graisses saturées
+        sugar: Sucre
+        sodium: Sodium
+        fiber: Fibres
+        vitaminA: Vitamine A
+        vitaminC: Vitamine C
+        vitaminD: Vitamine D
+        vitaminE: Vitamine E
+        vitaminB6: Vitamine B6
+        vitaminB9: Folate
+        vitaminB12: Vitamine B12
+        magnesium: Magnésium
+        zinc: Zinc
+        selenium: Sélénium
+        food: "Aliment : {name}"
+        supplement_suffix: '{label} (complément)'
+    keyword:
+        bacon: Bacon
+        sausage: Saucisse
+        hot_dog: Hot-dog
+        hotdog: Hotdog
+        salami: Salami
+        pepperoni: Pepperoni
+        deli_meat: Charcuterie
+        bologna: Mortadelle
+        soda: Soda
+        cola: Cola
+        soft_drink: Boisson gazeuse
+        energy_drink: Boisson énergisante
+        fried: Friture
+        french_fries: Frites
+        doughnut: Beignet
+        donut: Donut
+        pastry: Viennoiserie
+        cake: Gâteau
+        cookie: Biscuit
+        candy: Bonbons
+        white_bread: Pain blanc
+        margarine: Margarine
+        shortening: Graisse végétale
+        salmon: Saumon
+        sardine: Sardine
+        mackerel: Maquereau
+        anchovy: Anchois
+        herring: Hareng
+        trout: Truite
+        spinach: Épinards
+        kale: Chou kale
+        chard: Blettes
+        arugula: Roquette
+        collard: Chou cavalier
+        blueberr: Myrtilles
+        strawberr: Fraises
+        raspberr: Framboises
+        broccoli: Brocoli
+        cauliflower: Chou-fleur
+        brussels: Choux de Bruxelles
+        cabbage: Chou
+        walnut: Noix
+        almond: Amande
+        chia: Chia
+        flax: Lin
+        turmeric: Curcuma
+        ginger: Gingembre
+        garlic: Ail
+        green_tea: Thé vert
+        olive_oil: Huile d'olive
+        avocado: Avocat
+        lentil: Lentilles
+        chickpea: Pois chiches
+onboarding:
+    aria: Premiers pas avec NouriLoop
+    title: Bien démarrer
+    bonus_left: Une étape bonus facultative
+    steps_left: Il vous reste {count} des 3 étapes rapides
+    dismiss_confirm: Masquer la mise en route ? Vous pourrez la réafficher depuis Paramètres ▸ Notifications.
+    dismiss_aria: Masquer la liste de mise en route
+    dismiss_title: Masquer la mise en route
+    skip_setup: Passer la configuration
+    optional_tag: Facultatif — dernière étape
+    meal:
+        heading: Enregistrez votre premier repas
+        lead: >-
+            Prenez une photo d'un repas — NouriLoop en lit la nutrition pour
+            vous, sans saisie manuelle. C'est le cœur de tout le reste ici.
+        cta: Prendre une photo
+        desktop_lead: >-
+            Sur un ordinateur ? Écrivez simplement ce que vous avez mangé —
+            NouriLoop en lit la nutrition à partir de votre description, sans
+            photo. C'est le cœur de tout le reste ici.
+        desktop_cta: Décrire un repas avec des mots
+        phone_cta: Vous préférez l'appareil photo de votre téléphone ? Envoyez-moi un lien de connexion
+    goal:
+        heading: Fixez un objectif nutritionnel
+        lead: >-
+            Choisissez un objectif de départ en un geste — NouriLoop compare
+            vos repas enregistrés chaque semaine et vous envoie une note de
+            progression bienveillante.
+        custom: Vous préférez le vôtre ? Discutez avec l'IA ou configurez-le manuellement
+    notifications:
+        recommended_btn: "Recommandé : seulement le rappel du soir"
+        recommended_hint: "Un seul geste — affinez quand vous voulez dans les Paramètres."
+        or_pick: "ou choisissez un par un :"
+        stale_hint: "Utile dès que vous importez des données de santé."
+        calories_hint: "Utile après quelques jours de repas enregistrés."
+        supplements_hint: "Utile après environ une semaine de repas enregistrés."
+        heading: Activez les rappels
+        lead: >-
+            Des coups de pouce facultatifs par e-mail qui entretiennent la
+            boucle. Choisissez ce qui vous est utile — tout est modifiable
+            plus tard dans les Paramètres.
+        times_use: Les horaires utilisent {timezone}
+        change: modifier
+        no_meals: Un rappel le soir si je n'ai pas enregistré de repas
+        stale: Un rappel quand mes données de santé ne sont plus à jour
+        calories: Une alerte quand les calories semblent anormales
+        supplements: Des suggestions de compléments pour les manques en nutriments
+        save: Enregistrer les préférences
+        saved: Préférences enregistrées. Vous pouvez les affiner à tout moment dans les Paramètres.
+    health:
+        question: Portez-vous un capteur de glucose (Lingo ou Stelo) ?
+        lead: >-
+            Le connecter débloque les courbes de glucose par repas. Pas de
+            capteur ? Vous pouvez importer des données Apple Santé — ou
+            simplement terminer. Tout fonctionne sans.
+        yes_connect: Oui — le connecter (configuration guidée)
+        no_import: Non — importer des données Apple Santé
+        not_now: Pas maintenant, terminer la configuration
+    visibility_saved: Préférence de liste de mise en route enregistrée.
+settings:
+    back: Paramètres
+    index:
+        title: Paramètres
+        lead: Gérez vos préférences, notifications, sécurité, facturation et compte.
+    category:
+        preferences: Préférences
+        notifications: Notifications
+        security: Sécurité et API
+        billing: Facturation
+        account: Compte
+    item:
+        timezone: Fuseau horaire
+        units: Unités
+        language: Langue
+        glp1: Mode GLP-1
+        tone: Voix et ton
+        notifications: Notifications
+        api_tokens: Jetons API
+        subscription: Abonnement
+        profile: Nom et e-mail
+        account: Supprimer mes données ou mon compte
+    profile:
+        title: Nom et e-mail
+        lead: Votre nom affiché et l'adresse e-mail avec laquelle vous vous connectez.
+        name_label: Nom
+        email_label: Adresse e-mail
+        email_help: >-
+            Changer votre e-mail envoie un lien de confirmation à la nouvelle
+            adresse — rien ne change tant que vous ne cliquez pas, et votre
+            adresse actuelle continue de fonctionner entre-temps.
+        password_label: Mot de passe actuel
+        password_help: Nécessaire uniquement pour changer votre adresse e-mail.
+        save: Enregistrer les modifications
+        saved: Profil mis à jour.
+        wrong_password: Ce mot de passe est incorrect.
+        email_in_use: Cette adresse e-mail est déjà utilisée.
+        confirm_sent: >-
+            Confirmation envoyée à {email} — votre e-mail de connexion changera
+            quand vous cliquerez sur le lien.
+        rate_limited: >-
+            Un e-mail de confirmation a été envoyé récemment — vérifiez
+            d'abord la boîte de réception (et les spams) de la nouvelle
+            adresse.
+        send_failed: Nous n'avons pas pu envoyer l'e-mail de confirmation — réessayez dans un instant.
+        confirm_invalid: Ce lien de confirmation est invalide ou a expiré — demandez à nouveau le changement.
+        confirm_wrong_account: Ce lien appartient à un autre compte. Connectez-vous avec le compte que vous modifiiez.
+        confirm_success: Votre e-mail de connexion est désormais {email}.
+    timezone:
+        title: Fuseau horaire
+        lead: >-
+            NouriLoop affiche les heures et décide de ce qui compte comme
+            « aujourd'hui » dans votre fuseau horaire.
+        label: Votre fuseau horaire
+        help: >-
+            Utilisé pour l'« aujourd'hui » de votre tableau de bord, les
+            graphiques quotidiens, les rappels et les heures affichées dans
+            NouriLoop.
+        forward_note: >-
+            Ce changement ne vaut que pour la suite — les entrées passées
+            gardent la date et l'heure de leur enregistrement.
+        save: Enregistrer le fuseau horaire
+        saved: Fuseau horaire enregistré.
+    units:
+        title: Unités
+        lead: Choisissez comment votre poids et votre glycémie sont affichés dans NouriLoop.
+        label: Unités
+        help: >-
+            Contrôle l'affichage de votre poids et de vos mesures de
+            glycémie. Vos données importées ne changent pas — seulement
+            l'affichage.
+        save: Enregistrer les unités
+        saved: Unités enregistrées.
+    unit_system:
+        metric: Métrique (kg, mmol/L)
+        imperial: Impérial / US (lb, mg/dL)
+    glp1:
+        title: Mode GLP-1
+        heading: Mode GLP-1
+        lead: Un suivi adapté aux médicaments GLP-1.
+        label: Activer le mode GLP-1
+        help: >-
+            Adapte NouriLoop aux médicaments GLP-1 (p. ex. Ozempic, Wegovy,
+            Zepbound, Mounjaro) : une carte priorité protéines sur votre
+            tableau de bord, des analyses de déclencheurs de nausées et des
+            conseils petites portions. L'activer met aussi en route les
+            bilans des symptômes Nausées et Satiété, que vous pouvez gérer
+            sur la page Symptômes. Ce sont des fonctions bien-être
+            éducatives, pas des avis médicaux.
+        feature_protein: >-
+            <strong>Priorité protéines</strong> — une carte du tableau de
+            bord qui suit les protéines du jour par rapport à une cible
+            ajustée à votre dernier poids.
+        feature_nausea: >-
+            <strong>Déclencheurs de nausées</strong> — une fois vos bilans de
+            nausées enregistrés, une analyse qui met en avant les aliments
+            revenant lors de vos pires jours.
+        feature_portion: >-
+            <strong>Conseils de portions</strong> — des rappels petites
+            portions, protéines d'abord, quand vous vérifiez un repas
+            enregistré.
+        save: Enregistrer
+        saved: Mode GLP-1 enregistré.
+    tone:
+        title: Voix et ton
+        heading: Voix et ton
+        lead: >-
+            Réglez la façon dont <em>sonnent</em> les notes de coaching IA de
+            NouriLoop — vos bilans d'objectifs, le Coach IA des habitudes et
+            les projections « Et si… ». Faites glisser selon votre goût. (Ces réglages ne
+            changent que la formulation, jamais les faits ni la mention
+            « pas un avis médical » — promis, le robot ne vous diagnostiquera
+            pas, aussi drôle que vous le rendiez.)
+        humor: Humour
+        humor_low: Si je desserrais ma cravate, je risquerais l'hyperventilation
+        humor_high: Robin Williams déchaîné
+        warmth: Chaleur
+        warmth_low: Clinique
+        warmth_high: Mamie du Sud
+        education: Niveau d'explication
+        education_low: Je viens d'arriver sur Terre
+        education_high: Doctorat en physique nucléaire
+        dh1: Tiré à quatre épingles
+        dh2: Humour pince-sans-rire
+        dh3: Décontracté
+        dh4: Sacré blagueur
+        dh5: Comédie débridée
+        dw1: Rien que les faits
+        dw2: Courtois
+        dw3: Amical
+        dw4: Câlin chaleureux
+        dw5: La cuisine de grand-mère
+        de1: Expliquez-moi comme si je débarquais
+        de2: Restez simple
+        de3: Futé, sans jargon
+        de4: Donnez du détail
+        de5: Parlez-moi technique
+        save: Enregistrer la voix
+        saved: Voix et ton enregistrés. Votre prochaine note de coaching sera dans le ton.
+    notifications:
+        title: Paramètres de notification
+        heading: Notifications
+        lead: Choisissez comment et quand NouriLoop vous contacte.
+        channel: Envoyer les notifications par
+        phone: Numéro de mobile (pour les SMS)
+        phone_help: Utilisez le format E.164, p. ex. +33 suivi de votre numéro sans le 0 initial.
+        phone_required: Ajoutez un numéro de mobile pour recevoir des SMS.
+        consent_required: Veuillez accepter les conditions SMS pour activer ces messages.
+        sms_upsell: >-
+            L'envoi par SMS est une fonction payante — le récapitulatif
+            quotidien par SMS commence avec Loop, et les bilans d'objectifs
+            par e-mail ou SMS arrivent avec Loop+. {link}Voir les
+            plans{link_end}.
+        which: Quels avis envoyer
+        no_meals: Me rappeler le soir si je n'ai enregistré aucun repas ce jour-là
+        stale: Me rappeler quand je n'ai pas enregistré de données de santé depuis plus d'une semaine
+        calories: M'alerter quand les calories d'une journée sont inhabituellement basses ou élevées
+        supplements: M'envoyer des suggestions hebdomadaires de compléments quand des nutriments manquent
+        save: Enregistrer les préférences
+        saved: Préférences de notification enregistrées.
+        checklist: Premiers pas
+        checklist_label: Afficher la liste de mise en route (tant qu'elle n'est pas terminée)
+        checklist_save: Enregistrer
+    channel:
+        email: E-mail uniquement
+        sms: SMS uniquement
+        both: E-mail et SMS
+    api_tokens:
+        title: Jetons API
+        lead: >-
+            Les jetons Bearer permettent à un appareil ou à un script
+            d'envoyer des données de santé à l'API d'ingestion de NouriLoop
+            sans votre mot de passe. Vous configurez un CGM Lingo/Stelo ?
+            Utilisez plutôt la {link}configuration guidée{link_end} — elle
+            crée le jeton pour vous.
+        reveal: Votre nouveau jeton — copiez-le maintenant
+        copy: Copier
+        reveal_warning: >-
+            Il ne s'affiche que cette fois-ci. NouriLoop ne conserve qu'une
+            empreinte (hash) — si vous le perdez, révoquez-le et créez-en un
+            nouveau.
+        new_label: Nouveau jeton
+        new_ph: p. ex. iPhone, script de synchro Mac
+        create: Créer
+        none: Aucun jeton pour le moment.
+        col_name: Nom
+        col_created: Créé
+        col_last_used: Dernière utilisation
+        col_actions: Actions
+        never: jamais
+        revoke: Révoquer
+        revoke_confirm: Révoquer « {name} » ? Tout appareil qui l'utilise cessera de fonctionner.
+        created_flash: Jeton « {name} » créé — copiez-le maintenant, il ne sera plus affiché.
+        revoked_flash: Jeton révoqué.
+        usage: Utiliser un jeton
+        hae_heading: Health Auto Export (app iPhone)
+        hae_text: >-
+            Dans une automatisation <strong>REST API</strong>, choisissez le
+            format <strong>JSON</strong> et envoyez les données de l'app
+            <em>telles quelles</em> au point de terminaison
+            <strong>health-export</strong> — il détecte automatiquement l'app
+            et mappe les métriques pour vous :
+        hae_tip: >-
+            Astuce : pour voir une plage quotidienne (et pas seulement une
+            moyenne) pour <strong>le glucose, la fréquence cardiaque et la
+            tension artérielle</strong>, donnez à ces métriques leur propre
+            automatisation réglée sur <strong>désagrégé / Summarize
+            off</strong> pour que chaque mesure soit envoyée — gardez les
+            métriques cumulatives comme les pas et le sommeil sur une
+            automatisation séparée en résumé quotidien.
+        custom_heading: Script personnalisé ou autres apps
+        custom_text: "Envoyez vos propres métriques dans ce format au point de terminaison structuré :"
+    subscription:
+        title: Abonnement
+        current_plan: Plan actuel
+        upgrade: S'abonner
+        change_plan: Changer de plan
+        manage_heading: Gérer la facturation
+        manage_text: >-
+            Mettez à jour votre moyen de paiement, consultez vos factures ou
+            résiliez — le tout géré en toute sécurité par Stripe. Après une
+            résiliation, l'accès continue jusqu'à la fin de votre période de
+            facturation.
+        manage_btn: Gérer l'abonnement
+        no_billing: >-
+            Vous n'avez pas encore de compte de facturation. Choisissez un
+            plan sur la {link}page des tarifs{link_end} pour commencer.
+    account:
+        title: Supprimer mes données ou mon compte
+        lead: Deux actions différentes — lisez bien la différence avant de choisir.
+        scheduled_heading: Suppression programmée
+        scheduled_text: >-
+            Votre compte et toutes ses données seront définitivement
+            supprimés le {date}. D'ici là, votre compte reste pleinement
+            actif — vous pouvez continuer à vous connecter et à utiliser
+            NouriLoop.
+        cancel: Annuler la suppression
+        fresh_heading: Repartir de zéro
+        fresh_text: >-
+            Supprime définitivement tous vos repas enregistrés, photos,
+            données de santé, symptômes, compléments et objectifs. Votre
+            <strong>compte, identifiants, préférences, jetons API et
+            abonnement restent exactement tels quels</strong> — vous pouvez
+            vous reconnecter et repartir de zéro immédiatement. Cette action
+            est irréversible.
+        fresh_confirm: >-
+            Supprimer tous vos repas enregistrés, données de santé, objectifs
+            et compléments ? Votre compte et vos identifiants restent
+            actifs. Cette action est irréversible.
+        fresh_btn: Supprimer mes données
+        fresh_done: >-
+            Vos données ont été supprimées. Enregistrez un repas dès que vous
+            voudrez repartir de zéro.
+        delete_heading: Supprimer mon compte
+        delete_text: >-
+            Programme la suppression définitive de votre <strong>compte
+            entier</strong> — identifiants, données, préférences et
+            abonnement — dans {days, plural, one {# jour} other {# jours}}.
+            Tout abonnement actif est résilié immédiatement. Votre compte
+            reste utilisable pendant ces {days, plural, one {# jour} other
+            {# jours}} — reconnectez-vous simplement à tout moment avant la
+            date et cliquez sur « Annuler la suppression » pour changer
+            d'avis. Passé cette date, tout est définitivement et
+            irréversiblement supprimé.
+        delete_confirm: >-
+            Programmer la suppression définitive de votre compte ? Vous
+            pouvez annuler à tout moment avant la date de suppression en
+            vous reconnectant.
+        delete_btn: Supprimer mon compte
+        delete_scheduled: >-
+            Votre compte est programmé pour suppression le {date}.
+            Reconnectez-vous à tout moment avant cette date pour annuler.
+        cancel_done: Suppression du compte annulée — bon retour parmi nous.
+    language:
+        title: Langue
+        lead: Choisissez la langue que NouriLoop utilise avec vous.
+        label: Langue
+        help: >-
+            La traduction se déploie progressivement — certaines parties de
+            NouriLoop peuvent encore apparaître en anglais pour le moment.
+        save: Enregistrer la langue
+        saved: Langue enregistrée.
+# ── Public marketing pages (i18n Phase 4): /about, /pricing, /lp/* ──────────
+# List-item blobs are trusted HTML fragments rendered with |trans|raw (house
+# pattern — see cgm.need_items); embedded links use ICU placeholders
+# ({plans_link}…{link_end}) so translators can reorder around the markup.
+# Prices are NEVER literal in these messages — templates pass a {price}
+# param fed by subscription_price() (the SubscriptionTier single source).
+about:
+    title: Suivi nutritionnel propulsé par l'IA
+    seo_description: >-
+        Enregistrez vos repas avec une photo, importez vos recettes, suivez
+        votre score d'inflammation, connectez votre CGM et recevez des
+        objectifs nutritionnels personnalisés.
+    jsonld_description: >-
+        Suivi nutritionnel propulsé par l'IA : enregistrement des
+        repas par photo, import de recettes, score d'inflammation
+        alimentaire, analyses de glucose CGM et objectifs
+        nutritionnels personnalisés.
+    hero_lead: >-
+        NouriLoop transforme de simples photos de vos plats en une image
+        claire de votre alimentation — et la relie à votre ressenti.
+        Photographiez un repas, et l'IA se charge du plus fastidieux :
+        estimer la nutrition, repérer les ingrédients et poser les bonnes
+        questions. Au fil du temps, NouriLoop boucle la boucle entre votre
+        alimentation, vos données de santé et vos symptômes, pour que vous
+        puissiez voir ce qui fonctionne vraiment.
+    any_phone: >-
+        Fonctionne avec le téléphone que vous avez déjà : iPhone ou Android. NouriLoop
+        s'ouvre dans le navigateur de votre téléphone, il n'y a donc rien à installer.
+    create_account: Créez votre compte
+    sign_in: Se connecter
+    plans: Gratuit pour commencer. Envie de Loop+ ? {plans_link}Voir les plans{link_end}.
+    disclaimer: >-
+        NouriLoop est un outil de bien-être éducatif, pas un dispositif
+        médical. Ses scores et analyses sont conçus pour vous aider à
+        comprendre les tendances de vos propres données — ils ne
+        constituent ni un avis médical ni un diagnostic.
+    logging:
+        heading: Un journal alimentaire sans effort
+        items: >-
+            <li><strong>La nutrition en une photo</strong> — Prenez votre
+            repas en photo et l'IA de NouriLoop estime calories, protéines,
+            glucides, lipides, fibres, sucre et un panel complet de
+            vitamines et minéraux.</li> <li><strong>Confirmer et
+            affiner</strong> — Chaque estimation passe par un écran de
+            relecture rapide où vous pouvez ajuster les ingrédients,
+            répondre à une ou deux questions de clarification et peaufiner
+            avant d'enregistrer.</li> <li><strong>Portions
+            maîtrisées</strong> — Vous en avez mangé la moitié ? Le
+            double ? Indiquez le nombre de portions réellement consommées
+            et chaque chiffre s'ajuste instantanément.</li>
+            <li><strong>Ajoutez une étiquette pour plus de
+            précision</strong> — Joignez une seconde photo, comme
+            l'étiquette nutritionnelle, et l'IA combine les deux pour une
+            estimation plus fine.</li> <li><strong>Enregistrez à votre
+            rythme</strong> — Oublié de noter à table ? Antidatez un repas
+            au moment où vous l'avez vraiment mangé.</li>
+            <li><strong>Favoris</strong> — Enregistrez les repas que vous
+            mangez souvent et re-consignez-les en un geste — sans nouvelle
+            analyse, sans attente.</li>
+            <li><strong>Importez une recette</strong> —
+            Photographiez une page de livre de cuisine ou une
+            fiche manuscrite : NouriLoop lit les ingrédients et
+            le rendement, calcule la nutrition par portion et
+            l'enregistre comme favori — en conservant les
+            ingrédients et les étapes pour cuisiner plus
+            tard.</li>
+    nutrition:
+        heading: Comprenez votre nutrition
+        items: >-
+            <li><strong>Tableau de bord quotidien</strong> — Voyez d'un
+            coup d'œil vos apports du jour et vos signaux clés.</li>
+            <li><strong>Tendances dans la durée</strong> — Des graphiques
+            clairs de votre nutrition et de vos données de santé pour
+            repérer la direction que vous prenez.</li> <li><strong>Apports
+            suffisants et suggestions de compléments</strong> — NouriLoop
+            compare votre dernière semaine d'alimentation aux apports
+            recommandés et signale là où vous êtes régulièrement en
+            dessous.</li> <li><strong>Suivi des compléments</strong> —
+            Scannez l'étiquette d'un complément avec votre appareil
+            photo : NouriLoop lit le tableau nutritionnel et intègre vos
+            compléments quotidiens à son bilan d'adéquation — les
+            suggestions tiennent donc compte de ce que vous prenez
+            déjà.</li>
+    loop:
+        heading: 'Bouclez la boucle : alimentation ↔ ressenti'
+        items: >-
+            <li><strong>Score d'inflammation alimentaire</strong> — Un signal
+            quotidien, facile à lire, indiquant à quel point vos choix
+            alimentaires ont été pro- ou anti-inflammatoires, fondé sur la
+            recherche en nutrition établie.</li> <li><strong>Bilan quotidien
+            des symptômes</strong> — Suivez les symptômes qui comptent pour
+            vous (douleurs articulaires, digestion, maux de tête, énergie,
+            clarté mentale, ou les vôtres) avec un curseur quotidien rapide
+            dont l'émoji d'humeur garde la même lecture d'échelle à chaque
+            fois.</li> <li><strong>Relations par symptôme</strong> — Chaque
+            symptôme a sa propre vue, mise en regard de votre alimentation
+            (protéines, glucides, lipides, fibres et score d'inflammation) et
+            de vos données corporelles (pas, glucose, poids, sommeil).
+            NouriLoop fait tourner les statistiques et ne fait ressortir que
+            les relations statistiquement significatives dans vos propres
+            données — le jour même et le lendemain, car certains effets sont
+            décalés.</li> <li><strong>Prédictions « Et si… »</strong>
+            <em>(Loop+)</em> — Curieux de savoir ce que donnerait votre repas
+            favori mangé chaque jour pendant deux semaines ? NouriLoop
+            projette l'évolution probable de votre score d'inflammation, de
+            votre nutrition, de votre poids et de vos symptômes — calculé à
+            partir de votre propre historique et expliqué en toute
+            simplicité.</li> <li><strong>Analyses de réponse
+            glycémique</strong> — Si vous portez un capteur de glucose en
+            continu, NouriLoop trace la réponse glycémique de chaque repas, la
+            compare à ce que la nutrition du repas laissait prévoir, et classe
+            les repas qui vous font le plus et le moins grimper.</li>
+            <li><strong>Coach IA des habitudes</strong> <em>(Loop+)</em> — Va
+            un cran plus loin : une analyse IA approfondie lit vos propres
+            réponses glycémiques d'un repas à l'autre — aliments, horaires et
+            combinaisons — et rédige une synthèse de coaching personnalisée,
+            pointant les habitudes repérées et quelques ajustements concrets à
+            essayer. Entièrement ancrée dans vos données.</li>
+    goals:
+        heading: Objectifs et coaching personnalisés
+        items: >-
+            <li><strong>Définition d'objectif par la conversation</strong> —
+            Dites à NouriLoop quelque chose comme « je veux manger plus de
+            fibres », et un coach IA en fait un objectif concret et mesurable,
+            ancré dans vos propres habitudes alimentaires.</li>
+            <li><strong>Bilans programmés</strong> — NouriLoop évalue vos
+            progrès au rythme que vous choisissez et vous envoie un résumé
+            convivial, un graphique ou un rapport, directement dans votre
+            boîte de réception.</li> <li><strong>Un coaching à votre
+            voix</strong> — Trois curseurs simples règlent la façon dont l'IA
+            de NouriLoop s'adresse à vous — du clinique au chaleureux, du très
+            sérieux au joueur, du simple à l'expert — pour que vos bilans et
+            analyses sonnent comme vous l'aimez.</li> <li><strong>Des cibles
+            sûres et réalistes</strong> — Les objectifs sont comparés à des
+            limites sûres, et vous êtes averti avant de fixer une cible qui
+            pourrait être risquée.</li>
+    health:
+        heading: Vos données de santé, à votre façon
+        items: >-
+            <li><strong>Des métriques de santé riches</strong> — Suivez poids, glycémie,
+            tension artérielle, fréquence cardiaque, masse grasse, pas et phases de
+            sommeil aux côtés de votre nutrition.</li> <li><strong>Des imports
+            faciles</strong> — Récupérez votre historique depuis Santé d'Apple, les apps
+            d'export de santé populaires ou un simple tableur.</li>
+            <li><strong>Synchronisation automatique</strong> — Sur iPhone, connectez une
+            exportation automatique pour que votre téléphone envoie les nouvelles
+            mesures à NouriLoop tout seul. Sur Android, importez un fichier compatible
+            depuis une application d'exportation de santé ; la synchronisation
+            automatique est en cours de préparation.</li>
+    real_life:
+        heading: Pensé pour la vraie vie
+        items: >-
+            <li><strong>Rappels intelligents</strong> — Des coups de pouce
+            optionnels quand vous n'avez pas enregistré de repas, que vos
+            mesures de santé datent, que vos calories semblent
+            inhabituelles ou que vos manques en nutriments se
+            creusent.</li> <li><strong>Centre de notifications</strong> —
+            Une cloche et une boîte de réception dans l'app rassemblent
+            vos bilans d'objectifs et vos rappels au même endroit, pour
+            que rien ne vous échappe même si vous délaissez l'e-mail.</li>
+            <li><strong>E-mail, SMS ou dans l'app</strong> — Recevez
+            notifications et bilans d'objectifs comme vous préférez.</li>
+            <li><strong>Votre fuseau, votre journée</strong> —
+            « Aujourd'hui » désigne toujours <em>votre</em> journée
+            locale, où que vous soyez.</li> <li><strong>Mode GLP-1</strong>
+            — Un mode dédié aux personnes sous médicament GLP-1, avec des
+            repères axés protéines, une aide aux portions et une attention
+            aux déclencheurs de nausée courants.</li>
+    privacy:
+        heading: Privé et sécurisé
+        items: >-
+            <li><strong>Des comptes personnels multi-utilisateurs</strong> —
+            Vos données sont à vous, séparées des autres comptes et
+            protégées.</li> <li><strong>Des pratiques de confidentialité
+            claires</strong> — Des notices en langage simple expliquent
+            comment vos données de santé sont traitées, y compris les services
+            impliqués dans leur traitement. Consultez notre
+            {health_link}Notice de confidentialité des données de
+            santé{link_end}.</li>
+    closing: >-
+        NouriLoop — bouclez la boucle entre ce que vous mangez et comment vous
+        vous sentez.
+    company: >-
+        NouriLoop est conçu et exploité par NouriLoop LLC, société de
+        l'Oregon (États-Unis). NouriLoop LLC est aussi le développeur de
+        <strong>Campaigner</strong>.
+pricing_page:
+    title: Plans et tarifs
+    seo_description: >-
+        Plans Free et Loop+ pour le suivi nutritionnel par IA,
+        l'import de recettes, les analyses de glucose CGM et les
+        bilans d'objectifs personnalisés.
+    heading: Choisissez votre plan
+    subtitle: Bouclez la boucle entre ce que vous mangez et comment vous vous sentez.
+    billing_period: Période de facturation
+    monthly: Mensuel
+    annual: Annuel
+    save_badge: économisez jusqu’à {percent} %
+    loop_tagline: Tout ce qu'il faut pour suivre et améliorer votre nutrition.
+    loop_plus_tagline: Pour un retour plus profond, fondé sur les données de votre corps.
+    per_month: /mois
+    per_year: /an
+    feature:
+        unlimited_photos: 'Analyses photos et recettes illimitées'
+        goal_checkins: Bilans d’objectifs hebdomadaires sans limite
+        sms_reports: Rapports par SMS
+        assistant: Assistant d'aide IA
+        inflammation: Score d'inflammation alimentaire
+        symptoms: Bilan quotidien des symptômes
+        supplements: Suivi des compléments
+        everything_in_loop: '<strong>Tout ce que comprend Loop</strong>, plus :'
+        cgm: Analyses de réponse glycémique
+        coach: Coach IA des habitudes
+        daily_checkins: Bilans d'objectifs quotidiens, envoyés par e-mail ou SMS
+        predictive: Prédictions « Et si… »
+    most_insight: Le plus complet
+    current_plan: Votre plan actuel
+    get_loop: Choisir Loop
+    get_loop_plus: Choisir Loop+
+    free_note: >-
+        Chaque compte — y compris le compte gratuit — comprend la
+        création d'objectifs avec {limit, plural, one {son premier
+        bilan} other {ses # premiers bilans}}, plus {photoLimit,
+        plural, one {# analyse par IA} other {# analyses par IA}}
+        chaque mois — photos de repas ou imports de recettes. Les
+        repas favoris sont inclus dans toutes les formules —
+        enregistrer à nouveau un repas sauvegardé ne consomme jamais
+        une analyse.
+    free_strip: >-
+        <strong>Free · ${price}</strong> — {photoLimit, plural, one {# analyse
+        IA} other {# analyses IA}} par mois et {limit, plural, one {votre
+        premier bilan d’objectif} other {vos # premiers bilans d’objectif}}.
+    free_cta: Créer un compte gratuit
+    cancel_note: >-
+        Résiliez à tout moment. L'accès continue jusqu'à la fin de votre
+        période de facturation.
+    wellness_note: >-
+        NouriLoop est un outil de bien-être, pas un dispositif médical.
+        L'abonnement n'inclut aucun service ni conseil médical.
+lp:
+    layout:
+        cta_default: Essayez NouriLoop gratuitement
+        no_card: Compte gratuit. Aucune carte bancaire requise.
+        any_phone: >-
+            Fonctionne avec le téléphone que vous avez déjà : iPhone ou Android. NouriLoop s'ouvre dans le navigateur de votre téléphone, il n'y a donc rien à installer.
+        disclaimer: >-
+            NouriLoop est un outil de bien-être éducatif, pas un
+            dispositif médical. Ses scores et analyses vous aident à
+            comprendre les tendances de vos propres données — ils ne
+            constituent ni un avis médical ni un diagnostic, et ne
+            remplacent pas un échange avec votre médecin.
+    # Copy rule (Marketing Plan §2), enforced in EVERY locale's catalog: the
+    # "diabetes" page says "blood sugar"/"glucose" — never the condition
+    # word. The slug/key name is an internal campaign name, not visible text.
+    diabetes:
+        seo_description: >-
+            Enregistrez vos repas en photo et voyez votre réponse
+            glycémique CGM réelle pendant les 3 heures qui suivent.
+            Compatible Abbott Lingo et Stelo — sans matériel propriétaire.
+        title: Voyez l'effet de chaque repas sur votre glycémie
+        headline: Voyez l'effet de chaque repas sur votre glycémie
+        lead: >-
+            Prenez votre repas en photo, et NouriLoop superpose vos
+            mesures CGM réelles des trois heures suivantes — pour enfin
+            voir quels aliments vous font grimper et lesquels non.
+            Compatible avec le capteur Abbott Lingo ou Stelo que vous
+            portez déjà.
+        cta: Essai gratuit — compatible avec votre Lingo ou Stelo
+        sensor_note: >-
+            <strong>Quel capteur, quel téléphone ?</strong> Lingo et Stelo fonctionnent tous les deux sur iPhone. Sur Android, Stelo fonctionne ; Lingo ne partage pas ses mesures avec d'autres applications. Vous hésitez ? Commencez gratuitement et posez-nous la question : nous vous répondrons franchement.
+        curve_alt: >-
+            La réponse glycémique d'un repas : la courbe CGM autour du
+            repas avec la valeur de base, le pic, le temps jusqu'au pic et
+            une comparaison avec l'estimation nutritionnelle du repas
+        one_place_heading: Vos repas et votre glucose, enfin au même endroit
+        one_place_intro: >-
+            Vous notez vos repas dans une app et votre capteur enregistre
+            le glucose dans une autre — et rien ne relie les deux.
+            NouriLoop le fait :
+        one_place_items: >-
+            <li><strong>Prenez votre repas en photo.</strong> La nutrition — glucides,
+            sucre, fibres, protéines et plus — est estimée depuis l'image. Aucune
+            recherche dans une base de données.</li> <li><strong>Vos mesures de glycémie
+            en continu arrivent toutes seules.</strong> Sur iPhone, par une exportation
+            programmée depuis Apple Health : un guide vous accompagne la première fois.
+            Sur Android, vous pouvez déjà importer vos mesures depuis un fichier
+            compatible, et nous travaillons à l'automatiser.</li> <li><strong>Chaque
+            repas reçoit sa courbe de réponse :</strong> votre valeur de base, votre
+            pic, le temps pour y arriver et le temps pour redescendre.</li>
+            <li><strong>Les repas sont classés entre eux</strong> — vos plus fortes
+            montées, vos repas les plus doux, et ceux qui vous ont fait grimper plus que
+            leur nutrition ne le prédisait.</li> <li><strong>Importez vos propres
+            recettes.</strong> Photographiez une page de livre de cuisine ou une fiche
+            de recette une seule fois : NouriLoop lit les ingrédients, estime les
+            glucides et le sucre par portion et l'enregistre comme favori — consigner
+            votre cuisine maison ne prend qu'un geste.</li>
+        insights_alt: >-
+            La page Analyses de glucose classant les repas : plus fortes
+            hausses de glycémie, repas les plus doux, et repas ayant fait
+            grimper plus que prévu par leur nutrition
+        price_heading: Sans matériel propriétaire. Sans programme à 200 $ par an.
+        price_body: >-
+            Des apps comme Nutrisense ou Levels facturent plus de 200 $
+            par an et veulent vous placer sur leur programme de capteurs.
+            NouriLoop Loop+ coûte <strong>{price} $/an</strong> et
+            fonctionne avec le capteur en vente libre que vous portez
+            déjà.
+        compare_them_name: Apps de coaching métabolique
+        compare_them_price: Plus de 200 $/an
+        compare_them_sub: Programmes de capteurs propriétaires, abonnement obligatoire
+        compare_us_price: '{price} $/an'
+        compare_us_sub: Compatible avec votre Lingo ou Stelo actuel · 7 jours d'essai gratuit
+        confidence_heading: Une estimation nutritionnelle qui vous dit quand elle devine
+        confidence_body: >-
+            La plupart des apps annoncent que votre dîner faisait
+            « 423 calories » — une fausse précision dont vous savez bien
+            qu'elle ne peut pas être exacte. NouriLoop affiche un score de
+            confiance avec chaque estimation et pose une question de
+            clarification quand une photo est ambiguë, pour que vous
+            sachiez quand faire confiance au chiffre et quand l'affiner.
+        founder: >-
+            <strong>Pourquoi NouriLoop existe :</strong> l'app a été créée
+            par un développeur dans la soixantaine qui porte le même
+            capteur Lingo que celui dont parle cette page — parce
+            qu'après des mois à noter ses repas dans une app et à regarder
+            son glucose dans une autre, aucun outil ne voulait relier les
+            deux sans un programme matériel à 200 $ par an. Alors il l'a
+            construit.
+        footnote: >-
+            Gratuit pour commencer — l'enregistrement photo et l'import de
+            glucose sont inclus gratuitement. La corrélation glycémique
+            par repas fait partie de Loop+ ({price} $/an, 7 jours d'essai
+            gratuit). Aucune carte bancaire requise pour s'inscrire.
+    fiber:
+        seo_description: >-
+            Suivez fibres, vitamines et minéraux à partir d'une photo de
+            votre repas — sans recherche en base de données. Voyez quels
+            nutriments vous manquent régulièrement.
+        title: Suivez vos apports en fibres à partir d'une photo
+        headline: >-
+            Votre médecin vous a dit de manger plus de fibres.<br>Voici
+            comment savoir si c'est le cas.
+        lead: >-
+            La plupart des apps ne suivent pas du tout les fibres — ou les
+            cachent derrière une saisie manuelle en base de données, où il
+            faut déjà connaître l'aliment exact. NouriLoop estime fibres,
+            vitamines et minéraux à partir d'une photo de votre repas, et
+            vous montre si vous atteignez vraiment votre cible, jour après
+            jour.
+        cta: Suivez vos fibres gratuitement
+        summary_alt: >-
+            Le résumé nutritionnel d'un repas enregistré : confiance de
+            l'IA, calories et macros, puis fibres, sodium, potassium,
+            calcium, fer, magnésium, zinc et vitamines A et C
+        photo_heading: Les fibres depuis une photo — sans base de données
+        photo_items: >-
+            <li><strong>Prenez votre assiette en photo.</strong> NouriLoop
+            estime les fibres avec un panel complet de nutriments —
+            folates, magnésium, potassium, vitamines A à E et plus de 15
+            autres — à partir de l'image elle-même.</li> <li><strong>Chaque
+            estimation vient avec un score de confiance</strong>, et un
+            écran de relecture rapide vous laisse ajuster les ingrédients
+            ou joindre l'étiquette nutritionnelle pour un chiffre plus
+            précis. Des estimations honnêtes, pas de fausse
+            précision.</li> <li><strong>Votre tableau de bord quotidien
+            montre où vous en êtes aujourd'hui</strong> — « mangez plus de
+            fibres » devient un chiffre que vous pouvez vraiment
+            surveiller.</li>
+            <li><strong>Vous cuisinez maison ? Importez la
+            recette une seule fois.</strong> Photographiez la
+            page du livre ou la fiche de recette : NouriLoop lit
+            les ingrédients, calcule les fibres et le panel
+            complet de nutriments par portion, et l'enregistre
+            comme favori à consigner en un geste.</li>
+        gaps_heading: Voyez quels nutriments vous manquent régulièrement
+        gaps_alt: >-
+            La page Compléments : manques en nutriments signalés et vos
+            compléments enregistrés
+        gaps_intro: >-
+            Une bonne journée ne répond pas à la question de votre médecin
+            — la semaine, oui. NouriLoop passe en revue vos 7 derniers
+            jours au regard des apports recommandés et signale les
+            nutriments qui vous manquent régulièrement.
+        gaps_items: >-
+            <li><strong>Analyse des manques sur 7, 14, 30 ou 90
+            jours</strong> — voyez si votre moyenne de fibres évolue dans
+            le bon sens.</li> <li><strong>Compléments comptés :</strong>
+            scannez l'étiquette d'un complément avec votre appareil photo
+            et NouriLoop intègre ce que vous prenez déjà, pour que les
+            manques signalés soient les vrais.</li> <li><strong>Tendances
+            dans la durée</strong> — des graphiques de vos apports pour
+            vous montrer (et montrer à votre médecin) la direction que
+            vous prenez.</li>
+        serious_heading: Conçu pour ceux qui prennent l'avis de leur médecin au sérieux
+        serious_body: >-
+            NouriLoop a été créé par un développeur dans la soixantaine,
+            lassé des apps de nutrition qui ignorent les micronutriments
+            ou prétendent à plus de précision qu'une photo ne peut en
+            donner. Il vous dit ce qu'il sait, vous dit quand il devine,
+            et garde le score sous vos yeux — exactement ce qu'exige un
+            vrai suivi d'un conseil médical.
+        footnote: >-
+            Gratuit pour commencer — vos 10 premières analyses photo de
+            chaque mois sont incluses. L'enregistrement photo illimité
+            fait partie de Loop ({price} $/an). Aucune carte bancaire
+            requise pour s'inscrire.
+    inflammation:
+        seo_description: >-
+            Un score d'inflammation quotidien calculé depuis ce que vous
+            avez vraiment mangé, suivi aux côtés de votre ressenti — pour
+            savoir si votre changement d'alimentation fonctionne.
+        title: Votre alimentation anti-inflammatoire fonctionne-t-elle ?
+        headline: Alimentation anti-inflammatoire ? Vérifiez si elle agit vraiment.
+        lead: >-
+            Vous avez supprimé les aliments transformés, ajouté le saumon
+            et les légumes verts — mais rien ne vous dit si cela aide.
+            NouriLoop note chaque journée d'alimentation sur une échelle
+            d'inflammation, à partir de ce que vous avez réellement mangé,
+            et suit votre ressenti en parallèle. Après quelques semaines,
+            la tendance saute aux yeux sur le graphique.
+        cta: Découvrez votre score d'inflammation — gratuit
+        overview_alt: >-
+            La vue d'ensemble Analyses et tendances, menée par la tuile du
+            score d'inflammation quotidien
+        score_heading: Un score d'inflammation quotidien, depuis des photos de vos repas
+        score_items: >-
+            <li><strong>Prenez chaque repas en photo</strong> — la
+            nutrition est estimée depuis l'image, en quelques secondes.
+            Aucune saisie manuelle en base de données.</li>
+            <li><strong>Chaque journée reçoit un score de −10 à
+            +10 :</strong> graisses saturées, sucre et sodium le poussent
+            vers le pro-inflammatoire ; fibres, vitamines antioxydantes,
+            poissons gras, huile d'olive, légumes verts et baies le tirent
+            dans l'autre sens.</li> <li><strong>Un score transparent, à
+            base de règles,</strong> bâti sur la recherche en nutrition
+            publiée — la même directionnalité que le Dietary Inflammatory
+            Index — pas une boîte noire.</li> <li><strong>Il fonctionne
+            rétroactivement :</strong> une journée notée mardi dernier est
+            un point de donnée, votre graphique se remplit donc au fil de
+            vos enregistrements.</li>
+        feel_heading: >-
+            Notez votre ressenti. Voyez quels aliments coïncident avec vos
+            pires journées.
+        feel_intro: >-
+            Un curseur quotidien de dix secondes suit ce qui compte pour
+            vous — douleurs articulaires, raideurs, digestion, énergie ou
+            vos propres symptômes personnalisés. NouriLoop met chacun en
+            regard de votre alimentation, jour par jour.
+        chart_alt: >-
+            Un panneau de relations Tendances empilant un symptôme face
+            aux protéines, glucides, lipides, fibres et au score
+            d'inflammation
+        feel_stats: >-
+            Puis il fait les statistiques pour vous — le jour même <em>et</em>
+            le lendemain, car les effets de l'alimentation sont souvent
+            décalés — et ne fait ressortir que les relations statistiquement
+            significatives dans vos données. Pas une intuition. Pas des
+            suppositions. Vos propres chiffres, sur plusieurs semaines,
+            montrant ce qui évolue ensemble.
+        founder: >-
+            <strong>Pourquoi NouriLoop existe :</strong> l'app a été créée
+            par un développeur dans la soixantaine, atteint d'arthrose,
+            qui devait savoir quels aliments déclenchaient ses poussées.
+            Il avait fait les changements d'alimentation que tout le monde
+            recommande — sans aucun moyen de savoir s'ils agissaient, ni
+            quels aliments coïncidaient avec ses pires journées. Alors il
+            a construit l'outil qui le pouvait.
+        footnote: >-
+            Le score d'inflammation et le suivi des symptômes sont des
+            fonctionnalités gratuites. Aucune carte bancaire requise pour
+            s'inscrire.
+    # Page de la campagne B (perte de poids / comptage de calories). Règle
+    # d'honnêteté : les objectifs et les bilans programmés sont des fonctions
+    # payantes (Loop / Loop+) et sont signalés comme tels — jamais présentés
+    # comme gratuits.
+    weight_loss:
+        seo_description: >-
+            Enregistrez vos repas en photo en quelques secondes et recevez
+            des estimations de calories honnêtes avec un score de confiance
+            — un compteur de calories qui vous dit quand il devine au lieu
+            de feindre l'exactitude.
+        title: Le compteur de calories qui admet son incertitude
+        headline: Le compteur de calories qui admet son incertitude
+        lead: >-
+            D'autres applis affirment que votre dîner faisait « 423
+            calories » — comme si une entrée de base de données pouvait le
+            savoir. NouriLoop estime votre repas à partir d'une photo,
+            affiche un score de confiance avec chaque estimation et vous
+            dit quand vous fier au chiffre et quand l'affiner. Des
+            estimations honnêtes sur lesquelles vous pouvez vraiment agir.
+        cta: Essayez le comptage honnête des calories — gratuit
+        summary_alt: >-
+            Le résumé nutritionnel d'un repas enregistré : le score de
+            confiance de l'IA, les calories et les macros, puis le panneau
+            complet des nutriments
+        photo_heading: Prenez une photo. Oubliez la recherche en base de données.
+        photo_items: >-
+            <li><strong>Enregistrez un repas en quelques
+            secondes.</strong> Prenez une photo — les calories, les
+            protéines, les glucides et les lipides sont estimés à partir de
+            l'image. Fini de chercher « burrito, sauce moyenne » dans une
+            base de données.</li> <li><strong>Chaque estimation affiche sa
+            confiance.</strong> Un écran de vérification rapide vous permet
+            d'ajuster les ingrédients, de répondre à une question de
+            clarification ou de joindre l'étiquette nutritionnelle pour un
+            chiffre plus précis.</li> <li><strong>Pas de fausse
+            précision.</strong> Quand une photo ne permet qu'une estimation
+            approximative, NouriLoop le dit — un chiffre fiable vaut mieux
+            qu'une supposition à l'air exact.</li>
+            <li><strong>La cuisine maison compte aussi.</strong>
+            Photographiez une recette — une page de livre de
+            cuisine ou une fiche manuscrite — et NouriLoop
+            calcule les calories par portion une seule fois.
+            Ensuite, consigner ce plat ne prend qu'un
+            geste.</li>
+        day_heading: Regardez la semaine, pas seulement le repas
+        day_alt: >-
+            Le tableau de bord NouriLoop : les calories et les protéines du
+            jour à côté de vos moyennes récentes
+        day_items: >-
+            <li><strong>Votre tableau de bord montre où en est la
+            journée</strong> — calories et protéines comparées à vos
+            propres moyennes récentes, pas à une cible générique.</li>
+            <li><strong>Votre poids suit le mouvement :</strong>
+            importez-le depuis Apple Health ou votre balance connectée, et
+            les Tendances le tracent à côté de ce que vous avez mangé.</li>
+            <li><strong>Des tendances sur 7 à 90 jours</strong> — parce
+            qu'un dîner gourmand ne compte pas ; le mois, oui.</li>
+        goal_heading: Quand vous êtes prêt, fixez un objectif en langage courant
+        goal_alt: >-
+            La page d'un objectif nutritionnel : la cible, un graphique de
+            progression et l'historique des bilans
+        goal_body: >-
+            Dites à NouriLoop « garde-moi sous 2000 calories par jour »
+            dans une courte conversation, et cela devient un objectif
+            concret et mesurable. Au rythme que vous choisissez, NouriLoop
+            évalue les repas que vous avez réellement enregistrés et vous
+            envoie un bilan en langage clair avec un graphique de
+            progression — des encouragements quand ça marche, un
+            recadrage quand ça ne marche pas.
+        goal_tier_note: >-
+            La création d'objectifs est gratuite, et chaque compte comprend
+            ses {limit} premiers bilans. Loop (${loop_price}/an) les
+            poursuit chaque semaine ; Loop+ (${plus_price}/an) ajoute des
+            bilans quotidiens envoyés par e-mail ou SMS. Les plans payants
+            commencent par un essai gratuit de 7 jours.
+        founder: >-
+            <strong>Pourquoi NouriLoop existe :</strong> il a été construit
+            par un développeur de plus de 60 ans, lassé des compteurs de
+            calories qui prétendaient qu'une entrée de base de données
+            pouvait être exacte. Il voulait un outil honnête sur ce qu'il
+            savait — et qui prévienne quand il devinait. Alors il l'a
+            construit.
+        footnote: >-
+            Gratuit pour commencer — vos 10 premières analyses photo par
+            mois et les {limit} premiers bilans de vos objectifs sont
+            inclus. Les photos illimitées et les bilans hebdomadaires font
+            partie de Loop (${price}/an) ; les bilans quotidiens envoyés
+            par e-mail ou SMS font partie de Loop+. Aucune carte bancaire
+            requise pour s'inscrire.
+
+# Import de recette par photo (contexte : catalogue en). Vouvoiement.
+recipe:
+    import_cta: Importer une recette
+    badge: Issue d'une recette
+    steps: Ingrédients et étapes
+    ingredients_for: '{servings, plural, one {Ingrédients — pour # portion} other {Ingrédients — pour # portions}}'
+    imported: « {name} » a été enregistrée dans vos favoris — vous pouvez la consigner depuis là à tout moment.
+    scan:
+        title: Importer une recette
+        back: Retour
+        photos: Photos de la recette
+        submit: Lire cette recette
+        lead: >-
+            Photographiez une recette — une page de livre de cuisine, une
+            page imprimée ou une fiche manuscrite. Jusqu'à {max} photos de la
+            même recette (recto et verso, ou plusieurs pages). NouriLoop lit
+            les ingrédients et le rendement, calcule la nutrition par portion
+            et l'enregistre comme favori à consigner en un geste.
+        failed: >-
+            Désolé — nous n'avons pas pu lire cette recette. Réessayez avec
+            des photos plus nettes et bien éclairées.
+    confirm:
+        title: Confirmez votre recette
+        lead: >-
+            Vérifiez ce que nous avons lu — corrigez les ingrédients,
+            indiquez le nombre de portions, puis enregistrez.
+        confidence: '{pct} % de confiance'
+        name: Nom de la recette
+        servings: Portions obtenues
+        servings_help: La nutrition est divisée par ce nombre — le favori conserve une portion.
+        ingredients: Ingrédients
+        ingredient: Ingrédient
+        amount: Quantité
+        unit: Unité
+        add_line: Ajouter une ligne
+        remove_hint: Effacez le nom pour supprimer la ligne.
+        batch: Recette entière
+        per_serving: Par portion
+        questions: "L'IA avait des doutes sur :"
+        answers_hint: >-
+            Répondez à ce que vous pouvez et relancez la lecture — ou
+            corrigez simplement les champs vous-même.
+        reanalyze: Relancer avec mes réponses
+        save: Enregistrer comme favori
+        cancel: Annuler
+        bad_servings: Indiquez combien de portions donne la recette (un nombre supérieur à zéro).
+        instructions: Étapes de préparation (conservées pour votre référence)

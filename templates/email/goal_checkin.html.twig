@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #212529; line-height: 1.5;">
+    {% set colors = {
+        'achieved': '#198754',
+        'on_track': '#0d6efd',
+        'off_track': '#fd7e14',
+        'no_data': '#6c757d',
+        'error': '#dc3545'
+    } %}
+    {% set color = colors[checkin.status.value]|default('#6c757d') %}
+
+    <h2 style="margin-bottom: 4px;"><img src="{{ absolute_url(asset('icon-192x192.png')) }}" alt="" width="24" height="24" style="vertical-align: middle; border-radius: 5px;"> NouriLoop</h2>
+    <p>{{ 'delivery.checkin.hi'|trans({'name': user.displayName|e, 'goal': goal.name|e})|raw }}</p>
+
+    <div style="border-left: 4px solid {{ color }}; padding: 10px 16px; margin: 16px 0; background: #f8f9fa;">
+        <div style="font-weight: 600; color: {{ color }}; text-transform: uppercase; font-size: 13px; letter-spacing: .03em;">
+            {{ checkin.status.transKey|trans }}
+        </div>
+        {# "On track" ≠ "target met" — say why (below target but improving, or a first
+           check-in with no trend yet) so the badge can't read as a mislabel next to an
+           under-target value. Older check-ins (null trend) just skip the hint. #}
+        {% if checkin.status.value == 'on_track' and checkin.trend in ['first', 'improving'] %}
+        <div style="font-size: 12px; color: #6c757d;">
+            {{ ('goal.status.on_track_hint_' ~ checkin.trend)|trans({'direction': def.direction.value}) }}
+        </div>
+        {% endif %}
+        {% if checkin.currentValue is not null %}
+        <div style="font-size: 22px; font-weight: 700; margin: 4px 0;">
+            {{ checkin.currentValue|round(1) }} {{ def.unit }}
+            <span style="font-size: 14px; font-weight: 400; color: #6c757d;">
+                {{ 'delivery.checkin.vs_target'|trans({
+                    'direction': def.direction.transKey|trans,
+                    'value': checkin.targetValue|round(1),
+                    'unit': def.unit,
+                }) }}
+            </span>
+        </div>
+        {% endif %}
+        <div style="color: #495057;">{{ checkin.summaryText|inline_md }}</div>
+    </div>
+
+    {% if hasChart %}
+    <img src="cid:chart" alt="{{ 'delivery.checkin.chart_alt'|trans }}" style="max-width: 100%; border: 1px solid #dee2e6; border-radius: 6px; margin: 8px 0;">
+    {% endif %}
+
+    <p style="margin: 20px 0;">
+        <a href="{{ url }}" style="background: #198754; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: 600;">
+            {{ 'delivery.checkin.view'|trans }}
+        </a>
+    </p>
+
+    <p style="color: #6c757d; font-size: 13px; margin-top: 24px;">
+        {{ 'delivery.checkin.footer'|trans }}
+    </p>
+</body>
+</html>

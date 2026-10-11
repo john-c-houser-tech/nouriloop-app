@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'symptom_page.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 760px;">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-activity text-brick"></i> {{ 'symptom_page.heading'|trans }} {{ help_link('symptoms') }}</h2>
+        <a href="{{ path('app_trends') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-graph-up"></i> {{ 'symptom_page.vs_inflammation'|trans }}
+        </a>
+    </div>
+
+    {% set isToday = selectedDate|date('Y-m-d', false) == today|date('Y-m-d', false) %}
+
+    {# ── Daily check-in (only if the user tracks at least one symptom) ───── #}
+    {% if enabledTypes is empty %}
+    <div class="card p-4 mb-4 text-center text-muted">
+        <i class="bi bi-toggles fs-2 mb-2"></i>
+        <p class="mb-1">{{ 'symptom_page.none_tracked'|trans }}</p>
+        <p class="small mb-0">{{ 'symptom_page.none_tracked_sub'|trans }}</p>
+    </div>
+    {% else %}
+    <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h5 class="fw-bold mb-0">{{ isToday ? 'symptom_page.checkin_today'|trans : 'symptom_page.checkin_date'|trans({'date': selectedDate|local_date('EEEMMMd')}) }}</h5>
+            <div>
+                <label class="form-label small text-muted mb-0 me-1">{{ 'symptom_page.date'|trans }}</label>
+                <input type="date" class="form-control form-control-sm d-inline-block" style="width: auto;"
+                       value="{{ selectedDate|date('Y-m-d', false) }}" max="{{ today|date('Y-m-d', false) }}"
+                       onchange="window.location='{{ path('app_symptoms') }}?date=' + this.value">
+            </div>
+        </div>
+        <form method="post" action="{{ path('app_symptoms_save') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('symptom-save') }}">
+            <input type="hidden" name="logged_date" value="{{ selectedDate|date('Y-m-d') }}">
+
+            {% for type in enabledTypes %}
+            {% set lvl = levels[type.id] ?? 5 %}
+            <div class="mb-3">
+                <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                    <span>{{ symptom_label(type) }}</span>
+                    <span class="symptom-mood lh-1" id="lvl-out-{{ type.id }}" role="img"
+                          data-higher-better="{{ type.higherBetter ? '1' : '0' }}"
+                          data-label="{{ symptom_label(type) }}"
+                          aria-label="{{ 'symptom.level_aria'|trans({'label': symptom_label(type), 'level': lvl}) }}"
+                          title="{{ lvl }} / 10">{{ symptom_emoji(lvl, type.higherBetter) }}</span>
+                </label>
+                <input type="range" name="level_{{ type.id }}" class="form-range" min="0" max="10" step="1"
+                       value="{{ lvl }}"
+                       data-mood-slider data-mood-target="lvl-out-{{ type.id }}"
+                       oninput="updateSymptomMood(this)">
+                <div class="d-flex justify-content-between small text-muted"><span>{{ type.lowLabelKey|trans }}</span><span>{{ type.highLabelKey|trans }}</span></div>
+            </div>
+            {% endfor %}
+            {% include 'symptoms/_mood_script.html.twig' %}
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">{{ 'symptom_page.note'|trans }} <span class="text-muted fw-normal">{{ 'symptom_page.optional'|trans }}</span></label>
+                <input type="text" name="note" class="form-control" maxlength="500"
+                       value="{{ day ? day.note : '' }}" placeholder="{{ 'symptom_page.note_ph'|trans }}">
+            </div>
+
+            <button type="submit" class="btn btn-success fw-semibold">
+                <i class="bi bi-check-lg"></i>
+                {%- if isToday %} {{ day ? 'symptom_page.update_today'|trans : 'symptom_page.save_today'|trans }}
+                {%- else %} {{ day ? 'symptom_page.update_this'|trans : 'symptom_page.save_this'|trans }}
+                {%- endif %}
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    {# ── Manage symptoms ────────────────────────────────────────────────── #}
+    <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-1">{{ 'symptom_page.manage'|trans }}</h5>
+        <p class="text-muted small mb-3">{{ 'symptom_page.manage_lead'|trans }}</p>
+
+        <div class="list-group list-group-flush mb-3">
+            {% for type in allTypes %}
+            <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-2">
+                <div>
+                    <span class="fw-semibold">{{ symptom_label(type) }}</span>
+                    {% if type.builtin %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">{{ 'symptom_page.builtin'|trans }}</span>
+                    {% else %}
+                        <span class="badge bg-info-subtle text-info-emphasis ms-1">{{ 'symptom_page.custom'|trans }}</span>
+                    {% endif %}
+                    <span class="text-muted small ms-1">{{ type.higherBetter ? 'symptom_page.higher_better'|trans : 'symptom_page.higher_worse'|trans }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <form method="post" action="{{ path('app_symptom_type_toggle', {id: type.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('symptom-type-toggle-' ~ type.id) }}">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                   {{ type.enabled ? 'checked' : '' }} onchange="this.form.submit()">
+                        </div>
+                    </form>
+                    {% if not type.builtin %}
+                    <form method="post" action="{{ path('app_symptom_type_delete', {id: type.id}) }}"
+                          onsubmit="return confirm('{{ 'symptom_page.delete_confirm'|trans({'name': symptom_label(type)})|e('js') }}')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('symptom-type-delete-' ~ type.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" action="{{ path('app_symptom_type_create') }}" class="row g-2 align-items-end">
+            <input type="hidden" name="_token" value="{{ csrf_token('symptom-type-create') }}">
+            <div class="col-sm">
+                <label class="form-label small fw-semibold mb-1">{{ 'symptom_page.add_custom'|trans }}</label>
+                <input type="text" name="label" class="form-control form-control-sm" maxlength="100"
+                       placeholder="{{ 'symptom_page.add_ph'|trans }}" required>
+            </div>
+            <div class="col-sm-auto">
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" name="higher_is_better" value="1" id="hib">
+                    <label class="form-check-label small" for="hib">{{ 'symptom_page.add_higher_better'|trans }}</label>
+                </div>
+            </div>
+            <div class="col-sm-auto">
+                <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-plus-lg"></i> {{ 'symptom_page.add'|trans }}</button>
+            </div>
+        </form>
+    </div>
+
+    {# ── History ────────────────────────────────────────────────────────── #}
+    <h5 class="fw-bold mb-3">{{ 'symptom_page.history'|trans }}</h5>
+    {% if recent is empty %}
+    <p class="text-muted">{{ 'symptom_page.no_history'|trans }}</p>
+    {% else %}
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead><tr><th>{{ 'symptom_page.col_date'|trans }}</th><th>{{ 'symptom_page.col_symptoms'|trans }}</th><th>{{ 'symptom_page.col_note'|trans }}</th></tr></thead>
+            <tbody>
+                {% for d in recent %}
+                <tr>
+                    <td><a href="{{ path('app_symptoms') }}?date={{ d.loggedDate|date('Y-m-d') }}">{{ d.loggedDate|local_date('EEEMMMd') }}</a></td>
+                    <td>
+                        {% for e in d.entries %}
+                        {% set ec = e.symptomType.higherBetter ? 'success' : 'danger' %}
+                        <span class="badge bg-{{ ec }}-subtle text-{{ ec }}-emphasis me-1">{{ symptom_label(e.symptomType) }}: {{ e.level }}</span>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endfor %}
+                    </td>
+                    <td class="text-muted small">{{ d.note }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

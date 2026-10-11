@@ -1,0 +1,32 @@
+# Weekly dependency-vulnerability check, independent of PR CI: `composer audit
+# --locked` scans composer.lock against the Packagist/FriendsOfPHP advisory
+# databases (and flags abandoned packages) without installing anything.
+# Scheduled rather than a PR gate so a brand-new advisory in an unrelated
+# package can't block a feature PR. On failure GitHub emails the workflow's
+# last committer — the fix is usually just merging Dependabot's PR.
+name: Security audit
+
+on:
+  schedule:
+    - cron: '0 14 * * 1' # Mondays 14:00 UTC (06:00/07:00 Pacific)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  composer-audit:
+    name: composer audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Audit locked dependencies
+        run: composer audit --locked --no-interaction

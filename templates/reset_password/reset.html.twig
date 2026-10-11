@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.reset.new_title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="min-vh-hero d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);">
+    <div class="card p-4" style="width: 100%; max-width: 420px;">
+        <div class="text-center mb-4">
+            <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="88" height="88" class="mb-2">
+            <h1 class="h3 fw-bold mb-0">{{ 'auth.reset.new_title'|trans }}</h1>
+            <p class="text-muted small">{{ 'auth.reset.new_subtitle'|trans }}</p>
+        </div>
+
+        {{ form_start(resetForm, {'attr': {'novalidate': 'novalidate'}}) }}
+        <div class="mb-3">
+            {{ form_label(resetForm.plainPassword.first, 'auth.reset.new_password', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(resetForm.plainPassword.first, {'attr': {'class': 'form-control' ~ (resetForm.plainPassword.vars.errors|length ? ' is-invalid' : ''), 'autofocus': true}}) }}
+            <div class="form-text">{{ 'auth.passphrase_tip'|trans }}</div>
+        </div>
+        <div class="mb-3">
+            {{ form_label(resetForm.plainPassword.second, 'auth.reset.repeat_password', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(resetForm.plainPassword.second, {'attr': {'class': 'form-control' ~ (resetForm.plainPassword.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(resetForm.plainPassword) }}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 fw-semibold">{{ 'auth.reset.submit_new'|trans }}</button>
+        {{ form_end(resetForm) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ include('_password_toggle.html.twig') }}
+{% endblock %}

@@ -1,0 +1,3 @@
+# The analysis allowance is mixed: derived counts plus a ledger for two kinds only
+
+The monthly allowance counts meal logs and recipe imports from the rows they leave behind (so deleting the meal or favorite refunds the slot, deliberately), while re-analyses and supplement scans are booked in a call-time ledger because they leave nothing countable and would otherwise be free. We keep it mixed rather than ledgering everything: a full ledger would end the accepted log-then-delete refund for meals and recipes, which is a product decision about users' allowances, not a refactor. Consolidating where metering happens (one module that checks, calls, and books) must preserve which kinds are ledgered.

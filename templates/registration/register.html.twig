@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.register.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="min-vh-hero d-flex align-items-center justify-content-center bg-hero">
+    <div class="card p-4" style="width: 100%; max-width: 460px;">
+        <div class="text-center mb-4">
+            <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="88" height="88" class="mb-2">
+            <h1 class="h3 fw-bold mb-0">NouriLoop</h1>
+            <p class="text-muted small">{{ 'auth.register.subtitle'|trans }}</p>
+        </div>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+        <div class="mb-3">
+            {{ form_label(form.displayName, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.displayName, {'attr': {'class': 'form-control' ~ (form.displayName.vars.errors|length ? ' is-invalid' : ''), 'autofocus': true}}) }}
+            {{ form_errors(form.displayName) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.email, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.email, {'attr': {'class': 'form-control' ~ (form.email.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.email) }}
+
+            {# Deliverability warning (warn-only, never blocks): shown when the
+               domain looks like a typo or has no mail server. The hidden ack
+               carries the warned address — an unchanged resubmit is accepted,
+               an edited address re-arms the check (RegistrationController). #}
+            {% if emailWarning is defined and emailWarning %}
+            <div class="alert alert-warning mt-2 mb-0 small" id="email-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% if emailWarning.type == 'typo' %}
+                    {{ 'auth.register.email_warn_typo'|trans({'domain': emailWarning.domain}) }}
+                    <button type="button" id="email-suggest" class="btn btn-link btn-sm p-0 align-baseline fw-semibold"
+                            data-suggestion="{{ emailWarning.suggestedEmail }}">
+                        {{ 'auth.register.email_warn_use'|trans({'suggestion': emailWarning.suggestedEmail}) }}
+                    </button>
+                {% else %}
+                    {{ 'auth.register.email_warn_no_mx'|trans({'domain': emailWarning.domain}) }}
+                {% endif %}
+                <div class="mt-1">{{ 'auth.register.email_warn_confirm'|trans }}</div>
+            </div>
+            <input type="hidden" name="email_warning_ack" value="{{ emailWarningAck }}">
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.plainPassword.first, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control' ~ (form.plainPassword.vars.errors|length ? ' is-invalid' : '')}}) }}
+            <div class="form-text">{{ 'auth.passphrase_tip'|trans }}</div>
+            {# Live min-length feedback, revealed by the inline script once the user types. #}
+            <div class="form-text d-none" id="pw-length-hint" aria-live="polite"></div>
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.plainPassword.second, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control' ~ (form.plainPassword.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.plainPassword) }}
+            {# Live match/mismatch feedback (only once the confirm field has content). #}
+            <div class="form-text d-none" id="pw-match-hint" aria-live="polite"></div>
+        </div>
+
+        {# Coupon: almost no public signup has one, so it hides behind a disclosure
+           link below the credentials. Auto-opened when the field came back with a
+           value or an error (the invalid-coupon re-render must show the message). #}
+        {% set couponOpen = form.invitationCode.vars.value is not empty or form.invitationCode.vars.errors|length > 0 %}
+        <div class="mb-3">
+            <button type="button" id="coupon-toggle" class="btn btn-link btn-sm p-0 text-decoration-none {{ couponOpen ? 'd-none' }}">
+                {{ 'auth.register.have_coupon'|trans }}
+            </button>
+            <div id="coupon-field" class="{{ couponOpen ? '' : 'd-none' }}">
+                {{ form_label(form.invitationCode, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                {{ form_widget(form.invitationCode, {'attr': {'class': 'form-control' ~ (form.invitationCode.vars.errors|length ? ' is-invalid' : ''), 'autocomplete': 'off'}}) }}
+                {{ form_errors(form.invitationCode) }}
+                <div class="form-text">{{ 'auth.register.coupon_help'|trans }}</div>
+            </div>
+        </div>
+
+        {# Filled by the inline script below (this app loads no Stimulus — see CLAUDE.md).
+           Note: the id must be overridden top-level, not via attr — attr.id is ignored. #}
+        {{ form_widget(form.timezone, {'id': 'register-timezone'}) }}
+
+        {# Honeypot — hidden from people, tempting to bots. #}
+        <div style="position: absolute; left: -5000px;" aria-hidden="true">
+            {{ form_label(form.website) }}
+            {{ form_widget(form.website, {'attr': {'tabindex': '-1', 'autocomplete': 'off'}}) }}
+        </div>
+
+        {% if turnstileSiteKey %}
+        <div class="cf-turnstile mb-3" data-sitekey="{{ turnstileSiteKey }}"></div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-success w-100 fw-semibold">{{ 'auth.register.submit'|trans }}</button>
+
+        {{ form_end(form) }}
+
+        <hr>
+        <p class="text-center mb-2 small">
+            {{ 'auth.register.have_account'|trans }} <a href="{{ localized_path('app_login') }}">{{ 'auth.register.sign_in'|trans }}</a>
+        </p>
+        <p class="text-center mb-0 small text-muted">
+            {{ 'auth.register.agree'|trans({
+                'terms_link': '<a href="' ~ path('app_privacy_terms') ~ '" target="_blank" rel="noopener">',
+                'privacy_link': '<a href="' ~ path('app_privacy_health') ~ '" target="_blank" rel="noopener">',
+                'link_end': '</a>',
+            })|raw }}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{% if turnstileSiteKey %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+{{ include('_password_toggle.html.twig') }}
+<script>
+// Suggest the browser's timezone for the new account. The server validates the
+// value against the IANA whitelist and keeps its default when this never ran
+// (old browser, JS off) — see RegistrationController.
+(function () {
+    const field = document.getElementById('register-timezone');
+    if (!field || field.value !== '') return;
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz) field.value = tz;
+    } catch (e) { /* keep the server default */ }
+})();
+
+// One-click typo correction: fill the suggested address into the email field,
+// drop the warning + ack (the corrected address won't warn, and a NEW typo
+// must re-arm the check server-side anyway).
+(function () {
+    const btn = document.getElementById('email-suggest');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        const email = document.getElementById('registration_form_email');
+        const warning = document.getElementById('email-warning');
+        const ack = document.querySelector('input[name="email_warning_ack"]');
+        if (email) email.value = btn.dataset.suggestion;
+        if (warning) warning.remove();
+        if (ack) ack.remove();
+    });
+})();
+
+// "Have a coupon?" disclosure — reveal the field and focus it.
+(function () {
+    const toggle = document.getElementById('coupon-toggle');
+    const wrap = document.getElementById('coupon-field');
+    if (!toggle || !wrap) return;
+    toggle.addEventListener('click', function () {
+        toggle.classList.add('d-none');
+        wrap.classList.remove('d-none');
+        const input = wrap.querySelector('input');
+        if (input) input.focus();
+    });
+})();
+
+// Live password feedback: min-length check on the password, match check on the
+// confirm field. Purely advisory — server-side validation is unchanged.
+(function () {
+    // The default Symfony-generated widget ids (a top-level id override here would
+    // orphan the separately-rendered labels' for= attributes).
+    const pw = document.getElementById('registration_form_plainPassword_first');
+    const confirm = document.getElementById('registration_form_plainPassword_second');
+    const lengthHint = document.getElementById('pw-length-hint');
+    const matchHint = document.getElementById('pw-match-hint');
+    if (!pw || !confirm || !lengthHint || !matchHint) return;
+    const MIN = 8;
+    const L = {
+        lengthOk: {{ 'auth.register.pw_length_ok'|trans|json_encode|raw }},
+        lengthShort: {{ 'auth.register.pw_length_short'|trans|json_encode|raw }},
+        match: {{ 'auth.register.pw_match'|trans|json_encode|raw }},
+        mismatch: {{ 'auth.register.pw_mismatch'|trans|json_encode|raw }}
+    };
+    function paint(el, ok, text) {
+        el.classList.remove('d-none', 'text-success', 'text-danger');
+        el.classList.add(ok ? 'text-success' : 'text-danger');
+        el.innerHTML = '<i class="bi ' + (ok ? 'bi-check-circle' : 'bi-x-circle') + ' me-1"></i>';
+        el.appendChild(document.createTextNode(text));
+    }
+    function update() {
+        if (pw.value === '') {
+            lengthHint.classList.add('d-none');
+        // Count code points ([...str]), not UTF-16 units (.length) — Symfony's
+        // Length constraint counts characters, and astral chars are 2 units each.
+        } else if ([...pw.value].length >= MIN) {
+            paint(lengthHint, true, L.lengthOk);
+        } else {
+            paint(lengthHint, false, L.lengthShort);
+        }
+        if (confirm.value === '') {
+            matchHint.classList.add('d-none');
+        } else if (confirm.value === pw.value) {
+            paint(matchHint, true, L.match);
+        } else {
+            paint(matchHint, false, L.mismatch);
+        }
+    }
+    pw.addEventListener('input', update);
+    confirm.addEventListener('input', update);
+})();
+</script>
+{% endblock %}

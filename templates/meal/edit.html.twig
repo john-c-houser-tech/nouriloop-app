@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'meal.edit.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_meal_show', {id: entry.id}) }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'meal.edit.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'meal.edit.title'|trans }}</h2>
+    <p class="text-muted">{{ 'meal.edit.lead'|trans }}</p>
+
+    <div class="card p-4 mt-3">
+        {{ form_start(form) }}
+
+        <div class="mb-3">
+            {{ form_label(form.mealType, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.mealType, {'attr': {'class': 'form-select' ~ (form.mealType.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.mealType) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.logged_at, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.logged_at, {'attr': {'class': 'form-control' ~ (form.logged_at.vars.errors|length ? ' is-invalid' : ''), 'style': 'max-width: 260px;', 'data-original-day': originalDay}}) }}
+            <div class="form-text">{{ 'meal.edit.when_help'|trans }}</div>
+            {{ form_errors(form.logged_at) }}
+
+            {# Cross-day confirmation (the plan's one deliberate speed bump):
+               hidden until the date part differs from the stored day — revealed
+               by the inline JS below, or server-side on the missing-confirmation
+               re-render. The checkbox is what the controller enforces. #}
+            <div id="day-change-block" class="alert alert-warning mt-2 mb-0{{ dayChangeNeeded ? '' : ' d-none' }}">
+                <div class="small mb-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    {{ 'meal.edit.day_change_warning'|trans }}
+                </div>
+                <div class="form-check">
+                    {{ form_widget(form.confirm_day_change, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.confirm_day_change, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+                {{ form_errors(form.confirm_day_change) }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.notes, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.notes, {'attr': {'class': 'form-control' ~ (form.notes.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.notes) }}
+        </div>
+
+        {% if entry.nutritionData %}
+        <div class="border rounded-3 p-3 mb-3 bg-light bg-opacity-50">
+            <h6 class="fw-bold mb-1">{{ 'meal.edit.nutrition_heading'|trans }}</h6>
+            <p class="text-muted small mb-3">{{ 'meal.edit.nutrition_hint'|trans }}</p>
+
+            <div class="row g-2">
+                {% for field, unit in {
+                    'calories': 'kcal', 'protein': 'g', 'carbohydrates': 'g', 'fat': 'g',
+                    'fiber': 'g', 'sugar': 'g', 'sodium': 'mg',
+                } %}
+                <div class="col-6 col-sm-4 col-md-3">
+                    {{ form_label(form[field], null, {'label_attr': {'class': 'form-label small mb-1'}}) }}
+                    <div class="input-group input-group-sm">
+                        {{ form_widget(form[field], {'attr': {'class': 'form-control' ~ (form[field].vars.errors|length ? ' is-invalid' : '')}}) }}
+                        <span class="input-group-text">{{ unit }}</span>
+                    </div>
+                    {{ form_errors(form[field]) }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-3">
+                {{ form_label(form.portions, null, {'label_attr': {'class': 'form-label small fw-semibold mb-1'}}) }}
+                {{ form_widget(form.portions, {'attr': {'class': 'form-control form-control-sm' ~ (form.portions.vars.errors|length ? ' is-invalid' : ''), 'style': 'max-width: 140px;'}}) }}
+                <div class="form-text">{{ 'meal.edit.portion_help'|trans }}</div>
+                {{ form_errors(form.portions) }}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Phase 3 landed, so this is now a pointer rather than a limitation:
+           the photo/AI-analysis edits live on their own page because they cost
+           a Claude call and go through a diff before they're applied. #}
+        <p class="text-muted small">
+            {{ 'meal.edit.scope_note'|trans }}
+            <a href="{{ path('app_meal_reanalyze', {id: entry.id}) }}">{{ 'meal.edit.reanalyze_link'|trans }}</a>
+        </p>
+
+        <div class="d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-success fw-semibold">{{ 'meal.edit.save'|trans }}</button>
+            <a href="{{ path('app_meal_show', {id: entry.id}) }}" class="btn btn-outline-secondary">{{ 'meal.edit.cancel'|trans }}</a>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    // Reveal the cross-day confirmation as soon as the picked date leaves the
+    // stored day (progressive disclosure — the server enforces regardless).
+    const when  = document.querySelector('[data-original-day]');
+    const block = document.getElementById('day-change-block');
+    if (!when || !block) return;
+    const update = () => {
+        const day = (when.value || '').slice(0, 10);
+        block.classList.toggle('d-none', day === '' || day === when.dataset.originalDay);
+    };
+    when.addEventListener('input', update);
+    when.addEventListener('change', update);
+})();
+</script>
+{% endblock %}

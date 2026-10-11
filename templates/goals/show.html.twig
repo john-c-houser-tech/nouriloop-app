@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ goal.name }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 820px;">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-bullseye text-success"></i> {{ goal.name }}
+            {% if not goal.isActive %}<span class="badge bg-secondary align-middle">{{ 'goal.show.paused'|trans }}</span>{% endif %}
+        </h2>
+        <a href="{{ path('app_goals') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> {{ 'goal.show.all_goals'|trans }}
+        </a>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <div class="row">
+            <div class="col-md-7">
+                <h6 class="fw-bold text-muted text-uppercase small">{{ 'goal.show.definition'|trans }}</h6>
+                <p class="mb-2">{{ 'goal.summary_pattern'|trans({
+                    'aggregation': def.aggregation.transKey|trans,
+                    'metric': (def.metric.transKey|trans)|lower,
+                    'direction': def.direction.transKey|trans,
+                    'target': def.direction.value == 'maintain' and def.targetMax is not null
+                        ? def.targetValue ~ '–' ~ def.targetMax
+                        : def.targetValue,
+                    'unit': def.unit,
+                }) }}</p>
+                <ul class="list-unstyled small text-muted mb-0">
+                    <li><strong>{{ 'goal.show.metric'|trans }}</strong> {{ def.metric.transKey|trans }} ({{ def.unit }})</li>
+                    <li><strong>{{ 'goal.show.target'|trans }}</strong> {{ def.direction.transKey|trans }} {{ def.targetValue }} {{ def.unit }}</li>
+                    <li><strong>{{ 'goal.show.window'|trans }}</strong> {{ 'goal.show.window_val'|trans({'days': def.evaluationWindowDays, 'aggregation': def.aggregation.transKey|trans}) }}</li>
+                    {% if def.timeframeEnd %}<li><strong>{{ 'goal.show.by'|trans }}</strong> {{ def.timeframeEnd|local_date('yMMMd') }}</li>{% endif %}
+                </ul>
+            </div>
+            <div class="col-md-5">
+                <h6 class="fw-bold text-muted text-uppercase small">{{ 'goal.show.schedule_delivery'|trans }}</h6>
+                <ul class="list-unstyled small text-muted mb-0">
+                    <li><strong>{{ 'goal.show.runs'|trans }}</strong> {{ (goal.frequency.transKey|trans)|lower }}
+                        {%- if goal.frequency.value == 'weekly' %}, {{ ('goal.day_short.' ~ goal.dayOfWeek)|trans }}{% endif %}
+                        {{ 'goal.show.runs_at'|trans({'time': '%02d:%02d'|format(goal.hour, goal.minute)}) }}</li>
+                    <li><strong>{{ 'goal.show.next_run'|trans }}</strong> {{ goal.nextRunAt ? goal.nextRunAt|user_date('EEEMMMdjm') : '—' }}</li>
+                    <li><strong>{{ 'goal.show.last_run'|trans }}</strong> {{ goal.lastRunAt ? goal.lastRunAt|user_date('EEEMMMdjm') : 'goal.show.never'|trans }}</li>
+                    <li><strong>{{ 'goal.show.output'|trans }}</strong> {{ goal.outputFormat.transKey|trans }}</li>
+                    {% if has_feature('checkin_delivery') %}
+                    <li><strong>{{ 'goal.show.channel'|trans }}</strong> {{ 'goal.show.channel_val'|trans({'link': '<a href="' ~ path('app_settings_notifications') ~ '">', 'link_end': '</a>'})|raw }}</li>
+                    {% else %}
+                    {# Honesty: without the Loop+ checkin_delivery entitlement, check-ins
+                       land in-app only — don't imply the channel setting sends them. #}
+                    <li><strong>{{ 'goal.show.channel'|trans }}</strong> {{ 'goal.show.channel_inapp'|trans }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        {% set allowanceExhausted = allowanceUsed is not null and allowanceUsed >= allowanceLimit %}
+        {% if allowanceUsed is not null %}
+        {# Free-tier lifetime allowance state — subtle, amber once nearly used
+           (mirrors the meal log's photo-allowance counter pattern). #}
+        {% set allowanceLeft = max(0, allowanceLimit - allowanceUsed) %}
+        <p class="small mt-3 mb-0 {{ allowanceLeft <= 2 ? 'text-warning-emphasis' : 'text-muted' }}">
+            <i class="bi bi-ticket-perforated"></i>
+            {{ 'goal.show.allowance'|trans({'used': allowanceUsed > allowanceLimit ? allowanceLimit : allowanceUsed, 'limit': allowanceLimit}) }}
+            {% if allowanceLeft <= 2 and not allowanceExhausted %}
+                <a href="{{ path('app_pricing') }}">{{ 'goal.show.allowance_link'|trans }}</a>
+            {% endif %}
+        </p>
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-3 pt-3 border-top">
+            {% if not goal.isActive and allowanceExhausted %}
+            {# Resume would immediately re-pause (allowance is per-account and
+               lifetime) — the resume path for a Free user is an upgrade. The
+               toggle route enforces the same rule server-side. #}
+            <a href="{{ path('app_pricing') }}" class="btn btn-sm btn-warning fw-semibold">
+                <i class="bi bi-arrow-up-circle"></i> {{ 'goal.show.upgrade_resume'|trans }}
+            </a>
+            {% else %}
+            <form method="post" action="{{ path('app_goals_toggle', {id: goal.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('goal-toggle-' ~ goal.id) }}">
+                <button class="btn btn-sm btn-outline-{{ goal.isActive ? 'warning' : 'success' }}">
+                    <i class="bi bi-{{ goal.isActive ? 'pause' : 'play' }}-fill"></i>
+                    {{ goal.isActive ? 'goal.show.pause'|trans : 'goal.show.resume'|trans }}
+                </button>
+            </form>
+            {% endif %}
+            <form method="post" action="{{ path('app_goals_delete', {id: goal.id}) }}"
+                  onsubmit="return confirm('{{ 'goal.show.delete_confirm'|trans|e('js') }}');">
+                <input type="hidden" name="_token" value="{{ csrf_token('goal-delete-' ~ goal.id) }}">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> {{ 'goal.show.delete'|trans }}</button>
+            </form>
+        </div>
+    </div>
+
+    {% if not goal.isActive and allowanceExhausted %}
+    {# Paused-by-allowance upsell: the goal and its history stay fully visible;
+       only scheduled evaluation has stopped. #}
+    <div class="card border-warning p-4 mb-4">
+        <h6 class="fw-bold mb-1"><i class="bi bi-pause-circle text-warning"></i> {{ 'goal.show.paused_allowance_heading'|trans }}</h6>
+        <p class="small text-muted mb-2">{{ 'goal.show.paused_allowance_body'|trans({'limit': allowanceLimit}) }}</p>
+        <div><a href="{{ path('app_pricing') }}" class="btn btn-sm btn-warning fw-semibold">{{ 'goal.show.upgrade_resume'|trans }}</a></div>
+    </div>
+    {% endif %}
+
+    <details class="card p-4 mb-4">
+        <summary class="d-flex justify-content-between align-items-center" style="cursor: pointer;">
+            <span class="fw-bold text-muted text-uppercase small">
+                <i class="bi bi-sliders"></i> {{ 'goal.show.prompt_heading'|trans }} <span class="text-body-tertiary">{{ 'goal.show.prompt_advanced'|trans }}</span>
+            </span>
+            <span class="badge bg-light text-dark border">v{{ goal.promptVersion }}</span>
+        </summary>
+        <p class="small text-muted mt-3">
+            {{ 'goal.show.prompt_note'|trans({
+                'placeholders': '<code>{{ placeholders }}</code>',
+            })|raw }}
+        </p>
+        <form method="post" action="{{ path('app_goals_prompt', {id: goal.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('goal-prompt-' ~ goal.id) }}">
+            <textarea name="evaluation_prompt" id="prompt-text" class="form-control" rows="14"
+                      maxlength="{{ maxPromptLen }}" spellcheck="false"
+                      style="font-size: .8rem; line-height: 1.5;">{{ goal.evaluationPromptTemplate }}</textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-save"></i> {{ 'goal.show.prompt_save'|trans }}</button>
+                <small class="text-muted"><span id="prompt-count">0</span> / {{ maxPromptLen|format_number }}</small>
+            </div>
+        </form>
+    </details>
+
+    <script>
+        (function () {
+            var ta = document.getElementById('prompt-text');
+            var out = document.getElementById('prompt-count');
+            if (!ta || !out) return;
+            function sync() { out.textContent = ta.value.length.toLocaleString(); }
+            ta.addEventListener('input', sync);
+            sync();
+        })();
+    </script>
+
+    <h5 class="fw-bold mb-3">{{ 'goal.show.checkins'|trans }}</h5>
+    {% if checkins is empty %}
+    <p class="text-muted">
+        {{ 'goal.show.no_checkins'|trans }}
+        {% if goal.isActive and goal.nextRunAt %}{{ 'goal.show.first_runs'|trans({'time': goal.nextRunAt|user_date('EEEMMMdjm')}) }}{% endif %}
+    </p>
+    {% else %}
+    <div class="list-group">
+        {% for c in checkins %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span>
+                    <span class="badge bg-{{ c.status.badge }}">{{ c.status.transKey|trans }}</span>
+                    {# Same clarification as the check-in email: "On track" ≠ "target met". #}
+                    {% if c.status.value == 'on_track' and c.trend in ['first', 'improving'] %}
+                    <small class="text-muted ms-1">{{ ('goal.status.on_track_hint_' ~ c.trend)|trans({'direction': def.direction.value}) }}</small>
+                    {% endif %}
+                </span>
+                <small class="text-muted">{{ c.runAt|user_date('yMMMdjm') }}</small>
+            </div>
+            {% if c.currentValue is not null %}
+            <div class="small text-muted">
+                {{ 'goal.show.vs_target'|trans({'value': c.currentValue|round(1), 'unit': def.unit, 'target': c.targetValue|round(1)}) }}
+            </div>
+            {% endif %}
+            {% if c.summaryText %}<p class="mb-1 mt-1">{{ c.summaryText|inline_md }}</p>{% endif %}
+            {% if c.chartPath %}<img src="{{ c.chartPath }}" class="img-fluid rounded border my-2" alt="{{ 'goal.show.chart_alt'|trans }}">{% endif %}
+            {% if c.totalTokens > 0 %}<small class="text-muted">{{ 'goal.show.tokens'|trans({'count': c.totalTokens}) }}</small>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

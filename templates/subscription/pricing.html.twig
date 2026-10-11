@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'pricing_page.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 920px;">
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">{{ 'pricing_page.heading'|trans }}</h1>
+        <p class="text-muted mb-0">{{ 'pricing_page.subtitle'|trans }}</p>
+    </div>
+
+    {# Free has no card of its own — one strip above the paid cards, so the plan a
+       visitor starts on is stated before the prices (brand review 2026-10-08).
+       Same constants as free_note below; the price comes from the tier enum. #}
+    <div id="free-plan-strip" class="border rounded-3 bg-light p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <span>{{ 'pricing_page.free_strip'|trans({
+            'price': subscription_price('free', 'monthly'),
+            'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
+            'photoLimit': constant('App\\Service\\AnalysisAllowance::FREE_MONTHLY_LIMIT'),
+        })|raw }}</span>
+        {% if currentTier is null %}
+            <a href="{{ localized_path('app_register') }}" class="btn btn-warning btn-sm fw-semibold">{{ 'pricing_page.free_cta'|trans }}</a>
+        {% elseif currentTier.value == 'free' %}
+            <span class="badge text-bg-success py-2">{{ 'pricing_page.current_plan'|trans }}</span>
+        {% endif %}
+    </div>
+
+    {# The annual badge states the BEST saving across the paid tiers, computed from
+       the tier enum's prices so it can't drift from them ("~20%" undersold Loop+). #}
+    {% set savePercent = max(
+        (100 - subscription_price('loop', 'annual') * 100 / (subscription_price('loop', 'monthly') * 12))|round,
+        (100 - subscription_price('loop_plus', 'annual') * 100 / (subscription_price('loop_plus', 'monthly') * 12))|round
+    ) %}
+
+    {# Monthly / Annual toggle — JS swaps the displayed price and each card's hidden
+       price_id. Default: monthly. #}
+    <div class="d-flex justify-content-center mb-4">
+        <div class="btn-group" role="group" aria-label="{{ 'pricing_page.billing_period'|trans }}">
+            <button type="button" class="btn btn-success" id="billing-monthly" data-period="monthly">{{ 'pricing_page.monthly'|trans }}</button>
+            <button type="button" class="btn btn-outline-success" id="billing-annual" data-period="annual">
+                {{ 'pricing_page.annual'|trans }} <span class="badge text-bg-light border ms-1">{{ 'pricing_page.save_badge'|trans({'percent': savePercent}) }}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {# ── Loop ──────────────────────────────────────────────────────── #}
+        <div class="col-md-6">
+            <div class="card h-100 p-4">
+                <h2 class="h4 fw-bold">Loop</h2>
+                <p class="text-muted small mb-3">{{ 'pricing_page.loop_tagline'|trans }}</p>
+                <div class="mb-3">
+                    <span class="display-6 fw-bold" data-price-for="loop"
+                          data-monthly="${{ subscription_price('loop', 'monthly') }}"
+                          data-annual="${{ subscription_price('loop', 'annual') }}">${{ subscription_price('loop', 'monthly') }}</span>
+                    <span class="text-muted" data-period-label>{{ 'pricing_page.per_month'|trans }}</span>
+                </div>
+                <ul class="list-unstyled small mb-4">
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.unlimited_photos'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.goal_checkins'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.sms_reports'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.assistant'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.inflammation'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.symptoms'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.supplements'|trans }}</li>
+                </ul>
+                <div class="mt-auto">
+                    {% if currentTier and currentTier.value == 'loop' %}
+                        <span class="badge text-bg-success w-100 py-2">{{ 'pricing_page.current_plan'|trans }}</span>
+                    {% else %}
+                        <form method="post" action="{{ path('app_subscription_checkout') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('subscription-checkout') }}">
+                            <input type="hidden" name="price_id" data-price-id-for="loop"
+                                   data-monthly="{{ loopMonthlyPriceId }}" data-annual="{{ loopYearlyPriceId }}"
+                                   value="{{ loopMonthlyPriceId }}">
+                            <button type="submit" class="btn btn-outline-success w-100">{{ 'pricing_page.get_loop'|trans }}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Loop+ (highlighted) ───────────────────────────────────────── #}
+        <div class="col-md-6">
+            <div class="card h-100 p-4 border-primary border-2">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2 class="h4 fw-bold mb-0">Loop+</h2>
+                    <span class="badge text-bg-primary">{{ 'pricing_page.most_insight'|trans }}</span>
+                </div>
+                <p class="text-muted small mb-3 mt-1">{{ 'pricing_page.loop_plus_tagline'|trans }}</p>
+                <div class="mb-3">
+                    <span class="display-6 fw-bold" data-price-for="loop_plus"
+                          data-monthly="${{ subscription_price('loop_plus', 'monthly') }}"
+                          data-annual="${{ subscription_price('loop_plus', 'annual') }}">${{ subscription_price('loop_plus', 'monthly') }}</span>
+                    <span class="text-muted" data-period-label>{{ 'pricing_page.per_month'|trans }}</span>
+                </div>
+                <ul class="list-unstyled small mb-4">
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.everything_in_loop'|trans|raw }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.cgm'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.coach'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.daily_checkins'|trans }}</li>
+                    <li class="mb-1"><i class="bi bi-check-lg text-success"></i> {{ 'pricing_page.feature.predictive'|trans }}</li>
+                </ul>
+                <div class="mt-auto">
+                    {% if currentTier and currentTier.value == 'loop_plus' %}
+                        <span class="badge text-bg-success w-100 py-2">{{ 'pricing_page.current_plan'|trans }}</span>
+                    {% else %}
+                        <form method="post" action="{{ path('app_subscription_checkout') }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('subscription-checkout') }}">
+                            <input type="hidden" name="price_id" data-price-id-for="loop_plus"
+                                   data-monthly="{{ loopPlusMonthlyPriceId }}" data-annual="{{ loopPlusYearlyPriceId }}"
+                                   value="{{ loopPlusMonthlyPriceId }}">
+                            <button type="submit" class="btn btn-success w-100">{{ 'pricing_page.get_loop_plus'|trans }}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# §9 honesty, both directions: the cards sell the paid deltas; this note keeps
+       the page honest about what every account — including Free — already gets. #}
+    <p class="text-muted small text-center mt-4 mb-1">
+        {{ 'pricing_page.free_note'|trans({
+            'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
+            'photoLimit': constant('App\\Service\\AnalysisAllowance::FREE_MONTHLY_LIMIT'),
+        }) }}
+    </p>
+    <p class="text-muted small text-center mb-1">
+        {{ 'pricing_page.cancel_note'|trans }}
+    </p>
+    <p class="text-muted small text-center">
+        {{ 'pricing_page.wellness_note'|trans }}
+    </p>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    var period = 'monthly';
+    {# Twig-seeded dict for the JS-swapped strings (this app loads no Stimulus —
+       inline JS + a seeded dict is the house pattern; see trends/index.html.twig). #}
+    var L = {
+        perMonth: {{ 'pricing_page.per_month'|trans|json_encode|raw }},
+        perYear:  {{ 'pricing_page.per_year'|trans|json_encode|raw }}
+    };
+
+    function apply() {
+        // Swap the big price numbers and the "/mo" / "/yr" suffix.
+        document.querySelectorAll('[data-price-for]').forEach(function (el) {
+            el.textContent = el.getAttribute('data-' + period);
+        });
+        document.querySelectorAll('[data-period-label]').forEach(function (el) {
+            el.textContent = period === 'monthly' ? L.perMonth : L.perYear;
+        });
+        // Point each card's form at the right price id.
+        document.querySelectorAll('[data-price-id-for]').forEach(function (el) {
+            el.value = el.getAttribute('data-' + period);
+        });
+
+        var monthly = document.getElementById('billing-monthly');
+        var annual  = document.getElementById('billing-annual');
+        monthly.className = 'btn ' + (period === 'monthly' ? 'btn-success' : 'btn-outline-success');
+        annual.className  = 'btn ' + (period === 'annual'  ? 'btn-success' : 'btn-outline-success');
+    }
+
+    document.getElementById('billing-monthly').addEventListener('click', function () {
+        period = 'monthly'; apply();
+    });
+    document.getElementById('billing-annual').addEventListener('click', function () {
+        period = 'annual'; apply();
+    });
+
+    // GA4 conversion: fire begin_checkout when a plan's checkout form is submitted
+    // (no-op if analytics isn't loaded). No price/PII payload — just the event.
+    document.querySelectorAll('form[action="{{ path('app_subscription_checkout') }}"]').forEach(function (f) {
+        f.addEventListener('submit', function () {
+            if (typeof gtag === 'function') { gtag('event', 'begin_checkout'); }
+        });
+    });
+
+    apply();
+})();
+</script>
+{% endblock %}

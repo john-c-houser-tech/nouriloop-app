@@ -1,0 +1,11 @@
+<h1>{{ 'delivery.email.reset_hi'|trans }}</h1>
+
+<p>{{ 'delivery.email.reset_lead'|trans }}</p>
+
+<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
+
+<p>{{ 'delivery.email.reset_expiry'|trans({
+    'duration': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle'),
+}) }}</p>
+
+<p>{{ 'delivery.email.reset_bye'|trans }}</p>

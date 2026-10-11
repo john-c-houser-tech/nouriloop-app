@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{#
+  Shared frame for the ad landing pages (Marketing Plan §8). Design constraints:
+  - No navigation links anywhere: the brand mark is not a link, and base.html.twig's
+    `chrome_suppressed` flag (keyed on the app_landing_page route) suppresses every
+    navigation surface — the signed-in navbar, account banners, the floating help
+    button, the onboarding overlay, and the footer's feedback link — so the register
+    CTA is the only destination even for a logged-in visitor. The base footer keeps
+    the disclaimer + copyright, and trackers stay on (ad conversion measurement).
+  - noindex: these pages exist for paid traffic and duplicate /about's story per
+    audience — they're kept out of the organic index (and out of the sitemap) so
+    they can't compete with /about's canonical marketing page. The meta block
+    override appends robots noindex to the base meta (which only noindexes
+    authenticated pages).
+  - Blocks: lp_title (page <title> / og:title), lp_headline (the h1),
+    lp_lead (the hero paragraph), lp_cta_label (both CTA buttons), lp_body
+    (the sections between hero and closing CTA), lp_footnote (small print
+    under the closing CTA — pricing honesty lives here).
+#}
+
+{% block title %}{% block lp_title %}NouriLoop{% endblock %}{% endblock %}
+
+{% block meta %}
+    {{ parent() }}
+    <meta name="robots" content="noindex">
+{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 720px;">
+
+    {# Brand mark — deliberately not a link (keep the visitor on the CTA path). #}
+    <div class="d-flex align-items-center justify-content-center gap-2 mb-4 text-muted">
+        <img src="{{ asset('navbar-logo.png') }}" alt="" width="28" height="28">
+        <span class="fw-bold fs-5" style="letter-spacing: -0.5px; color: var(--slate);">NouriLoop</span>
+    </div>
+
+    {# Hero #}
+    <div class="text-center mb-4">
+        <h1 class="fw-bold mb-3">{% block lp_headline %}{% endblock %}</h1>
+        <p class="lead mb-4">{% block lp_lead %}{% endblock %}</p>
+        {# Anything a visitor must know BEFORE clicking goes here — lp_body renders
+           after this CTA, so a compatibility caveat placed there is one the reader
+           can miss entirely (Copilot catch on PR #185). Empty on every page but
+           /lp/diabetes. #}
+        {% block lp_precta %}{% endblock %}
+        <a href="{{ localized_path('app_register') }}" class="btn btn-warning btn-lg fw-semibold px-4">
+            {% block lp_cta_label %}{{ 'lp.layout.cta_default'|trans }}{% endblock %}</a>
+        <p class="small text-muted mt-2 mb-0">{{ 'lp.layout.no_card'|trans }}</p>
+        {# Platform reassurance on every landing page (Marketing Plan §7.7): the
+           pages previously said neither "iPhone" nor "Android", while the CGM
+           story runs through Apple Health — so an Android visitor had no way to
+           know what would work. Everything except health-data import runs in any
+           phone's browser; only /lp/diabetes needs a caveat beyond this. #}
+        <p class="small text-muted mt-2 mb-0">{{ 'lp.layout.any_phone'|trans }}</p>
+    </div>
+
+    {% block lp_body %}{% endblock %}
+
+    {# Closing CTA #}
+    <hr class="my-4">
+    <div class="text-center mb-4">
+        <a href="{{ localized_path('app_register') }}" class="btn btn-warning btn-lg fw-semibold px-4">
+            {{ block('lp_cta_label') }}</a>
+        <p class="small text-muted mt-2 mb-0">{% block lp_footnote %}{{ 'lp.layout.no_card'|trans }}{% endblock %}</p>
+    </div>
+
+    <div class="alert alert-light border small text-muted mb-0">
+        {{ 'lp.layout.disclaimer'|trans }}
+    </div>
+
+</div>
+{% endblock %}

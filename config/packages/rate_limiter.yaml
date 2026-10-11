@@ -1,0 +1,42 @@
+framework:
+    rate_limiter:
+        # Natural-language help assistant (POST /help/ask). Caps Claude token spend
+        # and abuse. Signed-in users get a higher allowance, keyed by user id;
+        # anonymous visitors are limited per client IP.
+        help_assistant:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 hour'
+        help_assistant_anon:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+        # Predictive Help scenario runs (POST /insights/predict/run). Loop+ only,
+        # so no anon limiter — the feature gate handles non-subscribers.
+        predictive_insight:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 hour'
+        # Goal-setup chat messages (POST /goals/new/message), keyed per user. Free
+        # on every tier, so this is the only per-hour spend bound. Higher than the
+        # one-shot surfaces' 10 because a single goal conversation takes several
+        # turns; the per-conversation turn cap (GoalConversationController::
+        # MAX_USER_TURNS) bounds how large each resent transcript can grow.
+        goal_chat:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 hour'
+        # "Email me a sign-in link" requests (POST /login/link): an unauthenticated,
+        # mail-triggering POST, so it gets the same three-layer posture as the
+        # beta-request form (honeypot + Turnstile + this per-IP cap). Client IPs are
+        # real on this deployment — no proxy in front (see CLAUDE.md, Deployment).
+        login_link:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+        # "Resend confirmation email" (POST /verify-email/resend, authenticated) —
+        # keyed per user id; each send is a fresh 24 h login link.
+        email_verification:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '1 hour'

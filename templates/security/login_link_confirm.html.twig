@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.link.confirm_title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="min-vh-hero d-flex align-items-center justify-content-center bg-hero">
+    <div class="card p-4 text-center" style="width: 100%; max-width: 460px;">
+        <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="88" height="88" class="mb-2 mx-auto">
+        <h1 class="h3 fw-bold">{{ 'auth.link.confirm_heading'|trans }}</h1>
+        <p class="text-muted">{{ 'auth.link.confirm_lead'|trans }}</p>
+
+        {# POSTs back to this same URL, query string (user/expires/hash) included —
+           the firewall's login-link authenticator handles the POST. The extra tap
+           exists so email scanners that prefetch links can't consume the
+           single-use link; scanners don't submit forms. #}
+        <form method="post" action="{{ app.request.requestUri }}">
+            <button type="submit" class="btn btn-success w-100 fw-semibold btn-lg">{{ 'auth.link.confirm_submit'|trans }}</button>
+        </form>
+
+        <p class="small text-muted mt-3 mb-0">{{ 'auth.link.confirm_footer'|trans }}</p>
+    </div>
+</div>
+{% endblock %}

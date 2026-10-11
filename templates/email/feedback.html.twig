@@ -1,0 +1,16 @@
+{# i18n: team-facing (ADMIN_EMAIL) — stays English on purpose. #}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #212529; line-height: 1.5;">
+    <h2 style="margin-bottom: 4px;"><img src="{{ absolute_url(asset('icon-192x192.png')) }}" alt="" width="24" height="24" style="vertical-align: middle; border-radius: 5px;"> NouriLoop feedback</h2>
+    <ul>
+        <li><strong>Name:</strong> {{ name ?: '(not given)' }}</li>
+        <li><strong>Email:</strong> {{ fromEmail ?: '(not given)' }}</li>
+    </ul>
+    <p style="white-space: pre-wrap; border-left: 3px solid #dee2e6; padding-left: 12px; color: #212529;">{{ message }}</p>
+    {% if fromEmail %}
+    <p style="color: #6c757d; font-size: 13px;">Reply directly to this email to respond.</p>
+    {% endif %}
+</body>
+</html>

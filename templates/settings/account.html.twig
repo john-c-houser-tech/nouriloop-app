@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.account.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.account.title'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.account.lead'|trans }}</p>
+
+    {% if scheduledPurgeDate %}
+    <div class="card border-warning p-4 mb-4">
+        <h5 class="fw-bold text-warning-emphasis mb-2">
+            <i class="bi bi-exclamation-triangle"></i> {{ 'settings.account.scheduled_heading'|trans }}
+        </h5>
+        <p class="mb-3">
+            {{ 'settings.account.scheduled_text'|trans({
+                'date': '<strong>' ~ scheduledPurgeDate|user_date('yMMMMd') ~ '</strong>',
+            })|raw }}
+        </p>
+        <form method="post" action="{{ path('app_settings_account_cancel_deletion') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('account-cancel-deletion') }}">
+            <button class="btn btn-outline-warning fw-semibold">{{ 'settings.account.cancel'|trans }}</button>
+        </form>
+    </div>
+    {% else %}
+
+    <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-2"><i class="bi bi-arrow-repeat"></i> {{ 'settings.account.fresh_heading'|trans }}</h5>
+        <p class="text-muted mb-3">{{ 'settings.account.fresh_text'|trans|raw }}</p>
+        <form method="post" action="{{ path('app_settings_account_delete_data') }}"
+              onsubmit="return confirm('{{ 'settings.account.fresh_confirm'|trans|e('js') }}')">
+            <input type="hidden" name="_token" value="{{ csrf_token('account-delete-data') }}">
+            <button class="btn btn-outline-danger fw-semibold">{{ 'settings.account.fresh_btn'|trans }}</button>
+        </form>
+    </div>
+
+    <div class="card p-4 border-danger">
+        <h5 class="fw-bold text-danger mb-2"><i class="bi bi-trash"></i> {{ 'settings.account.delete_heading'|trans }}</h5>
+        <p class="text-muted mb-3">
+            {{ 'settings.account.delete_text'|trans({
+                'days': constant('App\\Service\\AccountDeletionService::GRACE_DAYS'),
+            })|raw }}
+        </p>
+        <form method="post" action="{{ path('app_settings_account_delete') }}"
+              onsubmit="return confirm('{{ 'settings.account.delete_confirm'|trans|e('js') }}')">
+            <input type="hidden" name="_token" value="{{ csrf_token('account-delete') }}">
+            <button class="btn btn-danger fw-semibold">{{ 'settings.account.delete_btn'|trans }}</button>
+        </form>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

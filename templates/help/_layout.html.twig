@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% block help_title %}Help{% endblock %} — NouriLoop Help{% endblock %}
+
+{% block seo_jsonld %}
+    {%- if topic is defined and topic -%}
+        <script type="application/ld+json">{{ jsonld_help_article(topic)|raw }}</script>
+    {%- endif -%}
+{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 760px;">
+    <a href="{{ path('app_help') }}" class="small text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i> All help topics
+    </a>
+    <h1 class="fw-bold mt-2 mb-3"><i class="bi bi-question-circle text-brick"></i> {{ block('help_title') }}</h1>
+
+    {% block help_body %}{% endblock %}
+
+    {% block help_related %}{% endblock %}
+
+    <p class="text-muted small mt-5 mb-0">
+        Still stuck? <a href="{{ path('app_help') }}">Browse all help topics</a>.
+    </p>
+</div>
+{% endblock %}

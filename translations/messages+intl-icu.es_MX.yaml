@@ -1,0 +1,20 @@
+# Mexican-Spanish OVERRIDE catalog — carries ONLY the keys whose wording
+# genuinely differs from base `es` (which is already Latin-American-leaning);
+# everything else falls back es_MX → es → en. Keep this file sparse.
+meal:
+    type:
+        # In Mexico the midday meal is "la comida" ("almuerzo" = a mid-morning
+        # bite) and dietitians call snacks "colaciones".
+        lunch: Comida
+        snack: Colación
+supp_suggestion:
+    vitaminC: >-
+        Considera un suplemento de vitamina C o come más cítricos, pimiento
+        morrón y brócoli.
+inflammation:
+    keyword:
+        pastry: Pan dulce
+        cabbage: Col
+# Marketing sections (about / pricing_page / lp) reviewed 2026-07-18: base `es`
+# already reads naturally for Mexico ("toma una foto", "comes seguido", …) and
+# none of the established MX-specific terms apply — no overrides needed.

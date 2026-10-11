@@ -1,0 +1,43 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Importing Health Data{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/health-metrics.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Health Metrics page showing weight, glucose, heart rate, steps, and sleep">
+</figure>
+<p>NouriLoop becomes much more useful when it can see your body's numbers alongside your food. You can bring in
+weight, blood glucose, blood pressure, heart rate, body fat, steps, and sleep.</p>
+
+<h2 class="h5 fw-bold mt-4">Importing a file</h2>
+<ol>
+    <li>Go to <strong>Health Metrics → Import</strong>.</li>
+    <li>Upload an <strong>Apple Health export</strong>, a <strong>health-export JSON</strong>, or a
+        <strong>CSV</strong>. NouriLoop detects the format automatically.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">Automatic syncing (recommended for large histories)</h2>
+<p>A full Apple Health export is too big to upload directly. For ongoing, hands-off syncing, create an
+<strong>API token</strong> in Settings and point an app like <em>Health Auto Export</em> at NouriLoop — it
+posts your readings on a schedule. <a href="{{ path('app_help_show', {topic: 'settings'}) }}">See Settings →</a></p>
+<p>Connecting a <strong>Lingo or Stelo</strong> glucose sensor? There's a dedicated walkthrough:
+<a href="{{ path('app_help_show', {topic: 'connect-cgm'}) }}">Connect Your Lingo or Stelo</a>.</p>
+
+<h2 class="h5 fw-bold mt-4">Reading the page</h2>
+<p>Each metric gets a card with a trend chart. The sublabel tells you what the number is: <strong>daily
+totals</strong> for steps, <strong>daily averages</strong> (with a shaded range) for glucose, heart rate, and
+blood pressure, and <strong>daily readings</strong> for weight and body fat.</p>
+
+<p class="text-muted small">Your health data is handled carefully — see the Health Data Privacy Notice linked
+on the Health Metrics page.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'connect-cgm'}) }}">Connect Your Lingo or Stelo (CGM)</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'glucose'}) }}">Glucose Insights</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'settings'}) }}">Settings &amp; Notifications</a></li>
+</ul>
+{% endblock %}

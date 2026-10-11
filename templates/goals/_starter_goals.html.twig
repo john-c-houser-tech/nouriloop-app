@@ -1,0 +1,24 @@
+{# One-click starter goals — rendered by the onboarding goal step (which rides on
+   every authenticated page) and atop the goal chat for users with no goals yet.
+   Each button POSTs app_goals_starter and creates the goal immediately; targets
+   start at the DietaryReference daily values, nudged by the user's own history
+   (App\Service\StarterGoals — labels deliberately carry no numbers so they can't
+   drift from the computed target). #}
+<div class="d-grid gap-2">
+    {% set starterIcons = {
+        'fiber': 'bi-flower3',
+        'protein': 'bi-egg-fried',
+        'sugar': 'bi-droplet',
+        'calories': 'bi-speedometer2',
+    } %}
+    {% for tpl in ['fiber', 'protein', 'sugar', 'calories'] %}
+    <form method="post" action="{{ path('app_goals_starter') }}" class="m-0">
+        <input type="hidden" name="_token" value="{{ csrf_token('goal-starter') }}">
+        <input type="hidden" name="template" value="{{ tpl }}">
+        <button type="submit" class="btn btn-outline-success btn-sm w-100 text-start">
+            <i class="bi {{ starterIcons[tpl] }} me-1"></i> {{ ('goal.starter.' ~ tpl)|trans }}
+        </button>
+    </form>
+    {% endfor %}
+</div>
+<p class="text-muted small mb-0 mt-2">{{ 'goal.starter.note'|trans }}</p>

@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'meal.reanalyze.review_title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+    {# The diff table has four columns and the LAST one carries the change — the
+       reason the screen exists. At 375px the stock .table-sm padding pushed it
+       past the .table-responsive edge, so the delta was the one thing scrolled
+       out of sight (found live-testing on mobile). Tighten the cells and stack
+       the percentage under the delta below the sm breakpoint so all four fit. #}
+    <style>
+        @media (max-width: 575.98px) {
+            #reanalysis-diff th,
+            #reanalysis-diff td { padding-left: .2rem; padding-right: .2rem; font-size: .8125rem; }
+            #reanalysis-diff .diff-pct { display: block; }
+        }
+    </style>
+<div class="container" style="max-width: 800px;">
+    <h2 class="fw-bold mb-1">{{ 'meal.reanalyze.review_heading'|trans }}</h2>
+    <p class="text-muted">{{ 'meal.reanalyze.review_lead'|trans }}</p>
+
+    {# The plan's §4 rule, made unmissable: hand-corrected numbers are
+       known-good to whoever typed them, so replacing them is a deliberate
+       second action (enforced server-side, not just revealed here). #}
+    {% if entry.nutritionEditedAt %}
+    <div class="alert alert-warning" role="alert">
+        <div class="fw-semibold mb-1">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'meal.reanalyze.overwrite_strong'|trans }}
+        </div>
+        <div class="small">
+            {{ 'meal.reanalyze.overwrite_text'|trans({'date': entry.nutritionEditedAt|local_date('yMMMd')}) }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not hasChanges %}
+    <div class="alert alert-secondary d-flex gap-2" role="alert">
+        <i class="bi bi-info-circle-fill"></i>
+        <div class="small">{{ 'meal.reanalyze.no_changes'|trans }}</div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            {% if newPhotos is not empty %}
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-2">
+                    {{ 'meal.reanalyze.new_photos'|trans }}
+                </small>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for photo in newPhotos %}
+                    <img src="{{ asset(photo) }}" alt="{{ 'meal.photo_alt'|trans }}"
+                         class="rounded border" style="width: 88px; height: 88px; object-fit: cover;">
+                    {% endfor %}
+                </div>
+                <div class="form-text mb-0">
+                    {{ (state.replacePhoto ? 'meal.reanalyze.photo_will_replace' : 'meal.reanalyze.photo_aid_only')|trans }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-semibold text-uppercase">{{ 'meal.reanalyze.new_description'|trans }}</small>
+                <p class="mb-0 mt-1 small">{{ state.aiDescription|default('—') }}</p>
+                {% if entry.aiDescription and entry.aiDescription != state.aiDescription %}
+                <hr class="my-2">
+                <small class="text-muted fw-semibold text-uppercase">{{ 'meal.reanalyze.old_description'|trans }}</small>
+                <p class="mb-0 mt-1 small text-muted">{{ entry.aiDescription }}</p>
+                {% endif %}
+            </div>
+
+            {% if state.ingredients is not empty %}
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-2">
+                    {{ 'meal.reanalyze.new_ingredients'|trans }}
+                </small>
+                <ul class="list-unstyled mb-0">
+                    {% for item in state.ingredients %}
+                    <li class="d-flex justify-content-between small py-1 border-bottom">
+                        <span>{{ item.name|default('') }}</span>
+                        <span class="text-muted">{{ item.amount|default('') }} {{ item.unit|default('') }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="form-text mb-0">{{ 'meal.reanalyze.ingredients_replaced'|trans }}</div>
+            </div>
+            {% endif %}
+
+            {% if state.questions is not empty %}
+            {# Read-only: a single-shot re-analysis has no answer-and-refine round
+               (that would be another billable call), so these are shown as the
+               reason the confidence sits where it does. #}
+            <div class="card p-3 mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-2">
+                    {{ 'meal.reanalyze.ai_unsure'|trans }}
+                </small>
+                <ul class="mb-0 small text-muted ps-3">
+                    {% for question in state.questions %}
+                    <li>{{ question }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-7">
+            <div class="card p-4 mb-3">
+                <h5 class="fw-bold mb-3">{{ 'meal.reanalyze.diff_heading'|trans }}</h5>
+
+                {# `is not null`, not truthiness: 0.0 is a valid confidence under
+                   the analysis contract, and "the AI has no confidence in this"
+                   is the one reading the operator most needs to see. #}
+                {% if proposedConfidence is not null %}
+                <p class="small text-muted">
+                    {{ 'meal.reanalyze.confidence_line'|trans({
+                        'proposed': (proposedConfidence * 100)|round,
+                        'current': currentConfidence is not null ? (currentConfidence * 100)|round : '—',
+                    }) }}
+                </p>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0" id="reanalysis-diff">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ 'meal.reanalyze.col_nutrient'|trans }}</th>
+                                <th scope="col" class="text-end">{{ 'meal.reanalyze.col_current'|trans }}</th>
+                                <th scope="col" class="text-end">{{ 'meal.reanalyze.col_proposed'|trans }}</th>
+                                <th scope="col" class="text-end">{{ 'meal.reanalyze.col_change'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rows %}
+                            {% set dir = row.direction %}
+                            <tr class="{{ dir != 'same' ? 'table-active' : '' }}">
+                                <td>{{ row.label|trans }} <small class="text-muted">({{ row.unit }})</small></td>
+                                <td class="text-end {{ dir == 'same' ? '' : 'text-muted' }}">
+                                    {{ row.current is null ? '—' : row.current|format_number({fraction_digit: 1}) }}
+                                </td>
+                                <td class="text-end fw-semibold">
+                                    {{ row.proposed is null ? '—' : row.proposed|format_number({fraction_digit: 1}) }}
+                                </td>
+                                {# ⚠️ Deliberately COLOUR-NEUTRAL. An earlier draft painted
+                                   every rise red and every fall green, which asserts a
+                                   good/bad meaning nutrients don't have — more protein or
+                                   fibre is usually wanted, more sodium usually isn't, and
+                                   "newly estimated" is neither. This screen reports what
+                                   would change so the user can approve it; it is not
+                                   dietary advice, and NouriLoop doesn't give any. The
+                                   ▲/▼ arrow carries direction on its own. #}
+                                <td class="text-end small">
+                                    {% if dir == 'same' %}
+                                        <span class="text-muted">—</span>
+                                    {% elseif dir == 'added' %}
+                                        <span class="text-muted">{{ 'meal.reanalyze.change_added'|trans }}</span>
+                                    {% elseif dir == 'removed' %}
+                                        <span class="text-muted">{{ 'meal.reanalyze.change_removed'|trans }}</span>
+                                    {% else %}
+                                        <span>
+                                            <i class="bi bi-arrow-{{ dir == 'up' ? 'up' : 'down' }}"></i>
+                                            {{ row.delta > 0 ? '+' : '' }}{{ row.delta|format_number({fraction_digit: 1}) }}
+                                            {% if row.percentChange is not null %}
+                                                <span class="diff-pct">({{ row.percentChange > 0 ? '+' : '' }}{{ row.percentChange|format_number({fraction_digit: 0}) }}%)</span>
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <form method="post" action="{{ path('app_meal_reanalyze_review', {id: entry.id}) }}" class="card p-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('meal-reanalyze-' ~ entry.id) }}">
+
+                {% if entry.nutritionEditedAt %}
+                <div class="form-check mb-3{{ overwriteNeeded ? ' is-invalid' : '' }}">
+                    <input type="checkbox" class="form-check-input{{ overwriteNeeded ? ' is-invalid' : '' }}"
+                           id="confirm_overwrite" name="confirm_overwrite" value="1"
+                           {{ overwriteNeeded ? 'required' : '' }}>
+                    <label class="form-check-label" for="confirm_overwrite">
+                        {{ 'meal.reanalyze.overwrite_confirm'|trans }}
+                    </label>
+                </div>
+                {% endif %}
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" name="apply" value="1" class="btn btn-success fw-semibold">
+                        <i class="bi bi-check2"></i> {{ 'meal.reanalyze.apply'|trans }}
+                    </button>
+                    <button type="submit" name="discard" value="1" class="btn btn-outline-secondary">
+                        {{ 'meal.reanalyze.discard'|trans }}
+                    </button>
+                </div>
+                <div class="form-text mb-0">{{ 'meal.reanalyze.discard_help'|trans }}</div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

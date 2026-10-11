@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'favorite.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 900px;">
+
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-star-fill text-warning"></i> {{ 'favorite.heading'|trans }} {{ help_link('favorites') }}</h2>
+        <a href="{{ path('app_meal_log') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-camera"></i> {{ 'favorite.log_photo'|trans }}
+        </a>
+        <a href="{{ path('app_recipe_scan') }}" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-journal-text"></i> {{ 'recipe.import_cta'|trans }}
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <label class="small text-muted mb-0">{{ 'favorite.sort'|trans }}</label>
+            <select class="form-select form-select-sm" style="width:auto"
+                    onchange="location.href='{{ path('app_favorites') }}?sort=' + this.value">
+                <option value="recent" {{ sort == 'recent' ? 'selected' }}>{{ 'favorite.sort_recent'|trans }}</option>
+                <option value="used"   {{ sort == 'used'   ? 'selected' }}>{{ 'favorite.sort_used'|trans }}</option>
+                <option value="name"   {{ sort == 'name'   ? 'selected' }}>{{ 'favorite.sort_name'|trans }}</option>
+            </select>
+        </div>
+    </div>
+
+    {% if favorites is empty %}
+        {# Empty-state CTA (E18): no dead end — the empty text already names the
+           origin (the review screen's "add to favorites"); the button starts it. #}
+        <div class="card p-5 text-center text-muted">
+            <i class="bi bi-star fs-1"></i>
+            <p class="mt-2 mb-3">{{ 'favorite.empty'|trans }}</p>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <a href="{{ path('app_meal_log') }}" class="btn btn-success">
+                    <i class="bi bi-camera"></i> {{ 'favorite.empty_cta'|trans }}
+                </a>
+                <a href="{{ path('app_recipe_scan') }}" class="btn btn-outline-success">
+                    <i class="bi bi-journal-text"></i> {{ 'recipe.import_cta'|trans }}
+                </a>
+            </div>
+        </div>
+    {% else %}
+        {% if savings.calls > 0 %}
+        <div class="card p-3 mb-3 bg-success bg-opacity-10 border-0 text-center">
+            <div class="fw-bold fs-4">{{ savings.calls }}</div>
+            <small class="text-muted">{{ 'favorite.savings'|trans }}</small>
+        </div>
+        {% endif %}
+
+        <input type="text" id="favorite-search" class="form-control mb-3"
+               placeholder="{{ 'favorite.search_ph'|trans }}" autocomplete="off">
+
+        <div id="favorite-list" class="row g-3">
+        {% for favorite in favorites %}
+            {% set nut = favorite.nutrients %}
+            {% set batchList = batchIngredients[favorite.id]|default([]) %}
+            <div class="col-12 favorite-card" data-name="{{ favorite.name|lower }}">
+                <div class="card p-3">
+                    <div class="row g-3 align-items-center">
+
+                        <div class="col-auto">
+                            {% if favorite.thumbnailPath %}
+                            <img src="{{ asset(favorite.thumbnailPath) }}" alt=""
+                                 class="rounded" style="width:72px;height:72px;object-fit:cover;">
+                            {% else %}
+                            <div class="rounded bg-light d-flex align-items-center justify-content-center"
+                                 style="width:72px;height:72px;">
+                                <i class="bi bi-egg-fried fs-3 text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col">
+                            <div class="fw-bold">
+                                {{ favorite.name }}
+                                {% if favorite.servingsAtImport is not null %}
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">
+                                    <i class="bi bi-journal-text"></i> {{ 'recipe.badge'|trans }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-muted">
+                                {{ nut.calories|default(0)|format_number({fraction_digit: 0}) }} kcal ·
+                                P {{ nut.protein|default(0)|format_number({fraction_digit: 0}) }}g ·
+                                C {{ nut.carbohydrates|default(0)|format_number({fraction_digit: 0}) }}g ·
+                                F {{ nut.fat|default(0)|format_number({fraction_digit: 0}) }}g
+                            </div>
+                            <div class="small text-muted">
+                                {{ 'favorite.used'|trans({'count': favorite.useCount}) }}{% if favorite.lastUsedAt %}{{ 'favorite.last_used'|trans({'date': favorite.lastUsedAt|user_date('MMMd')}) }}{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-auto">
+                            <form method="post" action="{{ path('app_favorite_log', {id: favorite.id}) }}"
+                                  class="row g-2 align-items-end">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('favorite-log-' ~ favorite.id) }}">
+                                <div class="col-auto">
+                                    <label class="form-label small mb-0">{{ 'favorite.meal'|trans }}</label>
+                                    <select name="meal_type" class="form-select form-select-sm">
+                                        {% for type in mealTypes %}
+                                        <option value="{{ type.value }}"{{ type == defaultMealType ? ' selected' }}>{{ type.transKey|trans }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-auto" style="width:7rem;">
+                                    <label class="form-label small mb-0">{{ 'favorite.servings'|trans }}</label>
+                                    <input type="number" name="portions" value="1" min="0.25" max="100" step="0.25"
+                                           class="form-control form-control-sm">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-success btn-sm fw-semibold">
+                                        <i class="bi bi-plus-lg"></i> {{ 'favorite.log_it'|trans }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-3 mt-2 pt-2 border-top">
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0"
+                                data-bs-toggle="collapse" data-bs-target="#edit-{{ favorite.id }}"
+                                aria-expanded="false" aria-controls="edit-{{ favorite.id }}">
+                            <i class="bi bi-pencil"></i> {{ 'favorite.edit'|trans }}
+                        </button>
+                        {% if favorite.instructions or batchList is not empty %}
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0"
+                                data-bs-toggle="collapse" data-bs-target="#steps-{{ favorite.id }}"
+                                aria-expanded="false" aria-controls="steps-{{ favorite.id }}">
+                            <i class="bi bi-card-text"></i> {{ 'recipe.steps'|trans }}
+                        </button>
+                        {% endif %}
+                        <form method="post" action="{{ path('app_favorite_delete', {id: favorite.id}) }}"
+                              class="ms-auto"
+                              onsubmit="return confirm('{{ 'favorite.delete_confirm'|trans|e('js') }}')">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('favorite-delete-' ~ favorite.id) }}">
+                            <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none p-0">
+                                <i class="bi bi-trash"></i> {{ 'favorite.delete'|trans }}
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if favorite.instructions or batchList is not empty %}
+                    {# The imported recipe as a cook's reference: whole-batch
+                       ingredient quantities, then the transcribed steps. All
+                       user data — auto-escaped; pre-wrap keeps line breaks. #}
+                    <div class="collapse mt-2" id="steps-{{ favorite.id }}">
+                        <div class="card card-body bg-light small">
+                            {% if batchList is not empty %}
+                            <p class="fw-semibold mb-1">
+                                {% if favorite.servingsAtImport is not null %}
+                                    {{ 'recipe.ingredients_for'|trans({'servings': favorite.servingsAtImport}) }}
+                                {% else %}
+                                    {{ 'recipe.confirm.ingredients'|trans }}
+                                {% endif %}
+                            </p>
+                            <ul class="mb-2 ps-3">
+                                {% for ing in batchList %}
+                                <li>{{ [ing.amount|default(''), ing.unit|default(''), ing.name|default('')]|join(' ')|trim }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if favorite.instructions %}
+                            <div style="white-space: pre-wrap;">{{ favorite.instructions }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="collapse mt-2" id="edit-{{ favorite.id }}">
+                        <form method="post" action="{{ path('app_favorite_edit', {id: favorite.id}) }}"
+                              class="row g-2">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('favorite-edit-' ~ favorite.id) }}">
+                            <div class="col-12">
+                                <label class="form-label small mb-0">{{ 'favorite.name'|trans }}</label>
+                                <input type="text" name="name" maxlength="200" value="{{ favorite.name }}"
+                                       class="form-control form-control-sm">
+                            </div>
+                            {% for macro in [
+                                ['calories', 'macro.kcal'|trans], ['protein', 'favorite.protein_g'|trans],
+                                ['carbohydrates', 'favorite.carbs_g'|trans], ['fat', 'favorite.fat_g'|trans],
+                            ] %}
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small mb-0">{{ macro[1] }}</label>
+                                <input type="number" step="0.1" min="0" name="{{ macro[0] }}"
+                                       value="{{ nut[macro[0]] is not null ? nut[macro[0]] : '' }}"
+                                       class="form-control form-control-sm">
+                            </div>
+                            {% endfor %}
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-lg"></i> {{ 'favorite.save'|trans }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+
+        <p id="no-matches" class="text-muted text-center mt-3 d-none">{{ 'favorite.no_matches'|trans }}</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const search = document.getElementById('favorite-search');
+if (search) {
+    const cards = [...document.querySelectorAll('.favorite-card')];
+    const noMatches = document.getElementById('no-matches');
+    search.addEventListener('input', () => {
+        const q = search.value.trim().toLowerCase();
+        let shown = 0;
+        cards.forEach(card => {
+            const match = card.dataset.name.includes(q);
+            card.classList.toggle('d-none', !match);
+            if (match) shown++;
+        });
+        noMatches.classList.toggle('d-none', shown > 0);
+    });
+}
+</script>
+{% endblock %}

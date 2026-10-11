@@ -1,0 +1,218 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'health.title'|trans }} — NouriLoop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Per-metric icon chips (.text-brick is now a global utility in base). */
+    .metric-chip {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 42px; height: 42px; border-radius: 11px; font-size: 1.15rem; flex-shrink: 0;
+    }
+    .chip-teal { background: var(--bs-success-bg-subtle); color: var(--consequence-emphasis); }
+</style>
+{% endblock %}
+
+{% block body %}
+{# Icon per metric type. Chips are all teal; red is reserved for attention/alert states. #}
+{% set metricIcons = {
+    'weight': 'bi-speedometer2',
+    'body_fat_percentage': 'bi-pie-chart',
+    'blood_glucose': 'bi-droplet-half',
+    'heart_rate': 'bi-heart-pulse',
+    'blood_pressure_systolic': 'bi-activity',
+    'blood_pressure_diastolic': 'bi-activity',
+    'steps': 'bi-person-walking',
+    'sleep_in_bed': 'bi-moon-stars', 'sleep_asleep': 'bi-moon-stars',
+    'sleep_core': 'bi-moon-stars', 'sleep_deep': 'bi-moon-stars',
+    'sleep_rem': 'bi-moon-stars', 'sleep_duration': 'bi-moon-stars'
+} %}
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-heart-pulse text-brick"></i> {{ 'health.heading'|trans }} {{ help_link('health-metrics') }}</h2>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                {% for d in [7, 14, 30, 90] %}
+                <a href="{{ path('app_health_metrics', {days: d}) }}"
+                   class="btn btn-{{ days == d ? 'success' : 'outline-secondary' }} btn-sm">{{ 'health.days_btn'|trans({'days': d}) }}</a>
+                {% endfor %}
+            </div>
+            <a href="{{ path('app_health_metrics_import') }}" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-upload"></i> {{ 'health.import_btn'|trans }}
+            </a>
+        </div>
+    </div>
+
+    {% if not hasGlucose %}
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-activity fs-4"></i>
+        <div>
+            {{ 'health.cgm_pitch'|trans({
+                'link': '<a href="' ~ path('app_connect_cgm') ~ '" class="fw-semibold">',
+                'link_end': '</a>',
+            })|raw }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if metricsByType is empty %}
+    {# Empty-state CTAs (E18): both on-ramps — the file importer and the guided
+       CGM setup — live inside the empty block itself, not just the page header. #}
+    <div class="card p-5 text-center text-muted">
+        <i class="bi bi-heart-pulse fs-1 text-brick mb-2"></i>
+        <p class="mb-2">{{ 'health.empty'|trans }}</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a href="{{ path('app_health_metrics_import') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-upload"></i> {{ 'health.import_data'|trans }}
+            </a>
+            <a href="{{ path('app_connect_cgm') }}" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-activity"></i> {{ 'health.connect_cgm_cta'|trans }}
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="row g-4">
+        {% for typeKey, data in metricsByType %}
+        <div class="col-md-6">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="metric-chip chip-teal">
+                            <i class="bi {{ metricIcons[typeKey]|default('bi-activity') }}"></i>
+                        </span>
+                        <h5 class="fw-bold mb-0">{{ data.label }}</h5>
+                    </div>
+                    <small class="text-muted">{{ data.unit }}</small>
+                </div>
+                <small class="text-muted mb-3 d-block">
+                    {{ 'health.readings'|trans({'count': data.count, 'bucket': data.bucketLabel}) }}
+                </small>
+                <canvas id="chart-{{ typeKey }}" height="130"></canvas>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <p class="text-muted small text-center mt-4 mb-0">
+        <i class="bi bi-shield-lock"></i>
+        {{ 'health.privacy'|trans({
+            'link': '<a href="' ~ path('app_privacy_health') ~ '">',
+            'link_end': '</a>',
+        })|raw }}
+    </p>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{% if metricsByType is not empty %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+const metricsConfig = {{ metricsByType|json_encode|raw }};
+const days = {{ days }};
+</script>
+{% verbatim %}
+<script>
+Object.entries(metricsConfig).forEach(([key, data]) => {
+    const buckets = data.buckets;
+    const labels  = buckets.map(b => b.bucket);
+    const avgs    = buckets.map(b => b.avg);
+    const mins    = buckets.map(b => b.min);
+    const maxs    = buckets.map(b => b.max);
+
+    // How many x-axis ticks to show (roughly one per day)
+    const maxTicks = Math.min(days + 1, labels.length);
+
+    // Compute axis bounds from actual data — never force to 0
+    const allVals  = [...mins, ...maxs].filter(v => v != null);
+    const dataMin  = Math.min(...allVals);
+    const dataMax  = Math.max(...allVals);
+    const axisPad  = Math.max((dataMax - dataMin) * 0.08, 2);
+    const axisMin  = Math.floor(dataMin - axisPad);
+    const axisMax  = Math.ceil(dataMax + axisPad);
+
+    new Chart(document.getElementById('chart-' + key), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    // Min boundary — filled toward the max dataset
+                    data: mins,
+                    borderColor: 'transparent',
+                    backgroundColor: 'rgba(13,148,136,0.14)',
+                    pointRadius: 0,
+                    fill: '+1',
+                    tension: 0.3,
+                },
+                {
+                    // Max boundary
+                    data: maxs,
+                    borderColor: 'transparent',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3,
+                },
+                {
+                    // Average line
+                    label: data.label + ' (' + data.unit + ')',
+                    data: avgs,
+                    borderColor: '#0d9488',
+                    backgroundColor: 'transparent',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.3,
+                    fill: false,
+                },
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => items[0]?.label ?? '',
+                        // Only show the avg line in the tooltip (index 2)
+                        label: ctx => {
+                            if (ctx.datasetIndex !== 2) return null;
+                            const b = buckets[ctx.dataIndex];
+                            const line = data.label + ': ' + ctx.parsed.y.toFixed(1) + ' ' + data.unit;
+                            const range = b.min !== b.max
+                                ? '  (range ' + b.min.toFixed(1) + '–' + b.max.toFixed(1) + ')'
+                                : '';
+                            return line + range;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxTicksLimit: maxTicks,
+                        maxRotation: 45,
+                        autoSkip: true,
+                        callback: function(val) {
+                            // Show only the date portion (first 10 chars) of the bucket label
+                            const lbl = this.getLabelForValue(val);
+                            return lbl ? lbl.slice(0, 10) : '';
+                        }
+                    },
+                    grid: { color: 'rgba(0,0,0,.04)' }
+                },
+                y: {
+                    min: axisMin,
+                    max: axisMax,
+                    ticks: { maxTicksLimit: 5 },
+                    grid: { color: 'rgba(0,0,0,.06)' }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endverbatim %}
+{% endif %}
+{% endblock %}

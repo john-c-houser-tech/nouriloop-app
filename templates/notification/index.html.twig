@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'inbox.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 760px;">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-bell text-brick"></i> {{ 'inbox.title'|trans }}</h2>
+    </div>
+
+    {% if notifications is empty %}
+        <div class="card p-4 text-center text-muted">
+            <i class="bi bi-bell-slash fs-2 mb-2"></i>
+            <p class="mb-1">{{ 'inbox.empty'|trans }}</p>
+            <p class="small mb-0">{{ 'inbox.empty_sub'|trans }}</p>
+        </div>
+    {% else %}
+        <div class="list-group shadow-sm">
+            {% for n in notifications %}
+                {% set isNew = unreadIds[n.id] is defined %}
+                <a href="{{ path('app_notifications_go', {id: n.id}) }}"
+                    class="list-group-item list-group-item-action d-flex gap-3 py-3{% if isNew %} bg-success-subtle{% endif %}">
+                    <div class="fs-4 text-brick lh-1 pt-1"><i class="bi {{ n.category.icon }}"></i></div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-baseline gap-2">
+                            <span class="fw-semibold">{{ n.title }}</span>
+                            <small class="text-muted text-nowrap">{{ n.createdAt|user_date('MMMdjm') }}</small>
+                        </div>
+                        {% if n.body %}<div class="small text-muted mt-1">{{ n.body }}</div>{% endif %}
+                    </div>
+                    {% if isNew %}<span class="badge bg-success align-self-center">{{ 'inbox.new'|trans }}</span>{% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

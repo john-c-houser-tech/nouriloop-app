@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'goal.chat.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 720px;">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-chat-dots text-brick"></i> {{ 'goal.chat.heading'|trans }}</h2>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_goals_new_manual') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-sliders"></i> {{ 'goal.chat.manual'|trans }}
+            </a>
+            <a href="{{ path('app_goals') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> {{ 'goal.chat.back'|trans }}
+            </a>
+        </div>
+    </div>
+
+    {# Quick-start strip for users with no goals yet — the same one-tap starter
+       templates as the onboarding step, so nobody's first goal has to come from
+       a chat. Redisplays (message/confirm re-renders) default it off. #}
+    {% if showStarters|default(false) %}
+    <div class="card p-3 mb-3">
+        <div class="fw-semibold mb-1"><i class="bi bi-lightning-charge text-warning"></i> {{ 'goal.starter.heading'|trans }}</div>
+        <p class="text-muted small mb-2">{{ 'goal.starter.lead'|trans }}</p>
+        {% include 'goals/_starter_goals.html.twig' %}
+        <p class="text-muted small mb-0 mt-2">{{ 'goal.starter.or_chat'|trans }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card p-3 mb-3">
+        <div class="d-flex flex-column gap-2" style="max-height: 50vh; overflow-y: auto;" id="chat-scroll">
+            {# Static opener — kept out of the model transcript so the API history starts with the user. #}
+            <div class="d-flex">
+                <div class="bg-light rounded p-2 px-3" style="max-width: 85%;">{{ greeting|nl2br }}</div>
+            </div>
+            {% for turn in history %}
+                {% if turn.role == 'user' %}
+                <div class="d-flex justify-content-end">
+                    <div class="bg-success-subtle text-success-emphasis rounded p-2 px-3" style="max-width: 85%;">{{ turn.content|nl2br }}</div>
+                </div>
+                {% else %}
+                <div class="d-flex">
+                    <div class="bg-light rounded p-2 px-3" style="max-width: 85%;">{{ turn.content|nl2br }}</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if proposal %}
+    <div class="card border-success p-3 mb-3">
+        <h5 class="fw-bold mb-1"><i class="bi bi-bullseye text-success"></i> {{ proposal.name|default('goal.chat.proposal_fallback'|trans) }}</h5>
+        {% if proposal.rationale %}<p class="text-muted small mb-3">{{ proposal.rationale }}</p>{% endif %}
+        {# The proposal is model-authored JSON: translate the *structured* enum
+           values through the goal.* keys when they're recognised, and fall back
+           to the raw (underscore-stripped) value for anything unexpected — the
+           card renders before confirm-time validation. #}
+        {% set pDir = proposal.direction|default('') %}
+        {% set pMetric = proposal.metric|default('') %}
+        {% set pAgg = proposal.aggregation|default('') %}
+        {% set pFreq = proposal.frequency|default('weekly') %}
+        {% set pOut = proposal.outputFormat|default('summary') %}
+        {% set tDir = pDir in ['at_most', 'at_least', 'maintain'] ? ('goal.direction.' ~ pDir)|trans : pDir|replace({'_': ' '}) %}
+        {% set tMetric = pMetric in ['calories', 'protein', 'carbohydrates', 'fat', 'saturated_fat', 'fiber', 'sugar', 'sodium'] ? (('goal.metric.' ~ pMetric)|trans)|lower : pMetric|replace({'_': ' '}) %}
+        {% set tAgg = pAgg in ['daily_average', 'window_total'] ? ('goal.aggregation.' ~ pAgg)|trans : pAgg|replace({'_': ' '}) %}
+        {# Daily cadence is Loop+ — a daily proposal for a non-entitled user is
+           coerced to weekly by GoalFactory on confirm, so the card must show the
+           weekly truth up front (with a note below), never a silent switch. #}
+        {% set dailyCoerced = pFreq == 'daily' and not has_feature('daily_checkins') %}
+        {% set pFreq = dailyCoerced ? 'weekly' : pFreq %}
+        {% set tFreq = pFreq in ['daily', 'weekly'] ? (('goal.frequency.' ~ pFreq)|trans)|lower : pFreq %}
+        {% set tOut = pOut in ['summary', 'chart', 'report'] ? ('goal.output.' ~ pOut)|trans : pOut %}
+        <div class="row small g-2 mb-3">
+            <div class="col-6"><strong>{{ 'goal.chat.target'|trans }}</strong>
+                {{ tDir }}
+                {{ proposal.targetValue }}{% if proposal.targetMax %}–{{ proposal.targetMax }}{% endif %}
+                {{ tMetric }}
+            </div>
+            <div class="col-6"><strong>{{ 'goal.chat.window'|trans }}</strong> {{ 'goal.chat.window_val'|trans({'days': proposal.evaluationWindowDays|default(7), 'aggregation': tAgg}) }}</div>
+            <div class="col-6"><strong>{{ 'goal.chat.checkin'|trans }}</strong> {{ 'goal.chat.at'|trans({'frequency': tFreq, 'time': '%02d:%02d'|format(proposal.hour|default(18), proposal.minute|default(0))}) }}</div>
+            <div class="col-6"><strong>{{ 'goal.chat.output'|trans }}</strong> {{ tOut }}</div>
+        </div>
+
+        {% if dailyCoerced %}
+        <p class="small text-muted mb-3"><i class="bi bi-info-circle"></i>
+            {{ 'goal.chat.daily_note'|trans({
+                'link': '<a href="' ~ path('app_pricing') ~ '">',
+                'link_end': '</a>',
+            })|raw }}
+        </p>
+        {% endif %}
+
+        {% if warnings is not empty %}
+        <div class="alert alert-warning py-2 small">
+            <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle"></i> {{ 'goal.chat.warnings_heading'|trans }}</div>
+            <ul class="mb-2">{% for w in warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="acknowledge_warnings" value="1" id="ack" form="confirm-form">
+                <label class="form-check-label" for="ack">{{ 'goal.chat.ack'|trans }}</label>
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_goals_chat_confirm') }}" id="confirm-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('goal-chat-confirm') }}">
+            <button class="btn btn-success fw-semibold"><i class="bi bi-check-lg"></i> {{ 'goal.chat.create'|trans }}</button>
+            <span class="text-muted small ms-2">{{ 'goal.chat.keep_chatting'|trans }}</span>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if turnLimitReached %}
+    {# Conversation length cap — each turn resends the whole transcript to the AI. #}
+    <div class="card p-3 mb-2 text-muted small" id="chat-turn-limit">{{ 'goal.chat.turn_limit'|trans }}</div>
+    {% else %}
+    <form method="post" action="{{ path('app_goals_chat_message') }}" class="card p-2 mb-2">
+        <input type="hidden" name="_token" value="{{ csrf_token('goal-chat') }}">
+        <div class="d-flex gap-2">
+            <input type="text" name="message" class="form-control border-0" autofocus autocomplete="off"
+                   maxlength="{{ maxMessageLength }}"
+                   placeholder="{{ 'goal.chat.reply_ph'|trans }}" aria-label="{{ 'goal.chat.message_aria'|trans }}">
+            <button class="btn btn-success"><i class="bi bi-send"></i></button>
+        </div>
+    </form>
+    {% endif %}
+
+    {% if history is not empty %}
+    <form method="post" action="{{ path('app_goals_chat_reset') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('goal-chat') }}">
+        <button class="btn btn-link btn-sm text-muted text-decoration-none"><i class="bi bi-arrow-counterclockwise"></i> {{ 'goal.chat.start_over'|trans }}</button>
+    </form>
+    {% endif %}
+</div>
+
+<script>
+    // Keep the latest message in view.
+    (function () { var s = document.getElementById('chat-scroll'); if (s) s.scrollTop = s.scrollHeight; })();
+</script>
+{% endblock %}

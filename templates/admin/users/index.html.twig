@@ -1,0 +1,278 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users — NouriLoop Admin{% endblock %}
+
+{# Two shared controls so every badge/button on this page comes from one place instead
+   of each addition hand-rolling its own classes (how this page got messy). #}
+{% macro badge(label, variant, subtle = true, title = '') %}
+    {% if subtle %}
+        <span class="badge bg-{{ variant }}-subtle text-{{ variant }}-emphasis"{% if title %} title="{{ title }}"{% endif %}>{{ label }}</span>
+    {% else %}
+        <span class="badge bg-{{ variant }}"{% if title %} title="{{ title }}"{% endif %}>{{ label }}</span>
+    {% endif %}
+{% endmacro %}
+
+{# One "⋮" dropdown per row instead of a variable-width row of buttons — every row
+   looks the same regardless of how many actions apply, and a future action is just
+   another menu item. #}
+{% macro rowActions(u, pendingDeletionDate, tierAction) %}
+    <div class="dropdown">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown"
+                aria-expanded="false" aria-label="Actions for {{ u.email }}">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            {# Tier ladder: one comp-backed step per click (services follow the tier —
+               the old per-user AI Coach toggle is retired). Downgrade below a paid
+               Stripe tier is shown disabled, not hidden: billing lives in Stripe. #}
+            {% if tierAction.up %}
+            <li>
+                <form method="post" action="{{ path('app_admin_user_tier_up', {id: u.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-tier-up-' ~ u.id) }}">
+                    <button type="submit" class="dropdown-item">
+                        <i class="bi bi-arrow-up-circle"></i> Upgrade to {{ tierAction.up }}
+                    </button>
+                </form>
+            </li>
+            {% endif %}
+            {% if tierAction.down %}
+            <li>
+                <form method="post" action="{{ path('app_admin_user_tier_down', {id: u.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-tier-down-' ~ u.id) }}">
+                    <button type="submit" class="dropdown-item">
+                        <i class="bi bi-arrow-down-circle"></i> Downgrade to {{ tierAction.down }}
+                    </button>
+                </form>
+            </li>
+            {% elseif tierAction.downBlocked %}
+            <li>
+                <span class="dropdown-item disabled" title="They pay for this tier via Stripe — change their billing in the Stripe dashboard, not here.">
+                    <i class="bi bi-arrow-down-circle"></i> Downgrade (paid via Stripe)
+                </span>
+            </li>
+            {% endif %}
+            {% if u is not same as(app.user) %}
+            <li>
+                <form method="post" action="{{ path('app_admin_user_toggle', {id: u.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-toggle-' ~ u.id) }}">
+                    <button type="submit" class="dropdown-item">
+                        <i class="bi {{ u.active ? 'bi-slash-circle' : 'bi-check-circle' }}"></i>
+                        {{ u.active ? 'Disable' : 'Enable' }}
+                    </button>
+                </form>
+            </li>
+            {% if pendingDeletionDate %}
+            <li>
+                <form method="post" action="{{ path('app_admin_user_cancel_deletion', {id: u.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-cancel-deletion-' ~ u.id) }}">
+                    <button type="submit" class="dropdown-item">
+                        <i class="bi bi-x-circle"></i> Cancel deletion
+                    </button>
+                </form>
+            </li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <form method="post" action="{{ path('app_admin_user_delete', {id: u.id}) }}"
+                      onsubmit="return confirm('Delete {{ u.email|e('js') }} and ALL their data? This cannot be undone.')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-delete-' ~ u.id) }}">
+                    <button type="submit" class="dropdown-item text-danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endmacro %}
+
+{% import _self as ui %}
+
+{% block body %}
+<div class="container" style="max-width: 960px;">
+    <h2 class="fw-bold mb-1"><i class="bi bi-people text-brick"></i> User Management</h2>
+    <p class="text-muted">{{ totalUsers }} account{{ totalUsers == 1 ? '' : 's' }}{% if q %} matching “{{ q }}”{% endif %}.</p>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <h5 class="fw-bold mb-0"><i class="bi bi-ticket-perforated text-success"></i> Invitation codes</h5>
+                <form method="post" action="{{ path('app_admin_invitation_create') }}" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin-invite-create') }}">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" name="beta_tester" value="1" id="beta_tester">
+                        <label class="form-check-label small" for="beta_tester">Beta tester ({{ betaCompLabel }} Loop+)</label>
+                    </div>
+                    <button class="btn btn-sm btn-success"><i class="bi bi-plus-lg"></i> Generate code</button>
+                </form>
+            </div>
+            <p class="text-muted small mb-3">Registration requires one of these codes. Each is single-use and valid for 48 hours.</p>
+
+            {% if codes is empty %}
+                <p class="text-muted small mb-0">No outstanding codes. Generate one to invite a new user.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Created</th>
+                            <th>Expires</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in codes %}
+                        <tr>
+                            <td><code class="user-select-all">{{ c.code }}</code>
+                                {% if c.betaTester %}{{ ui.badge('Beta · ' ~ betaCompLabel ~ ' Loop+', 'info') }}{% endif %}
+                            </td>
+                            <td class="small text-muted">{{ c.createdAt|date('M j, g:i A') }}</td>
+                            <td class="small text-muted">{{ c.expiresAt|date('M j, g:i A') }}</td>
+                            <td>
+                                {% if c.isExpired(now) %}
+                                    {{ ui.badge('Expired', 'secondary') }}
+                                {% else %}
+                                    {{ ui.badge('Active', 'success') }}
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="post" action="{{ path('app_admin_invitation_delete', {id: c.id}) }}"
+                                      onsubmit="return confirm('Revoke this invitation code?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin-invite-delete-' ~ c.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger">Revoke</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body pb-2">
+            <form method="get" action="{{ path('app_admin_users') }}" class="d-flex align-items-center flex-wrap gap-2">
+                <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm"
+                       style="max-width: 240px;" placeholder="Search by name or email">
+                <select name="tier" class="form-select form-select-sm" style="max-width: 150px;" aria-label="Filter by plan">
+                    <option value="">All plans</option>
+                    <option value="free"{{ tier == 'free' ? ' selected' : '' }}>Free</option>
+                    <option value="loop"{{ tier == 'loop' ? ' selected' : '' }}>Loop</option>
+                    <option value="loop_plus"{{ tier == 'loop_plus' ? ' selected' : '' }}>Loop+</option>
+                </select>
+                <select name="activity" class="form-select form-select-sm" style="max-width: 150px;" aria-label="Filter by activity">
+                    <option value="">All activity</option>
+                    <option value="active"{{ activity == 'active' ? ' selected' : '' }}>Active</option>
+                    <option value="inactive"{{ activity == 'inactive' ? ' selected' : '' }}>Inactive</option>
+                </select>
+                <select name="status" class="form-select form-select-sm" style="max-width: 170px;" aria-label="Filter by status">
+                    <option value="">All statuses</option>
+                    <option value="enabled"{{ status == 'enabled' ? ' selected' : '' }}>Enabled</option>
+                    <option value="disabled"{{ status == 'disabled' ? ' selected' : '' }}>Disabled</option>
+                    <option value="pending_deletion"{{ status == 'pending_deletion' ? ' selected' : '' }}>Pending deletion</option>
+                    <option value="unverified"{{ status == 'unverified' ? ' selected' : '' }}>Unverified email</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Filter</button>
+                {% if q or tier or activity or status %}<a href="{{ path('app_admin_users') }}" class="btn btn-sm btn-link">Clear</a>{% endif %}
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Activity</th>
+                        <th>Joined</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ u.displayName }}</div>
+                            <div class="small text-muted">{{ u.email }}</div>
+                            {% if u.invitationCode %}
+                                <div class="small text-muted">Invited with <code class="user-select-all">{{ u.invitationCode.code }}</code></div>
+                            {% endif %}
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                {% if u.admin %}{{ ui.badge('Admin', 'slate', false) }}{% endif %}
+                                {% if u is same as(app.user) %}{{ ui.badge('You', 'secondary', false) }}{% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% set planTier = tierLabels[u.id] %}
+                                {{ ui.badge(
+                                    planTier.label,
+                                    planTier.value == 'loop_plus' ? 'success' : (planTier.value == 'loop' ? 'info' : 'secondary'),
+                                    true,
+                                    tierTitles[u.id]
+                                ) }}
+                                {{ ui.badge(u.active ? 'Enabled' : 'Disabled', u.active ? 'success' : 'danger') }}
+                                {% if not u.emailVerified %}
+                                    {{ ui.badge('Unverified', 'warning', true, 'Email address not yet confirmed — scheduled email (digest, goal check-ins) is withheld until any inbox proof lands.') }}
+                                {% endif %}
+                                {% if pendingDeletionDates[u.id] is defined %}
+                                    {{ ui.badge(
+                                        'Pending deletion · ' ~ pendingDeletionDates[u.id]|user_date('yMMMd'),
+                                        'warning',
+                                        true,
+                                        'Self-requested account deletion, purges automatically on this date unless cancelled.'
+                                    ) }}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if activeUserIds[u.id] is defined %}
+                                {{ ui.badge('Active', 'success', true, 'Logged in and logged a meal in the last 7 days.') }}
+                            {% else %}
+                                {{ ui.badge('Inactive', 'secondary', true, "Hasn't both logged in and logged a meal in the last 7 days.") }}
+                            {% endif %}
+                            {% if u.lastLoginAt %}
+                                <div class="small text-muted mt-1">Last login {{ u.lastLoginAt|user_date('yMMMd') }}</div>
+                            {% else %}
+                                <div class="small text-muted mt-1">Never logged in</div>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ u.createdAt|user_date('yMMMd') }}</td>
+                        <td class="text-end">
+                            {{ ui.rowActions(u, pendingDeletionDates[u.id] ?? null, tierActions[u.id]) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if users is empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No users match this search.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
+            <div class="small text-muted">
+                {% if totalUsers > 0 %}
+                    Showing {{ rangeStart }}–{{ rangeEnd }} of {{ totalUsers }}
+                {% else %}
+                    No users found.
+                {% endif %}
+            </div>
+            {% if totalPages > 1 %}
+            {% set filterParams = {q: q, tier: tier, activity: activity, status: status} %}
+            <div class="btn-group">
+                <a href="{{ path('app_admin_users', filterParams|merge({page: page - 1})) }}"
+                   class="btn btn-sm btn-outline-secondary{{ page <= 1 ? ' disabled' : '' }}"
+                   {% if page <= 1 %}aria-disabled="true" tabindex="-1"{% endif %}>Previous</a>
+                <span class="btn btn-sm btn-outline-secondary disabled">Page {{ page }} of {{ totalPages }}</span>
+                <a href="{{ path('app_admin_users', filterParams|merge({page: page + 1})) }}"
+                   class="btn btn-sm btn-outline-secondary{{ page >= totalPages ? ' disabled' : '' }}"
+                   {% if page >= totalPages %}aria-disabled="true" tabindex="-1"{% endif %}>Next</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

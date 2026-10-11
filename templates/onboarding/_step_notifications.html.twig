@@ -1,0 +1,56 @@
+{# Step 3 (required) — confirm timezone + pick email nudges. Posts to
+   /onboarding/notifications, which marks the step seen even if every toggle is left off.
+   SMS opt-in (with its TCPA consent flow) stays on the full Settings page. #}
+{% set u = app.user %}
+<div class="mb-2">
+    <div class="fw-semibold mb-1"><span class="badge bg-light text-dark me-1">3</span> {{ 'onboarding.notifications.heading'|trans }}</div>
+    <p class="text-muted small mb-3">{{ 'onboarding.notifications.lead'|trans }}</p>
+    <form method="post" action="{{ path('app_onboarding_notifications') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('onboarding-notifications') }}">
+        {# Timezone was suggested by inline JS at sign-up (may still be the default if JS
+           was off); confirm it here (carried hidden, edit in Settings). The timezone-
+           mismatch banner (_timezone_banner.html.twig) backstops a wrong value. #}
+        <input type="hidden" name="timezone" value="{{ u.timezone }}">
+        <div class="small text-muted mb-2">
+            <i class="bi bi-clock me-1"></i> {{ 'onboarding.notifications.times_use'|trans({
+                'timezone': '<strong>' ~ u.timezone ~ '</strong>',
+            })|raw }}
+            · <a href="{{ path('app_settings_timezone') }}">{{ 'onboarding.notifications.change'|trans }}</a>
+        </div>
+
+        {# One-tap "Recommended" preset (E17): just the evening nudge — the only
+           notice meaningful before any data exists. The button's own name/value
+           tells the controller to ignore the checkboxes below. #}
+        <button type="submit" name="preset" value="recommended" class="btn btn-success w-100">
+            <i class="bi bi-check2-circle me-1"></i>{{ 'onboarding.notifications.recommended_btn'|trans }}
+        </button>
+        <div class="text-muted small text-center mt-1 mb-2">{{ 'onboarding.notifications.recommended_hint'|trans }}</div>
+
+        <div class="text-muted small mb-1">{{ 'onboarding.notifications.or_pick'|trans }}</div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ob-no-meals" name="notify_no_meals" value="1"
+                   {{ u.notifyNoMeals ? 'checked' }}>
+            <label class="form-check-label small" for="ob-no-meals">{{ 'onboarding.notifications.no_meals'|trans }}</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ob-stale" name="notify_stale_metrics" value="1"
+                   {{ u.notifyStaleMetrics ? 'checked' }}>
+            <label class="form-check-label small" for="ob-stale">{{ 'onboarding.notifications.stale'|trans }}</label>
+            <div class="form-text small mt-0">{{ 'onboarding.notifications.stale_hint'|trans }}</div>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ob-cal" name="notify_calorie_range" value="1"
+                   {{ u.notifyCalorieRange ? 'checked' }}>
+            <label class="form-check-label small" for="ob-cal">{{ 'onboarding.notifications.calories'|trans }}</label>
+            <div class="form-text small mt-0">{{ 'onboarding.notifications.calories_hint'|trans }}</div>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="ob-supp" name="notify_supplements" value="1"
+                   {{ u.notifySupplements ? 'checked' }}>
+            <label class="form-check-label small" for="ob-supp">{{ 'onboarding.notifications.supplements'|trans }}</label>
+            <div class="form-text small mt-0">{{ 'onboarding.notifications.supplements_hint'|trans }}</div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-success w-100">{{ 'onboarding.notifications.save'|trans }}</button>
+    </form>
+</div>

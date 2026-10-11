@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.notifications.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.notifications.heading'|trans }} {{ help_link('settings') }}</h2>
+    <p class="text-muted">{{ 'settings.notifications.lead'|trans }}</p>
+
+    <div class="card p-4 mt-3">
+        {{ form_start(form) }}
+
+        <div class="mb-4">
+            {{ form_label(form.notificationChannel, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            <div>
+                {% for choice in form.notificationChannel %}
+                <div class="form-check form-check-inline">
+                    {{ form_widget(choice, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(choice, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if form.phoneNumber is defined %}
+        <div class="mb-3">
+            {{ form_label(form.phoneNumber, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control' ~ (form.phoneNumber.vars.errors|length ? ' is-invalid' : '')}}) }}
+            <div class="form-text">{{ form_help(form.phoneNumber) }}</div>
+            {{ form_errors(form.phoneNumber) }}
+        </div>
+
+        <div class="mb-4">
+            <div class="form-check">
+                {{ form_widget(form.smsConsent, {'attr': {'class': 'form-check-input' ~ (form.smsConsent.vars.errors|length ? ' is-invalid' : '')}}) }}
+                {{ form_label(form.smsConsent, null, {'label_attr': {'class': 'form-check-label small'}}) }}
+                {{ form_errors(form.smsConsent) }}
+            </div>
+            {# i18n: SMS consent + STOP/HELP disclosure deliberately stay English —
+               TCPA consent-language translation is a parked compliance decision. #}
+            <div class="form-text">
+                Up to ~1 message/day. Msg &amp; data rates may apply. Reply STOP to cancel,
+                HELP for help. See the
+                <a href="{{ path('app_privacy_sms') }}" target="_blank" rel="noopener">SMS Privacy Policy</a>.
+            </div>
+        </div>
+        {% else %}
+        {# SMS sends are a paid feature (sms_digest, Loop and up) — the phone + TCPA
+           consent controls are replaced by this upsell hint. The TCPA opt-in flow
+           itself is unchanged for entitled users (the branch above). #}
+        <div class="border rounded-3 bg-light p-3 mb-4 small" id="sms-upsell">
+            <i class="bi bi-phone"></i>
+            {{ 'settings.notifications.sms_upsell'|trans({
+                'link': '<a href="' ~ path('app_pricing') ~ '">',
+                'link_end': '</a>',
+            })|raw }}
+        </div>
+        {% endif %}
+
+        <hr>
+        <p class="fw-semibold mb-2">{{ 'settings.notifications.which'|trans }}</p>
+
+        {% for field in [form.notifyNoMeals, form.notifyStaleMetrics, form.notifyCalorieRange, form.notifySupplements] %}
+        <div class="form-check form-switch mb-3">
+            {{ form_widget(field, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+            {{ form_label(field, null, {'label_attr': {'class': 'form-check-label'}}) }}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-success fw-semibold mt-2">{{ 'settings.notifications.save'|trans }}</button>
+        {{ form_end(form) }}
+    </div>
+
+    {# Setup checklist visibility — only meaningful while onboarding is still in progress
+       (re-enabling after every step is resolved is a no-op). #}
+    {% if not app.user.allOnboardingStepsResolved() %}
+    <div class="card p-4 mt-3">
+        <p class="fw-semibold mb-2">{{ 'settings.notifications.checklist'|trans }}</p>
+        <form method="post" action="{{ path('app_onboarding_visibility') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('onboarding-visibility') }}">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="show-checklist"
+                       name="show_checklist" value="1" {{ app.user.isOnboardingDismissed ? '' : 'checked' }}>
+                <label class="form-check-label" for="show-checklist">{{ 'settings.notifications.checklist_label'|trans }}</label>
+            </div>
+            <button type="submit" class="btn btn-outline-secondary btn-sm mt-3">{{ 'settings.notifications.checklist_save'|trans }}</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

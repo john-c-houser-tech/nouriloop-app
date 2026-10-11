@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'glucose_page.title'|trans }} — NouriLoop{% endblock %}
+
+{# Renders one ranked meal row: name, time, glucose rise, and (when available) the
+   measured-vs-expected badge from the glycemic-impact model. #}
+{% macro meal_row(a) %}
+    {% set m = a.meal %}
+    {% set bandColor = {'much_lower': 'info', 'lower': 'primary', 'as_expected': 'success', 'higher': 'warning', 'much_higher': 'danger'} %}
+    <a href="{{ path('app_meal_show', {id: m.id}) }}"
+       class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-2">
+        <div class="text-truncate">
+            <div class="fw-semibold text-truncate">
+                {{ m.aiDescription ? m.aiDescription|split('.')|first|split(',')|first : m.mealType.transKey|trans }}
+            </div>
+            <small class="text-muted">{{ m.mealType.transKey|trans }} · {{ m.loggedAt|local_date('MMMdjm') }}</small>
+        </div>
+        <div class="text-end flex-shrink-0">
+            <div class="fw-bold">
+                {{ a.response.delta > 0 ? '+' : '' }}{{ glucose_display(a.response.delta) }}
+                <small class="text-muted fw-normal">{{ glucose_unit() }}</small>
+            </div>
+            {% if a.impact %}
+                {% set pct = ((a.impact.ratio - 1) * 100)|round %}
+                <span class="badge rounded-pill text-bg-{{ bandColor[a.impact.band] ?? 'secondary' }}">
+                    {{ pct >= 0 ? '+' ~ pct : pct }}{{ 'glucose_page.vs_est'|trans }}
+                </span>
+            {% endif %}
+        </div>
+    </a>
+{% endmacro %}
+
+{% import _self as ui %}
+
+{% block body %}
+<div class="container" style="max-width: 900px;">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-activity text-success"></i> {{ 'glucose_page.heading'|trans }} {{ help_link('glucose') }}</h2>
+        <div class="btn-group">
+            {% for d in [7, 14, 30, 90] %}
+            <a href="{{ path('app_glucose_insights', {days: d}) }}"
+               class="btn btn-{{ days == d ? 'success' : 'outline-secondary' }} btn-sm">{{ d }}d</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if not cgmEnabled %}
+    <div class="card p-5 text-center">
+        <i class="bi bi-lock fs-1 text-muted mb-2"></i>
+        <h5 class="fw-bold">{{ 'glucose_page.locked_heading'|trans }}
+            <span class="badge text-bg-light border ms-1">Loop+</span>
+        </h5>
+        <p class="text-muted mb-3" style="max-width: 48ch; margin-inline: auto;">
+            {{ 'glucose_page.locked_lead'|trans }}
+        </p>
+        <div>
+            <a href="{{ path('app_pricing') }}" class="btn btn-success">
+                <i class="bi bi-stars"></i> {{ 'glucose_page.upgrade'|trans }}
+            </a>
+        </div>
+        <p class="small text-muted mt-3 mb-0">
+            {{ 'glucose_page.not_connected'|trans({
+                'link': '<a href="' ~ path('app_connect_cgm') ~ '">',
+                'link_end': '</a>',
+            })|raw }}
+        </p>
+    </div>
+    {% elseif not insights.hasData %}
+    <div class="card p-5 text-center text-muted">
+        <i class="bi bi-activity fs-1 text-success mb-2"></i>
+        <p class="mb-2">{{ 'glucose_page.empty'|trans }}</p>
+        <p class="small mb-2">
+            {{ 'glucose_page.empty_sub'|trans }}
+        </p>
+        <p class="small mb-0">
+            {{ 'glucose_page.empty_cta'|trans({
+                'link': '<a href="' ~ path('app_connect_cgm') ~ '">',
+                'link_end': '</a>',
+            })|raw }}
+        </p>
+    </div>
+    {% else %}
+
+    {# ── Headline averages ──────────────────────────────────────────── #}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card p-3 text-center h-100">
+                <div class="fw-bold fs-4">{{ insights.mealCount }}</div>
+                <small class="text-muted">{{ 'glucose_page.meals_analyzed'|trans({'count': insights.mealCount}) }}</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 text-center h-100">
+                <div class="fw-bold fs-4">+{{ glucose_display(insights.avgDelta) }}</div>
+                <small class="text-muted">{{ 'glucose_page.avg_rise'|trans({'unit': glucose_unit()}) }}</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 text-center h-100">
+                <div class="fw-bold fs-4">{{ glucose_area_display(insights.avgIauc) }}</div>
+                <small class="text-muted">{{ 'glucose_page.avg_iauc'|trans({'unit': glucose_unit() ~ '·min'}) }}</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 text-center h-100">
+                <div class="fw-bold fs-4">{{ days }}<small class="fs-6">d</small></div>
+                <small class="text-muted">{{ 'glucose_page.window'|trans }}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# ── Biggest spikers ────────────────────────────────────────── #}
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent fw-bold">
+                    <i class="bi bi-arrow-up-right text-danger"></i> {{ 'glucose_page.biggest'|trans }}
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for a in insights.topSpikers %}
+                        {{ ui.meal_row(a) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Gentlest ───────────────────────────────────────────────── #}
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent fw-bold">
+                    <i class="bi bi-arrow-down-right text-success"></i> {{ 'glucose_page.gentlest'|trans }}
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for a in insights.gentlest %}
+                        {{ ui.meal_row(a) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Above expected (the Phase-2 moat, ranked) ──────────────── #}
+        {% if insights.aboveExpected is not empty %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-transparent fw-bold">
+                    <i class="bi bi-exclamation-triangle text-warning"></i> {{ 'glucose_page.above_expected'|trans }}
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for a in insights.aboveExpected %}
+                        {{ ui.meal_row(a) }}
+                    {% endfor %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">
+                        {{ 'glucose_page.above_note'|trans }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {# ── AI Pattern Coach: the separate, higher-cost tier ───────────── #}
+    {% if insights.coachingNarrative is not null %}
+    {# Entitled + generated: show the coaching narrative. #}
+    <div class="card mt-4 border-success border-opacity-50">
+        <div class="card-body">
+            <h5 class="fw-bold mb-2"><i class="bi bi-stars text-success"></i> {{ 'glucose_page.coach'|trans }}</h5>
+            <div class="text-body" style="white-space: pre-line; max-width: 70ch;">{{ insights.coachingNarrative }}</div>
+            <p class="small text-muted mt-3 mb-0">
+                {{ 'glucose_page.coach_note'|trans }}
+            </p>
+        </div>
+    </div>
+    {% elseif insights.aiDeepDiveEnabled %}
+    {# Entitled (kill switch + per-user flag on) but no narrative → generation failed this load. #}
+    <div class="card mt-4 border-secondary border-opacity-25">
+        <div class="card-body">
+            <h5 class="fw-bold mb-1"><i class="bi bi-stars text-success"></i> {{ 'glucose_page.coach'|trans }}</h5>
+            <p class="text-muted mb-0">
+                <i class="bi bi-exclamation-circle"></i> {{ 'glucose_page.coach_unavailable'|trans }}
+            </p>
+        </div>
+    </div>
+    {% else %}
+    {# Not entitled: the locked upsell. #}
+    <div class="card mt-4 border-success border-opacity-50">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <h5 class="fw-bold mb-1">
+                        <i class="bi bi-stars text-success"></i> {{ 'glucose_page.coach'|trans }}
+                        <span class="badge text-bg-light border ms-1">{{ 'glucose_page.premium'|trans }}</span>
+                    </h5>
+                    <p class="text-muted mb-0" style="max-width: 60ch;">
+                        {{ 'glucose_page.coach_pitch'|trans }}
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <button type="button" class="btn btn-outline-success" disabled>
+                        <i class="bi bi-lock"></i> {{ 'glucose_page.coming_soon'|trans }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <p class="small text-muted mt-3 mb-0">
+        {{ 'glucose_page.footer'|trans }}
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

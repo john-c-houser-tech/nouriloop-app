@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.login.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="min-vh-hero row g-0">
+
+    {# ── Hero: communicates the core feedback loop ──────────────────────── #}
+    <div class="col-lg-7 d-flex align-items-center text-white p-4 p-md-5 bg-hero">
+        <div class="mx-auto" style="max-width: 560px;">
+            <img src="{{ asset('auth-hero-foods.png') }}" alt=""
+                 class="img-fluid rounded shadow-sm mb-4 d-block">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop"
+                     width="80" height="80" class="flex-shrink-0">
+                <h1 class="display-6 fw-bold mb-0">{{ 'auth.login.hero_headline'|trans }}</h1>
+            </div>
+            <p class="lead mb-4 text-white-50">{{ 'auth.login.hero_lead'|trans }}</p>
+
+            {# Loop graphic: Log → Analyze → See effect → (back to Log). A single
+               round, inline SVG — replaces the old badge strip, which wrapped badly
+               on narrow screens. Large circles + 17px labels for legibility. #}
+            {# Hidden when the two columns stack (< lg) so the loop graphic doesn't push the
+               sign-in form far down on small screens; shown only in the side-by-side layout. #}
+            <svg viewBox="0 -8 280 236" class="d-none d-lg-block mx-auto" style="max-width: 300px; width: 100%; height: auto;"
+                 role="img" aria-label="{{ 'auth.login.hero_cycle_alt'|trans }}">
+                <defs>
+                    <marker id="loop-arrow" markerWidth="5.5" markerHeight="5.5" refX="5.5" refY="2.75" orient="auto">
+                        <path d="M0 0 L5.5 2.75 L0 5.5 Z" fill="#f1c24d"/>
+                    </marker>
+                </defs>
+
+                {# Curved directional arrows in the gaps. Endpoints sit just *inside* each
+                   circle so the tip tucks under the circle outline (circles draw on top) —
+                   reads as meeting the edge with no gap. #}
+                <path d="M172.2 38.3 A86 86 0 0 1 225.2 130" fill="none" stroke="#f1c24d" stroke-width="3.5" stroke-linecap="round" marker-end="url(#loop-arrow)"/>
+                <path d="M192.9 185.8 A86 86 0 0 1 87.1 185.8" fill="none" stroke="#f1c24d" stroke-width="3.5" stroke-linecap="round" marker-end="url(#loop-arrow)"/>
+                <path d="M54.8 130 A86 86 0 0 1 107.8 38.3" fill="none" stroke="#f1c24d" stroke-width="3.5" stroke-linecap="round" marker-end="url(#loop-arrow)"/>
+
+                {# Log — camera #}
+                <circle cx="140" cy="32" r="36" fill="#ffffff"/>
+                <g transform="translate(140,32)" fill="none" stroke="#0f766e" stroke-width="3" stroke-linejoin="round">
+                    <rect x="-13" y="-8" width="26" height="18" rx="3"/>
+                    <path d="M-5 -8 l2.5 -4 h5 l2.5 4" stroke-linecap="round"/>
+                    <circle cx="0" cy="2.5" r="5"/>
+                </g>
+
+                {# Analyze — magnifying glass #}
+                <circle cx="214.5" cy="161" r="36" fill="#ffffff"/>
+                <g transform="translate(214.5,161)" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round">
+                    <circle cx="-3" cy="-3" r="9.5"/>
+                    <line x1="4.5" y1="4.5" x2="13" y2="13"/>
+                </g>
+
+                {# See effect — rising chart #}
+                <circle cx="65.5" cy="161" r="36" fill="#ffffff"/>
+                <g transform="translate(65.5,161)" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M-13 8 L-3 -3 L3 3 L13 -9"/>
+                    <path d="M7 -9 h6 v6"/>
+                </g>
+
+                <g fill="#ffffff" font-size="17" font-weight="bold" text-anchor="middle">
+                    <text x="140" y="86">{{ 'auth.login.hero_log'|trans }}</text>
+                    <text x="214.5" y="216">{{ 'auth.login.hero_analyze'|trans }}</text>
+                    <text x="65.5" y="216">{{ 'auth.login.hero_effect'|trans }}</text>
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    {# ── Sign-in panel ──────────────────────────────────────────────────── #}
+    <div class="col-lg-5 d-flex align-items-center bg-white p-4 p-md-5">
+        <div class="mx-auto w-100" style="max-width: 400px;">
+            {# Neutral "Sign in", not "Welcome back": this panel is the first thing a
+               first-time visitor reads under the pitch (brand review 2026-10-08). #}
+            <h2 class="h4 fw-bold mb-4">{{ 'auth.login.heading'|trans }}</h2>
+
+            {% if error %}
+            <div class="alert alert-danger py-2">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            {# The form authenticator only listens on the bare check_path
+               (/login), so the localized login pages (/es/login — i18n
+               Phase 4) must post there EXPLICITLY: without an action, the
+               POST goes back to /es/login and never authenticates (Copilot
+               catch on PR #157). The hidden _failure_path (a built-in
+               DefaultAuthenticationFailureHandler parameter) sends a failed
+               attempt back to the localized page so the error renders in the
+               visitor's language; cross-site abuse of the parameter is
+               blocked by the same-origin CSRF check on the POST itself. #}
+            {% set urlLocale = app.request.attributes.get('_locale') %}
+            <form method="post" action="{{ path('app_login') }}">
+                {% if urlLocale %}
+                    <input type="hidden" name="_failure_path"
+                           value="{{ path('app_login_i18n', {'_locale': urlLocale}) }}">
+                {% endif %}
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">{{ 'auth.login.email'|trans }}</label>
+                    <input type="email" id="email" name="_username" class="form-control"
+                           value="{{ last_username }}" autocomplete="email" autofocus required>
+                </div>
+                <div class="mb-3">
+                    {# "Forgot password?" lives on the label row (not a standalone line
+                       below the buttons) so every returning-user action sits together. #}
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <label for="password" class="form-label fw-semibold">{{ 'auth.login.password'|trans }}</label>
+                        <a href="{{ path('app_forgot_password_request') }}" class="small">{{ 'auth.login.forgot'|trans }}</a>
+                    </div>
+                    <input type="password" id="password" name="_password" class="form-control"
+                           autocomplete="current-password" required>
+                </div>
+                {# No "Remember me" checkbox — the firewall uses always_remember_me,
+                   so every sign-in gets the long-lived cookie. #}
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <button type="submit" class="btn btn-success w-100 fw-semibold">{{ 'auth.login.submit'|trans }}</button>
+            </form>
+
+            {# Passwordless alternative — a full-width button (not a small text link)
+               because the audience skews older and this is the low-friction path. #}
+            <div class="d-flex align-items-center my-3 text-muted small">
+                <hr class="flex-grow-1"><span class="px-2">{{ 'auth.or'|trans }}</span><hr class="flex-grow-1">
+            </div>
+            {# Outline-success (not secondary) so both returning-user actions share the
+               teal family, while the gold sign-up button below reads as a different
+               class of thing. #}
+            <a href="{{ path('app_login_link_request') }}" class="btn btn-outline-success w-100">
+                <i class="bi bi-envelope me-1" aria-hidden="true"></i>{{ 'auth.login.magic_link'|trans }}
+            </a>
+
+            {# Registration is open to the public — a small text link here read as
+               "invite-only" to new visitors. The sign-up CTA is a full gold button
+               (btn-warning = palette gold) inside its own tinted box, so the new-user
+               zone reads as a different class of thing from the teal returning-user
+               actions above it. #}
+            <div class="border rounded-3 bg-light text-center p-3 mt-4">
+                <p class="text-muted small mb-2">{{ 'auth.login.new_here'|trans }}</p>
+                <a href="{{ localized_path('app_register') }}" class="btn btn-warning w-100 fw-semibold">
+                    {{ 'auth.login.sign_up'|trans }}
+                </a>
+                <p class="text-muted small mt-2 mb-0">{{ 'auth.login.no_card'|trans }}</p>
+            </div>
+            <p class="text-center small mt-3 mb-0">
+                <a href="{{ localized_path('app_about') }}">{{ 'auth.login.learn_more'|trans }}</a>
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ include('_password_toggle.html.twig') }}
+{% endblock %}

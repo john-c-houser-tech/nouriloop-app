@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'supplement.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="fw-bold mb-0"><i class="bi bi-capsule text-brick"></i> {{ 'supplement.heading'|trans }} {{ help_link('supplements') }}</h2>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ path('app_supplement_scan') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-camera"></i> {{ 'supplement.scan_btn'|trans }}
+            </a>
+            <div class="btn-group">
+                {% for d in [7, 14, 30, 90] %}
+                <a href="{{ path('app_supplements', {days: d}) }}"
+                   class="btn btn-{{ days == d ? 'success' : 'outline-secondary' }} btn-sm">{{ 'supplement.day_avg'|trans({'days': d}) }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <p class="text-muted mb-4">{{ 'supplement.lead'|trans({'days': days})|raw }}</p>
+
+    {% if recommendations is empty %}
+    <div class="card p-5 text-center text-muted">
+        {# E18: the green check means "no gaps — you're covered". With no data behind
+           the window there's nothing to be covered BY, so those states get a neutral
+           icon instead (a check would read as "done" on a page that hasn't started).
+           hasWindowData separates "no gaps from real data" from "empty window" —
+           a user whose meals all predate the window gets the honest middle state. #}
+        {% if app.user.mealEntries|length == 0 %}
+        <i class="bi bi-clipboard-data fs-1 mb-2"></i>
+        <p class="mb-2">{{ 'supplement.no_meals'|trans }}</p>
+        <a href="{{ path('app_meal_log') }}" class="btn btn-success btn-sm">{{ 'supplement.log_meal'|trans }}</a>
+        {% elseif not hasWindowData %}
+        <i class="bi bi-clipboard-data fs-1 mb-2"></i>
+        <p class="mb-0">{{ 'supplement.no_data_window'|trans({'days': days}) }}</p>
+        {% else %}
+        <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+        <p class="mb-0">{{ 'supplement.no_gaps'|trans({'days': days}) }}</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning d-flex gap-2">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            {{ 'supplement.gaps_detected'|trans({'count': recommendations|length})|raw }}
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% for rec in recommendations %}
+        <div class="col-md-6">
+            <div class="card p-4 h-100 border-start border-4 {{ rec.pct < 25 ? 'border-danger' : (rec.pct < 50 ? 'border-warning' : 'border-info') }}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="fw-bold mb-0">{{ rec.label }}</h6>
+                    <span class="badge {{ rec.pct < 25 ? 'bg-danger' : (rec.pct < 50 ? 'bg-warning text-dark' : 'bg-info') }}">
+                        {{ 'supplement.pct_rda'|trans({'pct': rec.pct}) }}
+                    </span>
+                </div>
+                <div class="progress mb-2" style="height: 6px;">
+                    <div class="progress-bar {{ rec.pct < 25 ? 'bg-danger' : (rec.pct < 50 ? 'bg-warning' : 'bg-info') }}"
+                         style="width: {{ rec.pct }}%"></div>
+                </div>
+                <small class="text-muted mb-2">
+                    {{ 'supplement.avg_rda'|trans({'avg': rec.average, 'unit': rec.unit, 'rda': rec.rda}) }}
+                </small>
+                <p class="mb-0 small">{{ rec.suggestion }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h5 class="fw-bold mt-5 mb-2">{{ 'supplement.yours'|trans }}</h5>
+    {% if supplements is empty %}
+    <p class="text-muted">
+        {{ 'supplement.none_yet'|trans({
+            'link': '<a href="' ~ path('app_supplement_scan') ~ '">',
+            'link_end': '</a>',
+        })|raw }}
+    </p>
+    {% else %}
+    <p class="text-muted small">{{ 'supplement.active_note'|trans }}</p>
+    <div class="row g-3">
+        {% for s in supplements %}
+        <div class="col-md-6">
+            <div class="card p-3 h-100 {{ s.active ? '' : 'opacity-50' }}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fw-semibold">{{ s.name }}</div>
+                        <small class="text-muted">{{ 'supplement.per_serving'|trans({'count': s.nutrients|length}) }}</small>
+                    </div>
+                    <span class="badge bg-{{ s.active ? 'success' : 'secondary' }}">{{ s.active ? 'supplement.active'|trans : 'supplement.inactive'|trans }}</span>
+                </div>
+                <div class="d-flex align-items-end gap-2 mt-3 flex-wrap">
+                    <form method="post" action="{{ path('app_supplement_update', {id: s.id}) }}" class="d-flex align-items-end gap-1">
+                        <input type="hidden" name="_token" value="{{ csrf_token('supplement-update-' ~ s.id) }}">
+                        <div>
+                            <label class="form-label small mb-0">{{ 'supplement.servings_day'|trans }}</label>
+                            <input type="number" name="servings_per_day" value="{{ s.servingsPerDay }}" min="0" step="0.25"
+                                   class="form-control form-control-sm" style="width: 6rem;">
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">{{ 'supplement.save'|trans }}</button>
+                    </form>
+                    <form method="post" action="{{ path('app_supplement_toggle', {id: s.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('supplement-toggle-' ~ s.id) }}">
+                        <button class="btn btn-outline-{{ s.active ? 'warning' : 'success' }} btn-sm">{{ s.active ? 'supplement.disable'|trans : 'supplement.enable'|trans }}</button>
+                    </form>
+                    <form method="post" action="{{ path('app_supplement_delete', {id: s.id}) }}"
+                          onsubmit="return confirm('{{ 'supplement.delete_confirm'|trans({'name': s.name})|e('js') }}')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('supplement-delete-' ~ s.id) }}">
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Glucose Insights{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/glucose.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Glucose Insights page ranking meals by their blood-sugar response">
+</figure>
+<p>If you wear a continuous glucose monitor (CGM), NouriLoop turns those readings into a clear picture of how
+each meal affected your blood sugar. These are educational wellness signals, not medical measurements.</p>
+
+<h2 class="h5 fw-bold mt-4">Getting your glucose in</h2>
+<p>Wear a Lingo or Stelo? Follow the step-by-step guide:
+<a href="{{ path('app_help_show', {topic: 'connect-cgm'}) }}">Connect Your Lingo or Stelo</a>. Import your
+glucose at <strong>full resolution</strong> — the per-reading feed (a sensor like Lingo samples roughly every
+5 minutes). A once-a-day summary won't work, because the curves need the minute-by-minute data.</p>
+
+<h2 class="h5 fw-bold mt-4">What you get</h2>
+<ul>
+    <li><strong>Per-meal response curve</strong> — open any meal to see its blood-sugar rise, peak, and return
+        to baseline, plus how the actual response compares to what the meal's nutrition predicted.</li>
+    <li><strong>Cross-meal rankings</strong> — the <em>Glucose Insights</em> page ranks your meals: biggest
+        rises, gentlest, and the ones that spiked you more than expected.</li>
+</ul>
+
+<p class="text-muted small">Loop+ members also get the <strong>AI Pattern Coach</strong>, which reads your own
+responses across meals and writes a personal summary of what's driving your numbers.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'connect-cgm'}) }}">Connect Your Lingo or Stelo (CGM)</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'health-metrics'}) }}">Importing Health Data</a></li>
+</ul>
+{% endblock %}

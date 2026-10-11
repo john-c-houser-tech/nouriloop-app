@@ -1,0 +1,61 @@
+{# First-login onboarding overlay. Floating card (≥768px) / bottom card (<768px).
+   `progress` is an App\Dto\OnboardingProgress (passed from base.html.twig). One step is
+   shown at a time — the first incomplete of meal → goal → notifications → health. The
+   health step is "Extra credit": a normal step card with its own Skip, just visually
+   tagged. The overlay closes once every step is resolved (User::needsOnboarding()).
+   Inline vanilla JS only — this app does not load Stimulus. #}
+{% set active = progress.activeStep() %}
+<div id="onboarding-overlay" class="card shadow-lg border-0" role="dialog" aria-label="{{ 'onboarding.aria'|trans }}"
+     style="position: fixed; right: 1rem; bottom: calc(var(--footer-h) + 1rem); z-index: 1040;
+            width: 420px; max-width: calc(100vw - 2rem); border-radius: 1rem; overflow: hidden;">
+    <div class="card-body p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <div class="fw-bold" style="color: var(--deep-blue);">
+                    <i class="bi bi-stars me-1"></i>{{ 'onboarding.title'|trans }}
+                </div>
+                <div class="text-muted small">
+                    {% if active == 'health' %}
+                        {{ 'onboarding.bonus_left'|trans }}
+                    {% else %}
+                        {{ 'onboarding.steps_left'|trans({'count': progress.requiredRemaining()}) }}
+                    {% endif %}
+                </div>
+            </div>
+            {# Dismiss the whole overlay: × on desktop, "Skip setup" link on mobile. #}
+            <form method="post" action="{{ path('app_onboarding_dismiss') }}" class="m-0"
+                  onsubmit="return confirm('{{ 'onboarding.dismiss_confirm'|trans|e('js') }}');">
+                <input type="hidden" name="_token" value="{{ csrf_token('onboarding-dismiss') }}">
+                <button type="submit" class="btn btn-sm btn-link text-muted p-0 d-none d-md-inline"
+                        aria-label="{{ 'onboarding.dismiss_aria'|trans }}" title="{{ 'onboarding.dismiss_title'|trans }}">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <button type="submit" class="btn btn-sm btn-link text-muted p-0 d-md-none">{{ 'onboarding.skip_setup'|trans }}</button>
+            </form>
+        </div>
+
+        {# Progress pips — 3 required (teal) + 1 extra-credit (gold, outlined until earned). #}
+        <div class="d-flex align-items-center gap-2 mb-3" aria-hidden="true">
+            {% for done in [progress.mealDone, progress.goalDone, progress.notificationsDone] %}
+                <span style="flex: 1; height: 6px; border-radius: 3px; box-sizing: border-box;
+                             background: {{ done ? 'var(--bs-success)' : 'rgba(0,0,0,.12)' }};"></span>
+            {% endfor %}
+            <span title="{{ 'onboarding.optional_tag'|trans }}"
+                  style="flex: 1; height: 6px; border-radius: 3px; box-sizing: border-box;
+                         {{ progress.healthDone
+                            ? 'background: var(--gold);'
+                            : 'background: transparent; border: 1px dashed var(--gold);' }}"></span>
+        </div>
+
+        {# Active step. #}
+        {% if active == 'meal' %}
+            {% include 'onboarding/_step_meal.html.twig' %}
+        {% elseif active == 'goal' %}
+            {% include 'onboarding/_step_goal.html.twig' %}
+        {% elseif active == 'notifications' %}
+            {% include 'onboarding/_step_notifications.html.twig' %}
+        {% elseif active == 'health' %}
+            {% include 'onboarding/_step_health.html.twig' %}
+        {% endif %}
+    </div>
+</div>

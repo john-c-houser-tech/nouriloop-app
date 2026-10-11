@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'health.import.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{{ path('app_health_metrics') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> {{ 'health.import.back'|trans }}
+        </a>
+        <h2 class="fw-bold mb-0">{{ 'health.import.title'|trans }}</h2>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="{{ csrf_token('health-import') }}">
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">{{ 'health.import.upload'|trans }} <span class="text-muted fw-normal">{{ 'health.import.upload_kinds'|trans }}</span></label>
+                <input type="file" name="health_file" id="health_file" class="form-control"
+                       accept=".xml,.json,.csv,text/xml,application/xml,application/json,text/csv">
+                <div class="form-text" id="file-hint">
+                    {{ 'health.import.file_hint'|trans|raw }}
+                </div>
+            </div>
+
+            <div class="mb-3" id="source-field">
+                <label class="form-label fw-semibold">
+                    {{ 'health.import.source'|trans }} <span class="text-muted fw-normal">{{ 'health.import.source_note'|trans }}</span>
+                </label>
+                <input type="text" name="source" class="form-control"
+                       placeholder="{{ 'health.import.source_ph'|trans }}">
+                <div class="form-text">{{ 'health.import.source_hint'|trans }}</div>
+            </div>
+
+            <div class="mb-3" id="json-app-field">
+                <label class="form-label fw-semibold">
+                    {{ 'health.import.json_app'|trans }} <span class="text-muted fw-normal">{{ 'health.import.json_app_note'|trans }}</span>
+                </label>
+                <select name="json_app" class="form-select">
+                    <option value="">{{ 'health.import.auto_detect'|trans }}</option>
+                    {% for key, label in json_apps %}
+                        <option value="{{ key }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">{{ 'health.import.json_app_hint'|trans }}</div>
+            </div>
+
+            <p class="form-text small mb-2">
+                <i class="bi bi-shield-lock"></i>
+                {{ 'health.import.agree'|trans({
+                    'link': '<a href="' ~ path('app_privacy_health') ~ '" target="_blank" rel="noopener">',
+                    'link_end': '</a>',
+                })|raw }}
+            </p>
+
+            <button type="submit" class="btn btn-success w-100 fw-semibold">
+                <i class="bi bi-upload"></i> {{ 'health.import.submit'|trans }}
+            </button>
+        </form>
+    </div>
+
+    {# Format tabs #}
+    <ul class="nav nav-tabs mb-0" id="formatTabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-target="#tab-apple" data-bs-toggle="tab">
+                <i class="bi bi-heart-fill text-brick"></i> {{ 'health.import.tab_apple'|trans }}
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-target="#tab-json" data-bs-toggle="tab">
+                <i class="bi bi-filetype-json"></i> {{ 'health.import.tab_json'|trans }}
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-target="#tab-csv" data-bs-toggle="tab">
+                <i class="bi bi-filetype-csv"></i> {{ 'health.import.tab_csv'|trans }}
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content card border-top-0 rounded-top-0 p-4">
+
+        <div class="tab-pane fade show active" id="tab-apple">
+            <h6 class="fw-bold mb-2">{{ 'health.import.apple_how'|trans }}</h6>
+            <ol class="small mb-3">{{ 'health.import.apple_steps'|trans|raw }}</ol>
+
+            <h6 class="fw-bold mb-2">{{ 'health.import.apple_what'|trans }}</h6>
+            <table class="table table-sm small mb-0">
+                <thead><tr><th>Metric</th><th>Apple identifier</th><th>Unit stored</th></tr></thead>
+                <tbody>
+                    <tr><td>Weight</td><td><code>BodyMass</code></td><td>kg (converted from lb if needed)</td></tr>
+                    <tr><td>Blood Glucose</td><td><code>BloodGlucose</code></td><td>mg/dL</td></tr>
+                    <tr><td>Blood Pressure</td><td><code>BloodPressureSystolic/Diastolic</code></td><td>mmHg</td></tr>
+                    <tr><td>Heart Rate</td><td><code>HeartRate</code></td><td>bpm</td></tr>
+                    <tr><td>Body Fat %</td><td><code>BodyFatPercentage</code></td><td>%</td></tr>
+                </tbody>
+            </table>
+            <p class="text-muted small mt-2 mb-0">
+                {{ 'health.import.apple_note'|trans({
+                    'link': '<a href="' ~ path('app_settings_api_tokens') ~ '">',
+                    'link_end': '</a>',
+                })|raw }}
+            </p>
+        </div>
+
+        <div class="tab-pane fade" id="tab-json">
+            <h6 class="fw-bold mb-2">{{ 'health.import.json_how'|trans }}</h6>
+            <p class="small mb-2">{{ 'health.import.json_lead'|trans|raw }}</p>
+            <ul class="small mb-2">{{ 'health.import.json_apps'|trans|raw }}</ul>
+            <p class="text-muted small mt-2 mb-0">
+                {{ 'health.import.json_note'|trans({
+                    'link': '<a href="' ~ path('app_settings_api_tokens') ~ '">',
+                    'link_end': '</a>',
+                })|raw }}
+            </p>
+        </div>
+
+        <div class="tab-pane fade" id="tab-csv">
+            <h6 class="fw-bold mb-2">{{ 'health.import.csv_how'|trans }}</h6>
+            <p class="small text-muted mb-2">{{ 'health.import.csv_lead'|trans }}</p>
+
+            <p class="small fw-semibold mb-1">{{ 'health.import.csv_row'|trans }}</p>
+            <pre class="bg-light rounded p-2 small">date,type,value
+2024-01-15,weight,72.4
+2024-01-15,blood_glucose,98
+2024-01-16,heart_rate,65</pre>
+
+            <p class="small fw-semibold mt-3 mb-1">{{ 'health.import.csv_col'|trans }}</p>
+            <pre class="bg-light rounded p-2 small">date,weight,blood glucose,heart rate
+2024-01-15,72.4,98,65
+2024-01-16,73.1,,62</pre>
+
+            <p class="small text-muted mt-2 mb-1">{{ 'health.import.csv_names'|trans }}</p>
+            <ul class="small text-muted mb-0 columns-2">
+                <li>weight, body weight</li>
+                <li>blood glucose, glucose, blood sugar</li>
+                <li>systolic, blood pressure systolic</li>
+                <li>diastolic, blood pressure diastolic</li>
+                <li>heart rate, pulse</li>
+                <li>body fat, body fat %, body fat percentage</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const IMPORT_HINTS = {{ {
+    'csv': 'health.import.hint_csv'|trans,
+    'xml': 'health.import.hint_xml'|trans,
+    'json': 'health.import.hint_json'|trans,
+}|json_encode|raw }};
+</script>
+{% verbatim %}
+<script>
+function reflectFormat(name) {
+    const isCsv = name.endsWith('.csv');
+    const isJson = name.endsWith('.json');
+    document.getElementById('source-field').style.opacity = isCsv ? '1' : '0.4';
+    document.getElementById('json-app-field').style.opacity = isJson ? '1' : '0.4';
+}
+
+document.getElementById('health_file').addEventListener('change', function () {
+    const filename = this.value.toLowerCase();
+    reflectFormat(filename);
+    let hint = IMPORT_HINTS.csv;
+    if (filename.endsWith('.xml')) {
+        hint = IMPORT_HINTS.xml;
+    } else if (filename.endsWith('.json')) {
+        hint = IMPORT_HINTS.json;
+    }
+    document.getElementById('file-hint').textContent = hint;
+});
+</script>
+{% endverbatim %}
+{% endblock %}

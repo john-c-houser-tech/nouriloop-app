@@ -1,0 +1,41 @@
+{% extends 'lp/_layout.html.twig' %}
+
+{# Campaign C (Fiber / Micronutrients) landing page. #}
+
+{% block lp_title %}{{ 'lp.fiber.title'|trans }} — NouriLoop{% endblock %}
+{% block lp_headline %}{{ 'lp.fiber.headline'|trans|raw }}{% endblock %}
+{% block lp_lead %}{{ 'lp.fiber.lead'|trans }}{% endblock %}
+{% block lp_cta_label %}{{ 'lp.fiber.cta'|trans }}{% endblock %}
+
+{% block lp_body %}
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 mx-auto" style="max-width: 430px;">
+    <img src="{{ asset('images/lp/nutrition-summary.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="{{ 'lp.fiber.summary_alt'|trans }}">
+</figure>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.fiber.photo_heading'|trans }}</h2>
+    <ul class="mb-0">{{ 'lp.fiber.photo_items'|trans|raw }}</ul>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.fiber.gaps_heading'|trans }}</h2>
+    <figure class="figure d-block border rounded shadow-sm overflow-hidden mb-3 w-100">
+        <img src="{{ asset('images/help/supplements.png') }}" class="figure-img img-fluid mb-0 w-100"
+             alt="{{ 'lp.fiber.gaps_alt'|trans }}">
+    </figure>
+    <p>{{ 'lp.fiber.gaps_intro'|trans }}</p>
+    <ul class="mb-0">{{ 'lp.fiber.gaps_items'|trans|raw }}</ul>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.fiber.serious_heading'|trans }}</h2>
+    <p class="mb-0">{{ 'lp.fiber.serious_body'|trans }}</p>
+</section>
+
+{% endblock %}
+
+{% block lp_footnote %}
+    {{ 'lp.fiber.footnote'|trans({'price': subscription_price('loop', 'annual')}) }}
+{% endblock %}

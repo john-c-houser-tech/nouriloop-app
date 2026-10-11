@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale|replace({'_': '-'}) }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# Google Analytics 4 with Consent Mode v2. Suppressed entirely unless
+       google_analytics_id is set (empty in dev/test/CI). All four consent signals
+       (analytics + ad) default to *denied* until the visitor accepts in the cookie
+       banner; a returning visitor's stored choice (cookieConsent cookie) seeds the
+       default so they aren't re-prompted. Only standard page_view + named conversion events are sent — never any
+       health values. Server-set conversions ride the one-shot `track_event` flash. #}
+    {# Always consume the one-shot conversion flash (so it never piles up in the session
+       when analytics is off); only emit it to gtag when analytics is on. #}
+    {% set track_events = app.flashes('track_event') %}
+    {# Ad landing pages (/lp/*, see lp/_layout.html.twig) keep the register CTA as the
+       only path forward: suppress every navigation surface — the navbar (a signed-in
+       visitor clicking an ad would otherwise get it), account banners, the floating
+       help button, the onboarding overlay, and the footer feedback link. Trackers stay
+       ON here — the ads need conversion measurement.
+       The locale-prefixed twin (/es/lp/*, i18n Phase 4) is the same page and gets the
+       same treatment. #}
+    {% set chrome_suppressed = app.request.attributes.get('_route') in ['app_landing_page', 'app_landing_page_i18n'] %}
+    {% if google_analytics_id %}
+        {% set ga_consent = app.request.cookies.get('cookieConsent') %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_id }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+                'ad_storage': '{{ ga_consent == 'granted' ? 'granted' : 'denied' }}',
+                'ad_user_data': '{{ ga_consent == 'granted' ? 'granted' : 'denied' }}',
+                'ad_personalization': '{{ ga_consent == 'granted' ? 'granted' : 'denied' }}',
+                'analytics_storage': '{{ ga_consent == 'granted' ? 'granted' : 'denied' }}',
+                'wait_for_update': 500
+            });
+            gtag('js', new Date());
+            gtag('config', '{{ google_analytics_id }}');
+            {% for ev in track_events %}gtag('event', {{ ev|json_encode|raw }});{% endfor %}
+        </script>
+    {% endif %}
+    {# Meta Pixel — deliberately NOT loaded site-wide like GA4 above. Meta Pixel builds
+       ad-targeting audiences from page visits (not just analytics), and real FTC/
+       litigation history (BetterHelp, GoodRx, several hospital systems) is specifically
+       about pixels firing on health-adjacent pages. So this only ever loads when the
+       visitor is logged out (public/marketing pages: /about, /pricing, /help/*,
+       /login, /register, /privacy/*) OR there's a pending conversion flash to report
+       (the purchase flash lands on the authenticated /subscription/success page for
+       one render only). It never loads on dashboard/meals/symptoms/health-metrics/
+       trends/insights/settings. Same consent-gated, denied-by-default posture as GA4. #}
+    {% if meta_pixel_id and (app.user is null or track_events is not empty) %}
+        {% set fb_consent = app.request.cookies.get('cookieConsent') %}
+        {% set meta_pixel_events = {'sign_up': 'CompleteRegistration', 'purchase': 'Purchase'} %}
+        <script>
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            {# Denied-by-default: revoke BEFORE init (Meta's documented order) so nothing
+               acts pre-consent, then grant only if the shared cookie already says so. #}
+            fbq('consent', 'revoke');
+            fbq('init', '{{ meta_pixel_id }}');
+            {% if fb_consent == 'granted' %}fbq('consent', 'grant');{% endif %}
+            {# PageView only on public pages. On the authenticated /subscription/success
+               page (where this block loads via the purchase flash) we fire ONLY the
+               conversion event below — no PageView — so we never send a page view on a
+               logged-in page, matching the ToS ("only page views on public pages"). #}
+            {% if app.user is null %}fbq('track', 'PageView');{% endif %}
+            {% for ev in track_events %}{% if meta_pixel_events[ev] is defined %}fbq('track', '{{ meta_pixel_events[ev] }}');{% endif %}{% endfor %}
+        </script>
+        {# The <noscript> fallback fires a PageView with no way to consult the fbq consent
+           API, so gate it server-side: only on public pages (never the authenticated
+           success page) AND only once the visitor has opted in. A no-JS visitor can't have
+           opted in (the banner needs JS), so it stays off by default — denied-by-default. #}
+        {% if app.user is null and fb_consent == 'granted' %}
+        <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id={{ meta_pixel_id }}&amp;ev=PageView&amp;noscript=1" alt=""></noscript>
+        {% endif %}
+    {% endif %}
+    <title>{% block title %}NouriLoop{% endblock %}</title>
+    {# SEO/social meta. seo_description is passed by public controllers (defaults to the
+       marketing blurb); canonical is derived from the current route via DEFAULT_URI, so
+       it's clean (no query string) and host-correct. og/twitter titles reuse the page
+       <title> via block('title'). Authenticated pages are noindex'd as a backstop to
+       robots.txt — no private/health page should ever be indexed. #}
+    {% block meta %}
+        {%- set seo_description = seo_description|default('Track meals with a photo, see your inflammation score, connect your CGM, and get personalized nutrition goals.') -%}
+        {%- set _route = app.request.attributes.get('_route') -%}
+        {%- set seo_canonical = seo_canonical|default(_route ? url(_route, app.request.attributes.get('_route_params')) : app.request.uri) -%}
+        <meta name="description" content="{{ seo_description }}">
+        <link rel="canonical" href="{{ seo_canonical }}">
+        {# hreflang alternates on the locale-prefixed conversion pages (i18n
+           Phase 4). Each variant self-canonicalizes; these links relate them. #}
+        {% for hreflang, href in locale_alternates() ?? [] %}
+        <link rel="alternate" hreflang="{{ hreflang }}" href="{{ href }}">
+        {% endfor %}
+        {% if app.user %}<meta name="robots" content="noindex">{% endif %}
+        <meta property="og:title" content="{{ block('title') }}">
+        <meta property="og:description" content="{{ seo_description }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ seo_canonical }}">
+        <meta property="og:image" content="{{ absolute_url(asset('images/og-card.png')) }}">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ block('title') }}">
+        <meta name="twitter:description" content="{{ seo_description }}">
+    {% endblock %}
+    {# JSON-LD structured data; public pages override this block (see StructuredDataExtension). #}
+    {% block seo_jsonld %}{% endblock %}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <meta name="theme-color" content="#1f2937">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {% block stylesheets %}{% endblock %}
+    <style>
+        /* Color grammar of the feedback loop:
+           slate = neutral chrome · teal = brand accent / primary actions. */
+        :root {
+            --slate: #1f2937;
+            --consequence: #0d9488;       /* teal — "what your food did to you" */
+            --consequence-emphasis: #0f766e;
+            --footer-h: 4.75rem;
+            /* Remap Bootstrap's "success" theme color to brand teal so every
+               text-success / bg-success / border-success / badge / subtle variant
+               (icons included) reads teal app-wide, in one place. The .btn-success
+               override below covers buttons (their bg isn't driven by these vars). */
+            --bs-success: #0d9488;
+            --bs-success-rgb: 13, 148, 136;
+            --bs-success-text-emphasis: #0a5d55;
+            --bs-success-bg-subtle: #d2ece9;
+            --bs-success-border-subtle: #a6d8d2;
+            /* Tone the default bright-blue link down to brand teal (links stay
+               underlined, so they read as links, not buttons). */
+            --bs-link-color: #0f766e;
+            --bs-link-color-rgb: 15, 118, 110;
+            --bs-link-hover-color: #0a5d55;
+            --bs-link-hover-color-rgb: 10, 93, 85;
+            /* Brand palette — single source of truth. (CSS can't derive an R,G,B
+               triplet from a hex var, so each color keeps a paired *-rgb.) */
+            --brick: #c23a2d;     --brick-rgb: 194, 58, 45;
+            --gold: #f1c24d;      --gold-rgb: 241, 194, 77;
+            --deep-blue: #35628a; --deep-blue-rgb: 53, 98, 138;
+            /* Map Bootstrap's remaining semantic colors onto the brand palette so
+               badges / borders / progress bars / text read consistently app-wide:
+               danger → brick red · warning → logo gold · info → summer dark blue. */
+            --bs-danger:  var(--brick);     --bs-danger-rgb:  var(--brick-rgb);
+            --bs-warning: var(--gold);      --bs-warning-rgb: var(--gold-rgb);
+            --bs-info:    var(--deep-blue); --bs-info-rgb:    var(--deep-blue-rgb);
+        }
+        /* Sticky footer: body fills the viewport, main grows, footer sits at the
+           bottom even on short pages. */
+        body { background-color: #f8f9fa; display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1 0 auto; }
+        .app-footer { min-height: var(--footer-h); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.1rem; padding: 0.4rem 1rem; }
+        /* Rotating wellness disclaimer above the copyright. A *fixed* two-line box
+           (three on phones) with the text vertically centered, so a shorter pick
+           doesn't shrink the footer and a longer one doesn't grow it — no bounce as
+           the random disclaimer changes between page loads. The set is curated to
+           ≤ ~150 chars so it never exceeds the reserved height (overflow hidden is a
+           backstop). Mobile drops the font slightly so three lines still fit the set. */
+        .wellness-disclaimer { max-width: 36rem; margin: 0 auto; line-height: 1.3;
+            height: 2.6em; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: var(--deep-blue); font-weight: 500; }
+        @media (max-width: 575.98px) {
+            :root { --footer-h: 5.5rem; }
+            .wellness-disclaimer { font-size: 0.8rem; height: 3.9em; }
+        }
+        /* Full-bleed auth hero filling the viewport above the footer (so the footer
+           stays visible without the hero overflowing the screen). */
+        .min-vh-hero { min-height: calc(100vh - var(--footer-h)); }
+        .navbar-brand { font-weight: 700; letter-spacing: -0.5px; }
+        .nav-link.active { font-weight: 600; }
+        /* Expanded navbar only: keep each item's icon and label on ONE line. The bar
+           is wide enough to fit at the lg breakpoint, but a label that wraps puts the
+           icon on its own row and drops that item's baseline below its neighbours —
+           which is exactly how the bar looked at iPad widths before the breakpoint
+           moved from md to lg. Scoped to the expanded state so the stacked hamburger
+           menu (where wrapping is fine and long labels need it) is untouched. */
+        @media (min-width: 992px) {
+            .navbar-expand-lg .navbar-nav .nav-link { white-space: nowrap; }
+        }
+        /* The one nav label that is USER DATA: displayName accepts up to 100 chars, so
+           with the nowrap rule above it would push the navbar past the viewport and give
+           the whole page a horizontal scrollbar (measured: 1678px of document width at a
+           992px viewport). Bounded + ellipsised instead. Deliberately NOT inside the
+           media query — an unbroken 100-char name overflows the stacked drawer too.
+           The cap is tiered because the budget is: 14rem everywhere there's room (the
+           full-width drawer below lg, and xl and up), but only 7rem in the 992–1199
+           band, where the bar is at its tightest — the German labels already use ~952
+           of 992px there, so a wider name is what tips the page into a horizontal
+           scrollbar. An ordinary display name is well under 7rem and never truncates. */
+        .navbar-username {
+            display: inline-block; max-width: 14rem; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;
+        }
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            .navbar-username { max-width: 7rem; }
+        }
+        .card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        .bg-slate { background-color: var(--slate) !important; }
+        .text-consequence { color: var(--consequence-emphasis) !important; }
+        .text-brick { color: var(--brick) !important; } /* summer-palette red — health/vitals accent */
+        .border-consequence { border-color: var(--consequence) !important; }
+        /* Left rail marking a card as a consequence of the user's food choices. */
+        .consequence-accent { border-left: 4px solid var(--consequence) !important; }
+        /* Shared teal→slate hero background for the auth/onboarding pages. */
+        .bg-hero { background: linear-gradient(135deg, #0d9488 0%, #1f2937 100%); }
+        /* Primary actions are brand teal app-wide. We remap Bootstrap's success
+           button (used everywhere) to teal via its CSS variables, so the whole app
+           shares one accent without touching every template. */
+        .btn-success {
+            --bs-btn-bg: var(--consequence);          --bs-btn-border-color: var(--consequence);
+            --bs-btn-hover-bg: var(--consequence-emphasis); --bs-btn-hover-border-color: var(--consequence-emphasis);
+            --bs-btn-active-bg: var(--consequence-emphasis); --bs-btn-active-border-color: var(--consequence-emphasis);
+            --bs-btn-disabled-bg: var(--consequence);  --bs-btn-disabled-border-color: var(--consequence);
+        }
+        .btn-outline-success {
+            --bs-btn-color: var(--consequence-emphasis); --bs-btn-border-color: var(--consequence);
+            /* hover bg is the darker emphasis teal — white text on plain --consequence
+               is ~3.7:1, under the 4.5:1 AA minimum for normal-size labels */
+            --bs-btn-hover-bg: var(--consequence-emphasis); --bs-btn-hover-border-color: var(--consequence-emphasis);
+            --bs-btn-active-bg: var(--consequence-emphasis); --bs-btn-active-border-color: var(--consequence-emphasis);
+            --bs-btn-focus-shadow-rgb: 13,148,136;
+        }
+        /* Outline danger/warning buttons follow the brand palette too (their bg is
+           hardcoded by Bootstrap, so the var remap above doesn't reach them). */
+        .btn-outline-danger {
+            --bs-btn-color: var(--brick); --bs-btn-border-color: var(--brick);
+            --bs-btn-hover-bg: var(--brick); --bs-btn-hover-border-color: var(--brick); --bs-btn-hover-color: #fff;
+            --bs-btn-active-bg: var(--brick); --bs-btn-active-border-color: var(--brick);
+            --bs-btn-focus-shadow-rgb: var(--brick-rgb);
+        }
+        .btn-outline-warning {
+            /* text stays a darker custom gold — palette gold fails contrast on white */
+            --bs-btn-color: #9a7414; --bs-btn-border-color: var(--gold);
+            --bs-btn-hover-bg: var(--gold); --bs-btn-hover-border-color: var(--gold); --bs-btn-hover-color: var(--slate);
+            --bs-btn-active-bg: var(--gold); --bs-btn-active-border-color: var(--gold); --bs-btn-active-color: var(--slate);
+            --bs-btn-focus-shadow-rgb: var(--gold-rgb);
+        }
+        /* Solid gold button — the attention accent (login sign-up CTA, deletion-banner
+           cancel). Slate text on gold, like .btn-outline-warning's hover state. */
+        .btn-warning {
+            --bs-btn-bg: var(--gold); --bs-btn-border-color: var(--gold); --bs-btn-color: var(--slate);
+            --bs-btn-hover-bg: #e3b23c; --bs-btn-hover-border-color: #e3b23c; --bs-btn-hover-color: var(--slate);
+            --bs-btn-active-bg: #d9a52f; --bs-btn-active-border-color: #d9a52f; --bs-btn-active-color: var(--slate);
+            --bs-btn-disabled-bg: var(--gold); --bs-btn-disabled-border-color: var(--gold); --bs-btn-disabled-color: var(--slate);
+            --bs-btn-focus-shadow-rgb: var(--gold-rgb);
+        }
+        /* "On" state for toggles/sliders uses the summer-palette deep blue instead
+           of Bootstrap's bright blue, so an enabled control reads calmly. */
+        .form-check-input:checked { background-color: var(--deep-blue); border-color: var(--deep-blue); }
+        .form-check-input:focus { border-color: var(--deep-blue); box-shadow: 0 0 0 .25rem rgba(var(--deep-blue-rgb),.25); }
+        .form-range::-webkit-slider-thumb { background-color: var(--deep-blue); }
+        .form-range::-moz-range-thumb { background-color: var(--deep-blue); }
+        .form-range:focus::-webkit-slider-thumb { box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--deep-blue-rgb),.25); }
+        .form-range:focus::-moz-range-thumb { box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(var(--deep-blue-rgb),.25); }
+        /* Symptom mood faces: sized up from Bootstrap's fs-4 (~1.5rem) so the emoji
+           is easy to read for an older user base. One rule drives both the /symptoms
+           page and the Dashboard quick-check card. */
+        .symptom-mood { font-size: 2rem; }
+        /* A range input is inline-block by default, so it sits on the text baseline and
+           reserves descender space below the track — which pushes the visible slider a
+           few px high when it's in a row beside the label + mood emoji (the Dashboard
+           check-in). Block removes that gap so the slider centers on the row. */
+        .form-range[data-mood-slider] { display: block; }
+    </style>
+</head>
+<body>
+
+{% if app.user and not chrome_suppressed %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-slate">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('app_dashboard') }}">
+            <img src="{{ asset('navbar-logo.png') }}" alt="" width="32" height="32" class="d-inline-block">
+            <span>NouriLoop</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            {# Nav walks the feedback loop: Today (see) → Log (input) → Insights &
+               Trends (consequences) → Goals. Occasional inputs/adjuncts live under More. #}
+            {% set route = app.request.attributes.get('_route') %}
+            {% set inMore = route starts with 'app_help'
+                or route == 'app_meal_history'
+                or route starts with 'app_supplements'
+                or route starts with 'app_supplement'
+                or route starts with 'app_health'
+                or route starts with 'app_glucose_insights'
+                or route starts with 'app_symptoms'
+                or route starts with 'app_notifications'
+                or route starts with 'app_predict' %}
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if route == 'app_dashboard' %}active{% endif %}"
+                       href="{{ path('app_dashboard') }}">
+                        <i class="bi bi-house-door text-brick"></i> {{ 'chrome.nav.today'|trans }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if (route starts with 'app_meal' or route starts with 'app_favorite') and route != 'app_meal_history' %}active{% endif %}"
+                       href="{{ path('app_meal_log') }}">
+                        <i class="bi bi-camera text-brick"></i> {{ 'chrome.nav.log'|trans }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if route == 'app_trends' %}active{% endif %}"
+                       href="{{ path('app_trends') }}">
+                        <i class="bi bi-graph-up text-brick"></i> {{ 'chrome.nav.trends'|trans }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if route starts with 'app_goals' %}active{% endif %}"
+                       href="{{ path('app_goals') }}">
+                        <i class="bi bi-bullseye text-brick"></i> {{ 'chrome.nav.goals'|trans }}
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if inMore %}active{% endif %}"
+                       href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-grid text-brick"></i> {{ 'chrome.nav.more'|trans }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {% if route == 'app_meal_history' %}active{% endif %}"
+                               href="{{ path('app_meal_history') }}">
+                            <i class="bi bi-clock-history text-brick"></i> {{ 'chrome.nav.history'|trans }}
+                        </a></li>
+                        <li><a class="dropdown-item {% if route starts with 'app_supplement' %}active{% endif %}"
+                               href="{{ path('app_supplements') }}">
+                            <i class="bi bi-capsule text-brick"></i> {{ 'chrome.nav.supplements'|trans }}
+                        </a></li>
+                        <li><a class="dropdown-item {% if route starts with 'app_health' %}active{% endif %}"
+                               href="{{ path('app_health_metrics') }}">
+                            <i class="bi bi-heart-pulse text-brick"></i> {{ 'chrome.nav.health_metrics'|trans }}
+                        </a></li>
+                        <li><a class="dropdown-item {% if route starts with 'app_glucose_insights' %}active{% endif %}"
+                               href="{{ path('app_glucose_insights') }}">
+                            <i class="bi bi-activity text-brick"></i> {{ 'chrome.nav.glucose_insights'|trans }}
+                        </a></li>
+                        <li><a class="dropdown-item {% if route starts with 'app_symptoms' %}active{% endif %}"
+                               href="{{ path('app_symptoms') }}">
+                            <i class="bi bi-activity text-brick"></i> {{ 'chrome.nav.symptoms'|trans }}
+                        </a></li>
+                        <li>
+                            {% if has_feature('predictive_help') %}
+                            <a class="dropdown-item {% if route starts with 'app_predict' %}active{% endif %}"
+                               href="{{ path('app_predict_index') }}">
+                                <i class="bi bi-magic text-brick"></i> {{ 'chrome.nav.predict'|trans }}
+                            </a>
+                            {% else %}
+                            <a class="dropdown-item text-muted" href="{{ path('app_pricing') }}">
+                                <i class="bi bi-magic text-brick"></i> {{ 'chrome.nav.predict'|trans }}
+                                <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem">Loop+</span>
+                            </a>
+                            {% endif %}
+                        </li>
+                        <li><a class="dropdown-item {% if route starts with 'app_notifications' %}active{% endif %}"
+                               href="{{ path('app_notifications') }}">
+                            <i class="bi bi-bell text-brick"></i> {{ 'chrome.nav.notifications'|trans }}
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item {% if route starts with 'app_help' %}active{% endif %}"
+                               href="{{ path('app_help') }}">
+                            <i class="bi bi-question-circle text-brick"></i> {{ 'chrome.nav.help'|trans }}
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                {# Notification bell + dropdown (recent items). Unread count drives the
+                   badge; the full list lives at /notifications. Variable names are
+                   namespaced (bell*) so a parent-scope {% set %} can't shadow a page
+                   variable like `recent` in a child template's body block. #}
+                {% set bellUnread = unread_notification_count() %}
+                {% set bellRecent = recent_notifications(5) %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown" aria-label="{{ 'chrome.bell.aria'|trans }}">
+                        <i class="bi {% if bellUnread > 0 %}bi-bell-fill{% else %}bi-bell{% endif %}"></i>
+                        {% if bellUnread > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;">
+                            {{ bellUnread > 9 ? '9+' : bellUnread }}<span class="visually-hidden">{{ 'chrome.bell.unread_sr'|trans }}</span>
+                        </span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 320px; max-width: 360px;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span>{{ 'chrome.bell.header'|trans }}</span>
+                            {% if bellUnread > 0 %}<span class="badge bg-danger rounded-pill">{{ 'chrome.bell.new_count'|trans({'count': bellUnread}) }}</span>{% endif %}
+                        </li>
+                        {% if bellRecent is empty %}
+                        <li><span class="dropdown-item-text text-muted small">{{ 'chrome.bell.empty'|trans }}</span></li>
+                        {% else %}
+                            {% for n in bellRecent %}
+                            <li>
+                                <a class="dropdown-item d-flex gap-2 py-2 {% if not n.read %}fw-semibold{% endif %}"
+                                   href="{{ path('app_notifications_go', {id: n.id}) }}"
+                                   style="white-space: normal;">
+                                    <i class="bi {{ n.category.icon }} text-brick mt-1"></i>
+                                    <span class="flex-grow-1">
+                                        <span class="d-block">{{ n.title }}</span>
+                                        <small class="text-muted">{{ n.createdAt|user_date('MMMdjm') }}</small>
+                                    </span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center small" href="{{ path('app_notifications') }}">{{ 'chrome.bell.see_all'|trans }}</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+                {# Upgrade nudge for Free-tier users only (gated by the unlimited_photos
+                   feature, which every paid tier has). #}
+                {% if is_granted('ROLE_USER') and not has_feature('unlimited_photos') %}
+                <li class="nav-item">
+                    <a class="nav-link {% if route == 'app_pricing' %}active{% endif %}"
+                       href="{{ path('app_pricing') }}">
+                        <i class="bi bi-stars text-warning"></i> {{ 'chrome.nav.upgrade'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> <span class="navbar-username" title="{{ app.user.displayName }}">{{ app.user.displayName }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ path('app_settings_index') }}">
+                            <i class="bi bi-gear"></i> {{ 'chrome.nav.settings'|trans }}
+                        </a></li>
+                        {% if is_granted('ROLE_ADMIN') %}
+                        <li><a class="dropdown-item" href="{{ path('app_admin_users') }}">
+                            <i class="bi bi-people"></i> {{ 'chrome.nav.admin_users'|trans }}
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_admin_favorites_report') }}">
+                            <i class="bi bi-graph-down-arrow"></i> {{ 'chrome.nav.admin_favorites'|trans }}
+                        </a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> {{ 'chrome.nav.logout'|trans }}
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+{# Self-service account deletion is pending — an in-flow top bar (see the file for why
+   it's not position:fixed like the onboarding overlay / cookie banner). #}
+{% if app.user and not chrome_suppressed %}
+    {% set deletionScheduledFor = deletion_scheduled_for() %}
+    {% if deletionScheduledFor %}
+        {% include '_deletion_banner.html.twig' %}
+    {% endif %}
+    {% if not app.user.emailVerified %}
+        {% include '_email_verification_banner.html.twig' %}
+    {% endif %}
+    {# Hidden until its own JS detects a real browser/account timezone mismatch. #}
+    {% include '_timezone_banner.html.twig' %}
+{% endif %}
+
+{# Only consume the standard display types here; special flashes (e.g. the
+   one-time api_token_new) are rendered by their own page. #}
+{% for label in ['success', 'error', 'warning', 'info'] %}
+{% for message in app.flashes(label) %}
+<div class="container mt-3">
+    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+{% endfor %}
+{% endfor %}
+
+<main class="{% if app.user %}container-fluid py-4{% endif %}">
+    {% block body %}{% endblock %}
+</main>
+
+{% if app.user and not chrome_suppressed and app.request.attributes.get('_route') not in ['app_help', 'app_help_show'] %}
+<a href="{{ path('app_help') }}#ask"
+   class="btn btn-success rounded-circle shadow d-flex align-items-center justify-content-center"
+   style="position: fixed; right: 1rem; bottom: calc(var(--footer-h) + 1rem); width: 3rem; height: 3rem; z-index: 1030;"
+   title="{{ 'chrome.help_button.title'|trans }}" aria-label="{{ 'chrome.help_button.aria'|trans }}">
+    <i class="bi bi-question-lg fs-5"></i>
+</a>
+{% endif %}
+
+{# First-login onboarding overlay. Rides along on every authenticated page (no redirect)
+   so the step CTAs can navigate to real feature pages without being bounced back. #}
+{% if app.user and not chrome_suppressed and app.user.needsOnboarding() %}
+    {% include 'onboarding/_overlay.html.twig' with { progress: onboarding_progress() } %}
+{% endif %}
+
+{# Cookie consent banner — shown when either GA4 or the Meta Pixel is configured and
+   the visitor hasn't chosen yet. Accepting upgrades both GA and Pixel consent; either
+   choice is remembered in one shared cookie. #}
+{% if (google_analytics_id or meta_pixel_id) and app.request.cookies.get('cookieConsent') is null %}
+    {% include '_cookie_consent.html.twig' %}
+{% endif %}
+
+<footer class="app-footer text-center text-muted small">
+    <p class="wellness-disclaimer mb-0">{{ wellness_disclaimer('long') }}</p>
+    <div>{% if app_version %}<span class="text-secondary">{{ app_version }}</span> · {% endif %}&copy; {{ "now"|date('Y') }} NouriLoop LLC{% if not chrome_suppressed %} · <a href="{{ path('app_feedback') }}">{{ 'chrome.footer.feedback'|trans }}</a>{% endif %}</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

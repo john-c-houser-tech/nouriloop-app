@@ -1,0 +1,37 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Your Dashboard{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/dashboard.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The NouriLoop dashboard: today's calories, inflammation score, a symptom check-in, and glucose responses">
+</figure>
+<p>The <strong>Today</strong> tab is your dashboard — a quick snapshot of where you are right now. It pulls
+together the day's meals and signals so you don't have to go hunting for them.</p>
+
+<h2 class="h5 fw-bold mt-4">What you'll see</h2>
+<ul>
+    <li><strong>Today's meals</strong> — everything you've logged so far today. Tap a meal to open its full
+        nutrition breakdown.</li>
+    <li><strong>Today's inflammation score</strong> — a single badge summarizing how pro- or anti-inflammatory
+        your food has been today. <a href="{{ path('app_help_show', {topic: 'inflammation'}) }}">More on the score →</a></li>
+    <li><strong>Symptom check-in</strong> — if you've turned on any symptoms, a quick card lets you rate them
+        for the day without leaving the dashboard.</li>
+    <li><strong>Glucose responses</strong> — if you import continuous-glucose data, today's meal responses
+        appear here.</li>
+</ul>
+
+<h2 class="h5 fw-bold mt-4">Today vs. over time</h2>
+<p>The dashboard is about <em>today</em>. To see patterns across days or weeks — trends, correlations, and
+your inflammation chart — open <strong>Insights &amp; Trends</strong> from the top menu.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'log-meal'}) }}">Logging a Meal</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'inflammation'}) }}">Inflammation Score</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'symptoms'}) }}">Symptom Tracking</a></li>
+</ul>
+{% endblock %}

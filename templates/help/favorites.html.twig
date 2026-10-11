@@ -1,0 +1,36 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Favorite Meals{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/favorites.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Favorite Meals screen, where saved meals can be re-logged in one tap">
+</figure>
+<p>If you eat the same thing often, save it as a <strong>favorite</strong> and re-log it in one tap — no new
+photo, no waiting on the AI. The nutrition is reused exactly as you saved it.</p>
+
+<h2 class="h5 fw-bold mt-4">Saving a favorite</h2>
+<ul>
+    <li>From the <strong>Confirm &amp; Refine</strong> screen when logging, tap <strong>Save &amp; add to
+        favorites</strong>, or</li>
+    <li>From any saved meal's page, tap <strong>Save as favorite</strong>.</li>
+</ul>
+
+<h2 class="h5 fw-bold mt-4">Logging from a favorite</h2>
+<ol>
+    <li>Go to <strong>Log → Favorites</strong>.</li>
+    <li>Find your meal (you can search and sort), and open it.</li>
+    <li>Set how many servings and the meal type, then log it. The nutrition scales to the servings you ate.</li>
+</ol>
+
+<p class="text-muted small">Renaming or deleting a favorite never changes meals you've already logged — those
+keep their own copy of the nutrition.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'log-meal'}) }}">Logging a Meal</a></li>
+</ul>
+{% endblock %}

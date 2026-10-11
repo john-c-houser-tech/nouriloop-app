@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'meal.log.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 640px;">
+    <h2 class="fw-bold mb-4"><i class="bi bi-camera text-brick"></i> {{ 'meal.log.heading'|trans }} {{ help_link('log-meal') }}</h2>
+
+    {# A failed analysis parks the uploaded photo — offer a one-click retry
+       instead of making the user re-pick and re-upload the file. #}
+    {% if retry|default(null) %}
+    <div class="card p-3 mb-4 border-warning-subtle">
+        <div class="d-flex align-items-center gap-3">
+            <img src="{{ asset(retry.imageWebPath) }}" alt="" class="rounded border"
+                 style="width: 64px; height: 64px; object-fit: cover;">
+            <div class="flex-grow-1">
+                <div class="fw-semibold">{{ 'meal.log.retry_lead'|trans }}</div>
+                <small class="text-muted">{{ 'meal.log.retry_sub'|trans }}</small>
+            </div>
+            <form method="post" action="{{ path('app_meal_log_retry') }}" id="retry-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('meal-retry') }}">
+                <button type="submit" class="btn btn-warning fw-semibold" id="retry-btn">
+                    <i class="bi bi-arrow-clockwise"></i> {{ 'meal.log.retry_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="{{ path('app_favorites') }}" class="card p-3 mb-4 text-decoration-none d-flex
+              flex-row align-items-center gap-3 border-warning-subtle">
+        <i class="bi bi-star-fill text-warning fs-4"></i>
+        <div class="text-body">
+            <div class="fw-semibold">{{ 'meal.log.favorite_pitch'|trans }}</div>
+            <small class="text-muted">{{ 'meal.log.favorite_sub'|trans }}</small>
+        </div>
+        <i class="bi bi-chevron-right text-muted ms-auto"></i>
+    </a>
+
+    {{ form_start(form, {attr: {enctype: 'multipart/form-data', novalidate: 'novalidate', id: 'meal-form'}}) }}
+
+    <div class="card p-4 mb-3">
+        <div class="mb-3">
+            {{ form_label(form.mealType, null, {label_attr: {class: 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.mealType, {attr: {class: 'form-select'}}) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.image, null, {label_attr: {class: 'form-label fw-semibold'}}) }}
+
+            <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center"
+                 style="cursor: pointer; border-color: #dee2e6 !important; transition: border-color .2s;">
+                <div id="drop-placeholder">
+                    <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                    <p class="text-muted mt-2 mb-1">{{ 'meal.log.drop_hint'|trans }}</p>
+                    <small class="text-muted">{{ 'meal.log.drop_formats'|trans }}</small>
+                </div>
+                {# Multi-photo previews (dish + label in one pass). #}
+                <div id="preview-row" class="d-none d-flex flex-wrap gap-2 justify-content-center"></div>
+            </div>
+            {# id must be overridden top-level — attr.id is ignored by the form renderer
+               (same trap as the register timezone field, see CLAUDE.md). #}
+            {{ form_widget(form.image, {id: 'image-input', attr: {class: 'form-control mt-2', accept: 'image/*,.heic,.heif'}}) }}
+            {{ form_errors(form.image) }}
+            <div class="form-text">{{ 'meal.log.multi_hint'|trans }}</div>
+
+            {# Direct-to-camera affordance for phones (capture forces the camera,
+               so it's a separate input — the picker input keeps library access).
+               Camera shots are freshly taken, so client-side downscaling can't
+               lose a meaningful EXIF date (library photos upload untouched —
+               the EXIF backdating feature depends on their metadata). #}
+            <div class="d-md-none mt-2">
+                <button type="button" id="camera-btn" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-camera"></i> {{ 'meal.log.use_camera'|trans }}
+                </button>
+                <input type="file" id="camera-input" accept="image/*" capture="environment" class="d-none">
+            </div>
+            <div id="preparing-msg" class="form-text text-info d-none">
+                <span class="spinner-border spinner-border-sm"></span> {{ 'meal.log.preparing'|trans }}
+            </div>
+        </div>
+
+        {# Photo-free path: describe the meal instead. Server-rendered open when
+           `?describe=1` sent the user here for exactly this field (the onboarding
+           step's pointer-device CTA) — the same replace-the-collapsed-state idiom
+           as the registration coupon disclosure. #}
+        {% set describeOpen = app.request.query.get('describe') == '1' %}
+        <div class="mb-3">
+            <a href="#" id="describe-toggle" class="small text-decoration-none">
+                <i class="bi bi-pencil"></i> {{ 'meal.log.describe_toggle'|trans }}
+            </a>
+            <div id="describe-wrap" class="mt-2{{ describeOpen ? '' : ' d-none' }}">
+                {# Visually-hidden label — a placeholder is not an accessible name. #}
+                {{ form_label(form.description, null, {label_attr: {class: 'visually-hidden'}}) }}
+                {{ form_widget(form.description, {attr: {class: 'form-control', placeholder: 'meal.form.describe_ph'|trans}}) }}
+                {{ form_errors(form.description) }}
+                <div class="form-text">{{ 'meal.log.describe_hint'|trans }}</div>
+            </div>
+        </div>
+
+        <div class="mb-1">
+            {{ form_label(form.notes, null, {label_attr: {class: 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.notes, {attr: {class: 'form-control', placeholder: 'meal.form.notes_ph'|trans}}) }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold" id="submit-btn">
+        <i class="bi bi-cpu"></i> {{ 'meal.log.submit'|trans }}
+    </button>
+
+    {# Free-tier allowance — visible before it runs out, not a surprise redirect. #}
+    {% if freeRemaining is defined and freeRemaining is not null %}
+    <p class="text-center small mt-2 mb-0 {{ freeRemaining <= 3 ? 'text-warning-emphasis fw-semibold' : 'text-muted' }}">
+        {{ 'meal.log.allowance_left'|trans({'remaining': freeRemaining, 'limit': freeLimit}) }}
+        {% if freeRemaining <= 3 %}
+            · <a href="{{ path('app_pricing') }}">{{ 'meal.log.allowance_upgrade'|trans }}</a>
+        {% endif %}
+    </p>
+    {% endif %}
+
+    <div id="analyzing-msg" class="text-center mt-3 d-none">
+        <div class="spinner-border text-success" role="status"></div>
+        <p class="text-muted mt-2">{{ 'meal.log.analyzing'|trans }}</p>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const dropZone = document.getElementById('drop-zone');
+const input = document.getElementById('image-input');
+const previewRow = document.getElementById('preview-row');
+const placeholder = document.getElementById('drop-placeholder');
+const form = document.getElementById('meal-form');
+const submitBtn = document.getElementById('submit-btn');
+const analyzingMsg = document.getElementById('analyzing-msg');
+const MAX_PHOTOS = {{ constant('App\\Form\\MealEntryFormType::MAX_PHOTOS') }};
+
+function showPreviews(files) {
+    previewRow.innerHTML = '';
+    if (!files.length) {
+        previewRow.classList.add('d-none');
+        placeholder.classList.remove('d-none');
+        return;
+    }
+    placeholder.classList.add('d-none');
+    previewRow.classList.remove('d-none');
+    [...files].forEach(file => {
+        const img = document.createElement('img');
+        img.alt = ''; // decorative previews — keep screen readers quiet
+        img.className = 'rounded border';
+        img.style.cssText = 'height:96px;width:96px;object-fit:cover;';
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; };
+        reader.readAsDataURL(file);
+        previewRow.appendChild(img);
+    });
+}
+
+// Merge newly picked/captured files into the input, capped at MAX_PHOTOS.
+function addFiles(newFiles) {
+    const dt = new DataTransfer();
+    [...input.files, ...newFiles].slice(0, MAX_PHOTOS).forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    showPreviews(input.files);
+}
+
+dropZone.addEventListener('click', () => input.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#198754'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '';
+    addFiles(e.dataTransfer.files);
+});
+input.addEventListener('change', () => showPreviews(input.files));
+
+// Direct-to-camera (phones). Fresh shots carry no meaningful EXIF date, so
+// downscaling them client-side is safe — and cuts a multi-MB upload on
+// cellular to a fraction before the slowest step of the first log.
+const cameraBtn = document.getElementById('camera-btn');
+const cameraInput = document.getElementById('camera-input');
+const preparingMsg = document.getElementById('preparing-msg');
+
+async function downscale(file) {
+    if (file.size <= 3000000) return file;
+    try {
+        const bmp = await createImageBitmap(file);
+        const scale = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+        if (scale >= 1) return file;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(bmp.width * scale);
+        canvas.height = Math.round(bmp.height * scale);
+        canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+        if (!blob || blob.size >= file.size) return file;
+        return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch (e) {
+        return file; // e.g. HEIC on Chrome — the server converts it instead
+    }
+}
+
+if (cameraBtn) {
+    cameraBtn.addEventListener('click', () => cameraInput.click());
+    cameraInput.addEventListener('change', async () => {
+        if (!cameraInput.files.length) return;
+        preparingMsg.classList.remove('d-none');
+        submitBtn.disabled = true;
+        try {
+            const shrunk = await Promise.all([...cameraInput.files].map(downscale));
+            addFiles(shrunk);
+        } finally {
+            preparingMsg.classList.add('d-none');
+            submitBtn.disabled = false;
+            cameraInput.value = '';
+        }
+    });
+}
+
+// Photo-free path: reveal the description box; auto-open when it already has
+// content (a validation re-render keeps the typed text).
+const describeToggle = document.getElementById('describe-toggle');
+const describeWrap = document.getElementById('describe-wrap');
+const describeField = describeWrap.querySelector('textarea');
+describeToggle.addEventListener('click', e => {
+    e.preventDefault();
+    describeWrap.classList.toggle('d-none');
+    if (!describeWrap.classList.contains('d-none')) describeField.focus();
+});
+if (describeField.value.trim() !== '' || describeWrap.querySelector('.invalid-feedback, .form-error-message')) {
+    describeWrap.classList.remove('d-none');
+}
+
+form.addEventListener('submit', () => {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> '
+        + {{ 'meal.log.analyzing_btn'|trans|json_encode|raw }};
+    analyzingMsg.classList.remove('d-none');
+});
+
+// The retry card's button gets the same analyzing feedback as the main submit.
+const retryForm = document.getElementById('retry-form');
+if (retryForm) {
+    retryForm.addEventListener('submit', () => {
+        const btn = document.getElementById('retry-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> '
+            + {{ 'meal.log.analyzing_btn'|trans|json_encode|raw }};
+        analyzingMsg.classList.remove('d-none');
+    });
+}
+</script>
+{% endblock %}

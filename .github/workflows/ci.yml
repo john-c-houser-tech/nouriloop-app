@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # dev too: Dependabot's version-update PRs target dev (dependabot.yml), and
+    # green CI is the whole gate for that batch.
+    branches: [main, dev]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests + lint
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      # Container build needs these resolvable even though the unit suite hits no DB / real API.
+      APP_SECRET: ci-test-secret
+      ANTHROPIC_API_KEY: ci-test-key
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, pdo_mysql, gd, zip, dom, xml, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Coding standards (PSR-12)
+        run: composer cs-check
+
+      - name: Lint container & routes
+        run: |
+          php bin/console lint:container
+          php bin/console debug:router > /dev/null
+
+      - name: Unit / functional tests
+        run: vendor/bin/phpunit
+
+  e2e:
+    name: Browser E2E (Panther)
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      APP_SECRET: ci-test-secret
+      ANTHROPIC_API_KEY: ci-test-key
+      # Base name "nutrition"; the when@test doctrine block appends _test -> nutrition_test.
+      DATABASE_URL: "mysql://root:root@127.0.0.1:3306/nutrition?serverVersion=10.11.14-MariaDB&charset=utf8mb4"
+      PANTHER_APP_ENV: test
+      PANTHER_NO_HEADLESS: '0'
+      PANTHER_CHROME_ARGUMENTS: '--no-sandbox --disable-dev-shm-usage --disable-gpu'
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: nutrition_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, pdo_mysql, gd, zip, dom, xml, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          # Driver is fetched by bdi below (matched to *this* Chrome) — its own
+          # install-chromedriver can drift a major version out of sync.
+          install-chromedriver: false
+
+      - name: Get composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Install Chrome-matched driver (bdi)
+        run: vendor/bin/bdi detect drivers
+
+      - name: Create upload dirs
+        run: mkdir -p public/uploads/{meals,supplements,favorites,goal-charts}
+
+      - name: Migrate the test database
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: E2E tests
+        run: vendor/bin/phpunit -c phpunit.e2e.xml.dist
+
+      - name: Upload Panther error screenshots
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: panther-error-screenshots
+          path: var/error-screenshots/
+          if-no-files-found: ignore

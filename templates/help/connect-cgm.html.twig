@@ -1,0 +1,73 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Connect Your Lingo or Stelo (CGM){% endblock %}
+
+{# This page repeats the in-app wizard's steps (templates/connect_cgm/index.html.twig)
+   in public prose, on purpose: the wizard is interactive/personalized (it mints the
+   token and verifies live), while this page must render for anonymous visitors and
+   ground the help assistant. Sharing partials would riddle both with conditionals. #}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/connect-cgm.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The guided CGM setup with its live verification checklist">
+</figure>
+<p>If you wear an <strong>Abbott Lingo</strong> or <strong>Dexcom Stelo</strong> continuous glucose sensor,
+NouriLoop can receive its readings automatically and draw a blood-sugar response curve for every meal you
+log. The one-time setup takes about 10 minutes, and NouriLoop walks you through it: sign in and open the
+<strong>guided setup</strong> at <a href="{{ path('app_connect_cgm') }}">Connect your CGM</a> — it creates
+your access token for you, shows every value to copy, and confirms live when readings arrive.</p>
+
+<h2 class="h5 fw-bold mt-4">What you'll need</h2>
+<ul>
+    <li>A Lingo or Stelo sensor that's already showing readings in the Apple <strong>Health</strong> app
+        on your iPhone. (Check this first — if Health has no glucose, NouriLoop can't receive any.)</li>
+    <li>A small helper iPhone app, <strong>Health Auto Export – JSON+CSV</strong>, which reads Apple
+        Health and sends the data on a schedule. Its automatic-sync feature needs the app's own small
+        subscription (Basic is $2.99, or $6.99 for a year of Premium).</li>
+</ul>
+
+<h2 class="h5 fw-bold mt-4">The steps, in short</h2>
+<ol>
+    <li><strong>Install Health Auto Export</strong> from the App Store. When it asks for Health
+        access, tapping <strong>Turn On All</strong> is easiest — or turn on only what you want
+        NouriLoop to see. <strong>Blood Glucose</strong> is the one this setup needs;
+        <strong>Weight, Steps, Sleep, Heart Rate, and Blood Pressure</strong> are also put to good
+        use in your charts and trends.</li>
+    <li><strong>Create a NouriLoop access token</strong> — the guided setup does this in one tap
+        (or use <a href="{{ path('app_settings_api_tokens') }}">Settings → API tokens</a>). A token is a
+        special password that lets the helper app — and only it — send data to your account.</li>
+    <li><strong>Create a REST API automation</strong> in Health Auto Export pointing at
+        <code>https://nouriloop.com/api/health-metrics/health-export</code>, with an
+        <code>Authorization: Bearer …</code> header carrying your token, <strong>JSON</strong> format,
+        and <strong>Health Metrics</strong> as the data type — "Select All" is easiest (NouriLoop
+        ignores types it doesn't chart), or select only Blood Glucose plus whichever of weight,
+        steps, sleep, heart rate, and blood pressure you want to share. The guided setup shows each
+        value with a copy button.</li>
+    <li><strong>Turn Summarize Data off.</strong> This one Export Setting matters most: when it's on,
+        the app sends one daily summary number instead of your actual readings, and meal curves need
+        the ~5-minute readings. A once-a-day sync cadence is plenty; a faster one just makes curves
+        appear sooner.</li>
+    <li><strong>Run the automation once by hand</strong>, then watch the guided setup's checklist turn
+        green as your readings arrive — it checks automatically every few seconds.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">If readings don't show up</h2>
+<ul>
+    <li><strong>Nothing arrives:</strong> confirm the Health app itself shows recent glucose; then re-check
+        the automation's URL and the <code>Bearer</code> header (the word "Bearer", a space, then the token).</li>
+    <li><strong>"Readings arrived but too few":</strong> that's the Summarize Data setting — turn it
+        off and export again. The guided setup detects this case and tells you.</li>
+</ul>
+
+<p class="text-muted small">Glucose readings are health data — see the Health Data Privacy Notice linked on
+the Health Metrics page for how NouriLoop handles them.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'glucose'}) }}">Glucose Insights</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'health-metrics'}) }}">Importing Health Data</a></li>
+</ul>
+{% endblock %}

@@ -1,0 +1,389 @@
+{% extends 'base.html.twig' %}
+
+{# The "Connect your Lingo/Stelo" guided setup. One long page — all steps visible so a
+   user with a phone in one hand can re-read step 3 while doing step 4. The verify card
+   is a live ladder: inline JS polls the status route and re-renders; the same rung/state
+   logic is mirrored in Twig below for a correct first paint (kept deliberately tiny —
+   if you change one, change both). The public help topic (templates/help/connect-cgm
+   .html.twig) repeats this content in prose on purpose; see its header note. #}
+
+{% block title %}{{ 'cgm.title'|trans }} — NouriLoop{% endblock %}
+
+{% macro rungIcon(state) %}
+    {%- if state == 'done' -%}
+        <i class="bi bi-check-circle-fill text-success fs-5"></i>
+    {%- elseif state == 'warn' -%}
+        <i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>
+    {%- elseif state == 'active' -%}
+        <span class="spinner-border spinner-border-sm text-secondary mt-1" role="status" aria-hidden="true"></span>
+    {%- else -%}
+        <i class="bi bi-circle text-muted fs-5"></i>
+    {%- endif -%}
+{% endmacro %}
+{% import _self as ui %}
+
+{% block body %}
+{% set newTokens = app.flashes('api_token_new') %}
+{% set plaintext = newTokens is not empty ? newTokens[0] : null %}
+<div class="container" style="max-width: 760px;">
+
+    <h2 class="fw-bold mb-1">
+        <i class="bi bi-activity text-brick"></i> {{ 'cgm.heading'|trans }}
+        {{ help_link('connect-cgm') }}
+    </h2>
+    <p class="text-muted mb-4">{{ 'cgm.lead'|trans }}</p>
+
+    {# ---------------------------------------------------------- intro #}
+    <div class="card p-4 mb-4 bg-light border-0">
+        <h5 class="fw-bold mb-2">{{ 'cgm.need_heading'|trans }}</h5>
+        <ul class="mb-2">{{ 'cgm.need_items'|trans|raw }}</ul>
+        <p class="small text-muted mb-0">{{ 'cgm.need_note'|trans }}</p>
+    </div>
+
+    {# ---------------------------------------------------------- step 1 #}
+    <div class="card p-4 mb-4" id="step-install">
+        <h5 class="fw-bold mb-2"><span class="badge text-bg-success rounded-pill me-2">1</span>
+            {{ 'cgm.step1_heading'|trans }}</h5>
+        <p>{{ 'cgm.step1_install'|trans({
+            'link': '<a href="https://apps.apple.com/us/app/health-auto-export-json-csv/id1115567069" target="_blank" rel="noopener">',
+            'link_end': '</a>',
+        })|raw }}</p>
+        {# QR + HAE screenshots hide themselves until the PNGs are committed. #}
+        <img src="{{ asset('images/help/connect-cgm-appstore-qr.png') }}" alt="{{ 'cgm.qr_alt'|trans }}"
+             width="140" height="140" class="mb-3" onerror="this.style.display='none'">
+        <p class="mb-0">{{ 'cgm.step1_permissions'|trans|raw }}</p>
+        <figure class="mt-3 mb-0 text-center">
+            <img src="{{ asset('images/help/connect-cgm-hae-permissions.png') }}"
+                 alt="{{ 'cgm.permissions_alt'|trans }}"
+                 class="img-fluid rounded border" style="max-height: 420px;"
+                 onerror="this.closest('figure').style.display='none'">
+        </figure>
+    </div>
+
+    {# ---------------------------------------------------------- step 2 #}
+    <div class="card p-4 mb-4" id="step-token">
+        <h5 class="fw-bold mb-2"><span class="badge text-bg-success rounded-pill me-2">2</span>
+            {{ 'cgm.step2_heading'|trans }}</h5>
+        <p>{{ 'cgm.step2_lead'|trans }}</p>
+
+        {% if plaintext %}
+            <div class="card border-success p-3 mb-2">
+                <label class="form-label fw-semibold text-success mb-1">
+                    <i class="bi bi-key-fill"></i> {{ 'cgm.token_reveal'|trans }}
+                </label>
+                <div class="input-group">
+                    <input type="text" class="form-control font-monospace" value="{{ plaintext }}"
+                           readonly id="new-token" onclick="this.select()">
+                    <button type="button" class="btn btn-outline-success" data-copy="#new-token">
+                        <i class="bi bi-clipboard"></i> {{ 'cgm.copy'|trans }}
+                    </button>
+                </div>
+                <div class="form-text mb-0">{{ 'cgm.token_once'|trans }}</div>
+            </div>
+        {% else %}
+            {% if tokens is not empty %}
+                <div class="alert alert-secondary py-2 small">{{ 'cgm.token_again'|trans }}</div>
+            {% endif %}
+            <form method="post" action="{{ path('app_connect_cgm_token') }}" class="m-0">
+                <input type="hidden" name="_token" value="{{ csrf_token('connect-cgm-token') }}">
+                <button type="submit" class="btn btn-success fw-semibold">
+                    <i class="bi bi-key"></i> {{ 'cgm.create_token'|trans }}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    {# ---------------------------------------------------------- step 3 #}
+    <div class="card p-4 mb-4" id="step-configure">
+        <h5 class="fw-bold mb-2"><span class="badge text-bg-success rounded-pill me-2">3</span>
+            {{ 'cgm.step3_heading'|trans }}</h5>
+        <p>{{ 'cgm.step3_lead'|trans|raw }}</p>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <tbody>
+                    <tr>
+                        <th class="text-nowrap" style="width: 9rem;">{{ 'cgm.row_url'|trans }}</th>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                {# Hardcoded production URL, NOT url()-derived: this is the one
+                                   address a user should ever paste into HAE, and url() would
+                                   burn the dev/test host into local renders + the committed
+                                   help screenshot. #}
+                                <input type="text" class="form-control font-monospace" readonly
+                                       id="cfg-url" value="https://nouriloop.com/api/health-metrics/health-export"
+                                       onclick="this.select()">
+                                <button type="button" class="btn btn-outline-secondary" data-copy="#cfg-url">
+                                    <i class="bi bi-clipboard"></i> {{ 'cgm.copy'|trans }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ 'cgm.row_method'|trans }}</th>
+                        <td><code>POST</code></td>
+                    </tr>
+                    <tr>
+                        <th>{{ 'cgm.row_format'|trans }}</th>
+                        <td><code>JSON</code></td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap">{{ 'cgm.row_header_name'|trans }}</th>
+                        <td>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control font-monospace" readonly
+                                       id="cfg-header" value="Authorization" onclick="this.select()">
+                                <button type="button" class="btn btn-outline-secondary" data-copy="#cfg-header">
+                                    <i class="bi bi-clipboard"></i> {{ 'cgm.copy'|trans }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap">{{ 'cgm.row_header_value'|trans }}</th>
+                        <td>
+                            {% if plaintext %}
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control font-monospace" readonly
+                                           id="cfg-bearer" value="Bearer {{ plaintext }}"
+                                           onclick="this.select()">
+                                    <button type="button" class="btn btn-outline-secondary" data-copy="#cfg-bearer">
+                                        <i class="bi bi-clipboard"></i> {{ 'cgm.copy'|trans }}
+                                    </button>
+                                </div>
+                            {% else %}
+                                <span class="text-muted">
+                                    {{ 'cgm.bearer_hint'|trans({
+                                        'link': '<a href="#step-token">',
+                                        'link_end': '</a>',
+                                    })|raw }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap">{{ 'cgm.row_data_type'|trans }}</th>
+                        <td>{{ 'cgm.data_type_body'|trans|raw }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap">{{ 'cgm.row_cadence'|trans }}</th>
+                        <td>{{ 'cgm.cadence_body'|trans|raw }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{ 'cgm.summarize_warning'|trans|raw }}
+        </div>
+
+        {% for shot in ['new-automation', 'config', 'datatype', 'aggregation'] %}
+        <figure class="mt-3 mb-0 text-center">
+            <img src="{{ asset('images/help/connect-cgm-hae-' ~ shot ~ '.png') }}"
+                 alt="{{ 'cgm.hae_screen_alt'|trans({'name': shot|replace({'-': ' '})}) }}"
+                 class="img-fluid rounded border" style="max-height: 420px;"
+                 onerror="this.closest('figure').style.display='none'">
+        </figure>
+        {% endfor %}
+    </div>
+
+    {# ---------------------------------------------------------- step 4 #}
+    <div class="card p-4 mb-4" id="step-export">
+        <h5 class="fw-bold mb-2"><span class="badge text-bg-success rounded-pill me-2">4</span>
+            {{ 'cgm.step4_heading'|trans }}</h5>
+        <p class="mb-0">{{ 'cgm.step4_body'|trans|raw }}</p>
+        <figure class="mt-3 mb-0 text-center">
+            <img src="{{ asset('images/help/connect-cgm-hae-manual-export.png') }}"
+                 alt="{{ 'cgm.manual_export_alt'|trans }}"
+                 class="img-fluid rounded border" style="max-height: 420px;"
+                 onerror="this.closest('figure').style.display='none'">
+        </figure>
+    </div>
+
+    {# ---------------------------------------------------------- step 5: verify #}
+    {% set rungToken   = status.tokenCreated ? 'done' : (status.state == 'no_token' ? 'active' : 'pending') %}
+    {% set rungPhone   = status.phoneReachedAt ? 'done' : (status.state == 'token_unused' ? 'active' : 'pending') %}
+    {% set rungArrived = status.recentCount > 0 ? 'done' : (status.state == 'waiting' ? 'active' : 'pending') %}
+    {% set rungQuality = status.state == 'dense' ? 'done' : (status.state == 'sparse' ? 'warn' : 'pending') %}
+    <div class="card p-4 mb-4" id="step-verify">
+        <h5 class="fw-bold mb-2"><span class="badge text-bg-success rounded-pill me-2">5</span>
+            {{ 'cgm.step5_heading'|trans }}</h5>
+        <p>
+            {{ 'cgm.step5_lead'|trans }}
+            <noscript>{{ 'cgm.noscript'|trans }}</noscript>
+        </p>
+
+        <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex align-items-start gap-2 px-0">
+                <span data-rung="token">{{ ui.rungIcon(rungToken) }}</span>
+                <div>
+                    <div class="fw-semibold">{{ 'cgm.rung_token'|trans }}</div>
+                    <div class="small text-muted">{{ 'cgm.rung_token_sub'|trans }}</div>
+                </div>
+            </li>
+            <li class="list-group-item d-flex align-items-start gap-2 px-0">
+                <span data-rung="phone">{{ ui.rungIcon(rungPhone) }}</span>
+                <div>
+                    <div class="fw-semibold">{{ 'cgm.rung_phone'|trans }}</div>
+                    <div class="small text-muted">{{ 'cgm.rung_phone_sub'|trans }}</div>
+                </div>
+            </li>
+            <li class="list-group-item d-flex align-items-start gap-2 px-0">
+                <span data-rung="arrived">{{ ui.rungIcon(rungArrived) }}</span>
+                <div>
+                    <div class="fw-semibold">{{ 'cgm.rung_arrived'|trans }}</div>
+                    <div class="small text-muted">
+                        <span data-fill="arrivedLine">{{ 'cgm.rung_arrived_sub'|trans({
+                            'count': status.recentCount,
+                            'hours': constant('App\\Service\\CgmSetupStatusService::RECENT_WINDOW_HOURS'),
+                        }) }}</span>{{ ' ' }}
+                        <span data-fill="latestWrap" class="{{ status.latestRecordedAt ? '' : 'd-none' }}">{{ 'cgm.rung_latest'|trans({
+                            'time': '<span data-fill="latest">' ~ status.latestRecordedAt ~ '</span>',
+                        })|raw }}</span>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item d-flex align-items-start gap-2 px-0">
+                <span data-rung="quality">{{ ui.rungIcon(rungQuality) }}</span>
+                <div>
+                    <div class="fw-semibold">{{ 'cgm.rung_quality'|trans }}</div>
+                    <div class="small text-muted">{{ 'cgm.rung_quality_sub'|trans }}</div>
+                </div>
+            </li>
+        </ul>
+
+        <div data-state-msg="no_token" class="alert alert-secondary mb-0 {{ status.state != 'no_token' ? 'd-none' }}">
+            {{ 'cgm.state_no_token'|trans({'link': '<a href="#step-token">', 'link_end': '</a>'})|raw }}
+        </div>
+        <div data-state-msg="token_unused" class="alert alert-secondary mb-0 {{ status.state != 'token_unused' ? 'd-none' }}">
+            {{ 'cgm.state_token_unused'|trans }}
+        </div>
+        <div data-state-msg="waiting" class="alert alert-info mb-0 {{ status.state != 'waiting' ? 'd-none' }}">
+            {{ 'cgm.state_waiting'|trans }}
+        </div>
+        <div data-state-msg="sparse" class="alert alert-warning mb-0 {{ status.state != 'sparse' ? 'd-none' }}">
+            {{ 'cgm.state_sparse'|trans({
+                'count': '<span data-fill="recentCount">' ~ status.recentCount ~ '</span>',
+            })|raw }}
+        </div>
+        <div data-state-msg="dense" class="alert alert-success mb-0 {{ status.state != 'dense' ? 'd-none' }}">
+            {{ 'cgm.state_dense'|trans({
+                'count': '<span data-fill="recentCount">' ~ status.recentCount ~ '</span>',
+                'gap': '<span data-fill="medianGap">' ~ status.medianGapMinutes ~ '</span>',
+            })|raw }}
+        </div>
+    </div>
+
+    {# ---------------------------------------------------------- success handoff #}
+    <div id="success-block" class="card p-4 mb-4 border-success {{ status.state != 'dense' ? 'd-none' }}">
+        <h5 class="fw-bold text-success mb-2"><i class="bi bi-patch-check-fill"></i> {{ 'cgm.success_heading'|trans }}</h5>
+        <p>{{ 'cgm.success_lead'|trans }}</p>
+        <ul class="mb-3">
+            <li>{{ 'cgm.success_chart'|trans({'link': '<a href="' ~ path('app_health_metrics') ~ '">', 'link_end': '</a>'})|raw }}</li>
+            <li>{{ 'cgm.success_meal'|trans({'link': '<a href="' ~ path('app_meal_log') ~ '">', 'link_end': '</a>'})|raw }}</li>
+            {% if cgmEnabled %}
+            <li>{{ 'cgm.success_insights'|trans({'link': '<a href="' ~ path('app_glucose_insights') ~ '">', 'link_end': '</a>'})|raw }}</li>
+            {% endif %}
+        </ul>
+        {% if not cgmEnabled %}
+        <div class="alert alert-info mb-0">
+            {{ 'cgm.upsell'|trans({
+                'link': '<a href="' ~ path('app_pricing') ~ '" class="fw-semibold">',
+                'link_end': '</a>',
+            })|raw }}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    'use strict';
+
+    // Localized line templates for the poller (ICU plurals render server-side;
+    // JS picks the one-branch or fills the plain template — see the catalog
+    // comment on predict.remaining_tpl for the same pattern + ru caveat).
+    var CGM_L = {{ {
+        'arrivedOne': 'cgm.rung_arrived_sub'|trans({'count': 1, 'hours': constant('App\\Service\\CgmSetupStatusService::RECENT_WINDOW_HOURS')}),
+        'arrivedTpl': 'cgm.rung_arrived_tpl'|trans({'count': '@n@', 'hours': constant('App\\Service\\CgmSetupStatusService::RECENT_WINDOW_HOURS')}),
+    }|json_encode|raw }};
+
+    // Copy buttons with visible feedback.
+    document.querySelectorAll('[data-copy]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var el = document.querySelector(btn.dataset.copy);
+            navigator.clipboard.writeText(el.value).then(function () {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> ' + {{ 'cgm.copied'|trans|json_encode|raw }};
+                setTimeout(function () { btn.innerHTML = orig; }, 2000);
+            });
+        });
+    });
+
+    // Live verification ladder. Mirrors the Twig initial render above — if you
+    // change the rung logic here, change it there too.
+    var ICONS = {
+        done:    '<i class="bi bi-check-circle-fill text-success fs-5"></i>',
+        warn:    '<i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>',
+        active:  '<span class="spinner-border spinner-border-sm text-secondary mt-1" role="status"></span>',
+        pending: '<i class="bi bi-circle text-muted fs-5"></i>'
+    };
+
+    function rungStates(s) {
+        return {
+            token:   s.tokenCreated ? 'done' : (s.state === 'no_token' ? 'active' : 'pending'),
+            phone:   s.phoneReachedAt ? 'done' : (s.state === 'token_unused' ? 'active' : 'pending'),
+            arrived: s.glucose.recentCount > 0 ? 'done' : (s.state === 'waiting' ? 'active' : 'pending'),
+            quality: s.state === 'dense' ? 'done' : (s.state === 'sparse' ? 'warn' : 'pending')
+        };
+    }
+
+    function fill(name, value) {
+        document.querySelectorAll('[data-fill="' + name + '"]').forEach(function (el) {
+            el.textContent = value;
+        });
+    }
+
+    function apply(s) {
+        var rungs = rungStates(s);
+        Object.keys(rungs).forEach(function (name) {
+            document.querySelector('[data-rung="' + name + '"]').innerHTML = ICONS[rungs[name]];
+        });
+        document.querySelectorAll('[data-state-msg]').forEach(function (el) {
+            el.classList.toggle('d-none', el.dataset.stateMsg !== s.state);
+        });
+        fill('recentCount', s.glucose.recentCount);
+        fill('arrivedLine', s.glucose.recentCount === 1
+            ? CGM_L.arrivedOne
+            : CGM_L.arrivedTpl.replace('@n@', s.glucose.recentCount));
+        if (s.glucose.medianGapMinutes !== null) { fill('medianGap', s.glucose.medianGapMinutes); }
+        var latestWrap = document.querySelector('[data-fill="latestWrap"]');
+        if (s.glucose.latestRecordedAt) {
+            fill('latest', s.glucose.latestRecordedAt);
+            latestWrap.classList.remove('d-none');
+        } else {
+            // Readings can age out of the recency window while the page sits
+            // open — hide the stale timestamp rather than keep showing it.
+            latestWrap.classList.add('d-none');
+        }
+        document.getElementById('success-block').classList.toggle('d-none', s.state !== 'dense');
+        if (s.state === 'dense' && timer) {
+            clearInterval(timer);
+            timer = null;
+        }
+    }
+
+    var timer = setInterval(function () {
+        if (document.hidden) { return; }
+        fetch('{{ path('app_connect_cgm_status') }}', { headers: { 'Accept': 'application/json' } })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (s) { if (s) { apply(s); } })
+            .catch(function () { /* transient network error — keep polling */ });
+    }, 10000);
+})();
+</script>
+{% endblock %}

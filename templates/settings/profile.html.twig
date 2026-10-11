@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.profile.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.profile.title'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.profile.lead'|trans }}</p>
+
+    <div class="card p-4 mt-3">
+        {{ form_start(form) }}
+
+        <div class="mb-3">
+            {{ form_label(form.displayName, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.displayName, {'attr': {'class': 'form-control' ~ (form.displayName.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.displayName) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.email, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.email, {'id': 'profile-email', 'attr': {'class': 'form-control' ~ (form.email.vars.errors|length ? ' is-invalid' : '')}}) }}
+            <div class="form-text">{{ 'settings.profile.email_help'|trans }}</div>
+            {{ form_errors(form.email) }}
+
+            {# Same warn-only deliverability check as registration; an unchanged
+               resubmit (the hidden ack) is accepted. Keys shared with /register. #}
+            {% if emailWarning %}
+            <div class="alert alert-warning mt-2 mb-0 small" id="email-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% if emailWarning.type == 'typo' %}
+                    {{ 'auth.register.email_warn_typo'|trans({'domain': emailWarning.domain}) }}
+                    <button type="button" id="email-suggest" class="btn btn-link btn-sm p-0 align-baseline fw-semibold"
+                            data-suggestion="{{ emailWarning.suggestedEmail }}">
+                        {{ 'auth.register.email_warn_use'|trans({'suggestion': emailWarning.suggestedEmail}) }}
+                    </button>
+                {% else %}
+                    {{ 'auth.register.email_warn_no_mx'|trans({'domain': emailWarning.domain}) }}
+                {% endif %}
+                <div class="mt-1">{{ 'auth.register.email_warn_confirm'|trans }}</div>
+            </div>
+            <input type="hidden" name="email_warning_ack" value="{{ emailWarningAck }}">
+            {% endif %}
+        </div>
+
+        {# Only relevant (and only enforced) when the email differs — revealed by
+           the inline JS below, server-rendered open when it carries an error. #}
+        {% set pwOpen = form.current_password.vars.errors|length > 0 %}
+        <div class="mb-3{{ pwOpen ? '' : ' d-none' }}" id="password-block" data-original-email="{{ app.user.email }}">
+            {{ form_label(form.current_password, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.current_password, {'attr': {'class': 'form-control' ~ (form.current_password.vars.errors|length ? ' is-invalid' : ''), 'style': 'max-width: 320px;'}}) }}
+            <div class="form-text">{{ 'settings.profile.password_help'|trans }}</div>
+            {{ form_errors(form.current_password) }}
+        </div>
+
+        <button type="submit" class="btn btn-success fw-semibold mt-2">{{ 'settings.profile.save'|trans }}</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ include('_password_toggle.html.twig') }}
+<script>
+// Reveal the current-password field only when the email actually differs from
+// the account's (progressive disclosure — the server enforces regardless).
+(function () {
+    const email = document.getElementById('profile-email');
+    const block = document.getElementById('password-block');
+    if (!email || !block) return;
+    const update = () => {
+        const differs = email.value.trim().toLowerCase() !== block.dataset.originalEmail.toLowerCase();
+        if (differs) block.classList.remove('d-none');
+        else if (!block.querySelector('.is-invalid')) block.classList.add('d-none');
+    };
+    email.addEventListener('input', update);
+    update();
+})();
+
+// One-click typo correction (same behavior as the registration page).
+(function () {
+    const btn = document.getElementById('email-suggest');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        const email = document.getElementById('profile-email');
+        const warning = document.getElementById('email-warning');
+        const ack = document.querySelector('input[name="email_warning_ack"]');
+        if (email) { email.value = btn.dataset.suggestion; email.dispatchEvent(new Event('input')); }
+        if (warning) warning.remove();
+        if (ack) ack.remove();
+    });
+})();
+</script>
+{% endblock %}

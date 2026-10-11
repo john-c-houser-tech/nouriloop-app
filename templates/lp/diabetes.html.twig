@@ -1,0 +1,78 @@
+{% extends 'lp/_layout.html.twig' %}
+
+{# Campaign A + Meta Campaign 1 landing page. Copy rule (Marketing Plan §2): say
+   "blood sugar"/"glucose", never the condition name — the /lp/diabetes slug is an
+   internal campaign name, not displayed text. The rule holds in EVERY locale
+   (es: "glucosa"/"azúcar en sangre", never the condition word). #}
+
+{% block lp_title %}{{ 'lp.diabetes.title'|trans }} — NouriLoop{% endblock %}
+{% block lp_headline %}{{ 'lp.diabetes.headline'|trans }}{% endblock %}
+{% block lp_lead %}{{ 'lp.diabetes.lead'|trans }}{% endblock %}
+{% block lp_cta_label %}{{ 'lp.diabetes.cta'|trans }}{% endblock %}
+
+{# The sensor x platform matrix, in lp_precta so it sits ABOVE the first
+   register link (Marketing Plan §7.7). On Android only Stelo writes glucose to
+   Health Connect first-party — Lingo doesn't share readings with other apps at
+   all — so the page's "works with your Lingo or Stelo" promise silently fails
+   for Android+Lingo. Losing those clicks is the point: they were paid for and
+   could never convert, so the caveat is worthless below the button. #}
+{% block lp_precta %}
+    <div class="alert alert-light border small text-start mb-4">
+        {{ 'lp.diabetes.sensor_note'|trans|raw }}</div>
+{% endblock %}
+
+{% block lp_body %}
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/lp/meal-glucose-curve.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="{{ 'lp.diabetes.curve_alt'|trans }}">
+</figure>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.diabetes.one_place_heading'|trans }}</h2>
+    <p>{{ 'lp.diabetes.one_place_intro'|trans }}</p>
+    <ul class="mb-0">{{ 'lp.diabetes.one_place_items'|trans|raw }}</ul>
+</section>
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/lp/glucose-insights.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="{{ 'lp.diabetes.insights_alt'|trans }}">
+</figure>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.diabetes.price_heading'|trans }}</h2>
+    <p>{{ 'lp.diabetes.price_body'|trans({'price': subscription_price('loop_plus', 'annual')})|raw }}</p>
+    <div class="row g-3 mb-0">
+        <div class="col-sm-6">
+            <div class="border rounded-3 p-3 h-100 bg-light">
+                <div class="fw-semibold">{{ 'lp.diabetes.compare_them_name'|trans }}</div>
+                <div class="fs-4 fw-bold">{{ 'lp.diabetes.compare_them_price'|trans }}</div>
+                <div class="small text-muted">{{ 'lp.diabetes.compare_them_sub'|trans }}</div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold">NouriLoop Loop+</div>
+                <div class="fs-4 fw-bold">{{ 'lp.diabetes.compare_us_price'|trans({'price': subscription_price('loop_plus', 'annual')}) }}</div>
+                <div class="small text-muted">{{ 'lp.diabetes.compare_us_sub'|trans }}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.diabetes.confidence_heading'|trans }}</h2>
+    <p class="mb-0">{{ 'lp.diabetes.confidence_body'|trans }}</p>
+</section>
+
+<section class="mb-4">
+    <div class="border rounded-3 p-3 bg-light">
+        <p class="mb-0">{{ 'lp.diabetes.founder'|trans|raw }}</p>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block lp_footnote %}
+    {{ 'lp.diabetes.footnote'|trans({'price': subscription_price('loop_plus', 'annual')}) }}
+{% endblock %}

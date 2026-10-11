@@ -1,0 +1,10 @@
+framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
+        # Default From for all mail; override per environment in .env.local. Must be
+        # a real, send-authorized mailbox on your domain (e.g. via IONOS SMTP).
+        # Reply-To is a free header (need not be the authenticated mailbox): point
+        # replies at an unmonitored noreply box so they don't hit the From mailbox.
+        headers:
+            From: '%env(MAILER_FROM)%'
+            Reply-To: 'noreply@nouriloop.com'

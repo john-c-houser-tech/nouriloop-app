@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="App">
+    <description>PSR-12 coding standard for the Nutrition app.</description>
+
+    <file>src</file>
+    <file>tests</file>
+
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <rule ref="PSR12"/>
+
+    <!-- Curated prose-data file (humorous disclaimers): line length is meaningless
+         for the string literals, and wrapping them with concatenation hurts readability. -->
+    <rule ref="Generic.Files.LineLength">
+        <exclude-pattern>src/Content/WellnessDisclaimers.php</exclude-pattern>
+    </rule>
+</ruleset>

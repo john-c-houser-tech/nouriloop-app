@@ -1,0 +1,15 @@
+{# Top-of-page in-flow alert bar (not position:fixed) so it can't stack with the
+   onboarding overlay (bottom-right floating) or the cookie-consent bar (bottom
+   floating). Shown on every authenticated page while a self-service account
+   deletion is pending. #}
+<div class="alert alert-warning mb-0 rounded-0 text-center" role="alert">
+    {# The purge date is a server-frame instant — user_date shows the signed-in
+       user's own calendar day (Copilot catch on PR #153). #}
+    {{ 'chrome.deletion_banner.text'|trans({
+        'date': '<strong>' ~ deletionScheduledFor|user_date('yMMMMd') ~ '</strong>',
+    })|raw }}
+    <form method="post" action="{{ path('app_settings_account_cancel_deletion') }}" class="d-inline">
+        <input type="hidden" name="_token" value="{{ csrf_token('account-cancel-deletion') }}">
+        <button type="submit" class="btn btn-sm btn-warning fw-semibold ms-2">{{ 'chrome.deletion_banner.cancel'|trans }}</button>
+    </form>
+</div>

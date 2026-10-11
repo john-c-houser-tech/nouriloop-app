@@ -1,0 +1,74 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Symptom Tracking{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/symptoms.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Symptom Tracking page with a daily 0–10 slider per symptom">
+</figure>
+<p>Symptom tracking closes the loop between what you eat and how you feel. You pick the symptoms that matter to
+you, rate them daily, and NouriLoop looks for connections with your diet.</p>
+
+<h2 class="h5 fw-bold mt-4">Getting started</h2>
+<ol>
+    <li>Open the <strong>Symptoms</strong> page.</li>
+    <li>In <strong>Manage symptoms</strong>, turn on the ones you care about — joint pain, stiffness,
+        bloating, headache, energy, mental clarity — or add your own.</li>
+    <li>Each day, slide each symptom from 0 to 10. For "good" symptoms like energy, a higher number is
+        better; for others, lower is better.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">Reading the relationship charts</h2>
+<p>Once you've logged a symptom for a few days, it gets its own tile on <strong>Insights &amp; Trends</strong>.
+Tapping the tile opens a panel like this one for joint stiffness:</p>
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/symptoms-chart.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="A Trends relationship panel for joint stiffness, with small-multiples charts stacking the symptom against protein, carbs, fat, fiber, and inflammation score">
+</figure>
+
+<p>Each factor — diet macros, your <a href="{{ path('app_help_show', {topic: 'inflammation'}) }}">inflammation
+score</a>, and (if you import them) health metrics like sleep or steps — gets its own compact chart in its
+<strong>real units</strong>, stacked directly under the symptom. Rather than untangling several lines squashed
+onto one shared, normalized axis, you scan straight down a column: does a spike in the symptom line up with a
+spike — or a dip — just below it?</p>
+
+<h2 class="h5 fw-bold mt-4">What "statistically significant" means</h2>
+<p>Below each chart, NouriLoop calls out only the factors worth your attention:</p>
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/symptoms-significance.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The significant-correlations callouts under a joint stiffness panel, listing factors like protein and fiber with their r-values and day counts">
+</figure>
+
+<p>You don't need a statistics background to use this — here's the plain-language version of what's checked
+before a factor makes that list:</p>
+<ul>
+    <li><strong>Enough days to trust.</strong> There have to be at least 7 days where you logged both the
+        symptom and the factor. One unusually good or bad day can't fake a pattern that needs a week or more of
+        days lining up.</li>
+    <li><strong>Not just a coincidence.</strong> NouriLoop runs a standard statistical test that asks: "if there
+        were really no connection here, how likely is it we'd still see a pattern this strong just by luck?"
+        A factor only makes the list when that chance is under 5% — what statisticians call
+        <strong>p &lt; 0.05</strong>.</li>
+</ul>
+<p>The <strong>r</strong> number next to each factor (like <code>r = 0.6</code>) says how tightly the two move
+together, from <strong>−1</strong> (perfectly opposite — one goes up as the other goes down) through
+<strong>0</strong> (no relationship) to <strong>+1</strong> (perfectly together). The closer to −1 or +1, the
+stronger the pattern. And <strong>same-day vs. next-day</strong> just tells you when it showed up — sometimes
+what you eat today doesn't affect a symptom until tomorrow, so NouriLoop checks both.</p>
+<p>One more thing worth remembering: these are <strong>descriptive, not causal</strong>. A significant
+correlation is a good lead for your own experimenting — it doesn't prove that factor is <em>causing</em> the
+symptom, and it isn't a diagnosis.</p>
+
+<p class="text-muted small">Symptom tracking is optional and entirely opt-in — nothing shows up until you
+enable a symptom, and a relationship panel needs a few logged days before it has anything to chart.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'inflammation'}) }}">Inflammation Score</a></li>
+</ul>
+{% endblock %}

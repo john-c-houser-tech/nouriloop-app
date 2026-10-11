@@ -1,0 +1,36 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+# Browser drivers fetched by bdi (vendor/bin/bdi detect drivers) for Panther E2E.
+/drivers/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+# User-uploaded meal photos — runtime data, not source
+/public/uploads/
+
+# Local-only helper scripts (kept on dev/prod boxes, not part of the app)
+/bin/test-email.php
+
+# macOS Finder metadata
+.DS_Store
+
+# Editor / local tooling config
+/.idea/
+/.claude/

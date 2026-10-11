@@ -1,0 +1,2859 @@
+# English source catalog (i18n Phase 1). ICU MessageFormat domain — use ICU
+# plural/select syntax for anything countable. Keys are dot-nested by module;
+# nested YAML flattens to dotted keys ('settings.language.title').
+#
+# Sentences with embedded links use ICU placeholders for the markup
+# ({terms_link}…{link_end}) rendered with |raw — values are trusted catalog
+# text, and this lets a translator reorder the sentence around the link.
+common:
+    heic_failed: >-
+        We couldn't process that image format. Please convert it to JPEG or
+        PNG and try again.
+    session_expired: Your session expired — please try again.
+chrome:
+    nav:
+        today: Today
+        log: Log
+        history: Meal History
+        trends: Insights & Trends
+        goals: Goals
+        more: More
+        supplements: Supplements
+        health_metrics: Health Metrics
+        glucose_insights: Glucose Insights
+        symptoms: Symptoms
+        predict: Predict "What If"
+        notifications: Notifications
+        help: Help
+        upgrade: Upgrade
+        settings: Settings
+        admin_users: Users
+        admin_favorites: Favorite savings
+        logout: Logout
+    bell:
+        aria: Notifications
+        unread_sr: unread notifications
+        header: Notifications
+        new_count: '{count, plural, one {# new} other {# new}}'
+        empty: No notifications yet.
+        see_all: See all notifications
+    help_button:
+        title: Help — ask a question
+        aria: Open NouriLoop help
+    footer:
+        feedback: Send us feedback
+    deletion_banner:
+        text: Your account will be permanently deleted on {date}.
+        cancel: Cancel deletion
+    tz_banner:
+        text: Times in NouriLoop use {account}, but your device looks like it is in {browser}.
+        switch: Use my device's timezone
+        dismiss: Keep current
+    verify_banner:
+        text: >-
+            Please confirm your email address so sign-in links and reminders can
+            reach you.
+        resend: Resend confirmation email
+    cookies:
+        aria: Cookie consent
+        text: >-
+            We use Google Analytics and the Meta Pixel to see how people find
+            and use NouriLoop. Their cookies stay off unless you accept, and
+            your meals and health data never go to them. See our
+            {link}Terms{link_end}.
+        decline: Decline
+        accept: Accept
+auth:
+    or: or
+    back_to_sign_in: Back to sign in
+    honeypot: Leave this field blank
+    passphrase_tip: >-
+        Tip: three or four random words ("coffee maple birdsong") make a
+        password that's both strong and easy to remember.
+    human_check_failed: Could not verify you are human. Please try again.
+    password_toggle:
+        show: Show password
+        hide: Hide password
+    login:
+        title: Sign In
+        hero_headline: See what your food does to you
+        hero_lead: >-
+            Snap a photo of your meal. We analyze it. See how it lines up with
+            your nutrition, inflammation score, blood glucose, and sleep.
+        hero_cycle_alt: >-
+            The NouriLoop cycle: log your meal, we analyze it, you see the
+            patterns, then repeat.
+        hero_log: Log
+        hero_analyze: Analyze
+        hero_effect: See patterns
+        heading: Sign in
+        email: Email
+        password: Password
+        forgot: Forgot password?
+        submit: Sign In
+        magic_link: Email me a sign-in link
+        new_here: New to NouriLoop?
+        sign_up: Sign up for a free account
+        no_card: No credit card needed.
+        learn_more: Learn more about NouriLoop
+    register:
+        title: Create Account
+        subtitle: Create your account
+        display_name: Display Name
+        email: Email Address
+        coupon: Coupon (optional)
+        coupon_help: >-
+            Have a coupon? Enter it below. No coupon? Leave it blank — you'll
+            start on the free plan.
+        password: Password
+        confirm_password: Confirm Password
+        submit: Create Account
+        have_account: Already have an account?
+        sign_in: Sign in
+        agree: >-
+            By creating an account you agree to our {terms_link}Terms of
+            Service{link_end}. Our {privacy_link}Health Data Privacy
+            Notice{link_end} explains how we handle your data.
+        success: Account created! Please log in.
+        welcome: Welcome to NouriLoop! Your account is ready.
+        have_coupon: Have a coupon?
+        pw_length_ok: At least 8 characters
+        pw_length_short: Needs at least 8 characters
+        pw_match: Passwords match
+        pw_mismatch: Passwords don't match yet
+        email_warn_typo: "{domain} looks like a misspelling."
+        email_warn_use: "Use {suggestion}"
+        email_warn_no_mx: >-
+            We couldn't find a mail server at {domain} — please double-check
+            your email address.
+        email_warn_confirm: >-
+            A wrong address means no reminders and no way to reset your
+            password. If the address is correct, re-enter your password and
+            submit again — we only ask once.
+        invalid_coupon: Invalid or expired coupon.
+    reset:
+        title: Reset Password
+        subtitle: Enter your email and we'll send a reset link
+        email: Email
+        submit: Send reset link
+        check_heading: Check your email
+        check_lead: >-
+            If an account matches that email, we've just sent a link you can
+            use to reset your password. This link will expire in {expiration}.
+        retry: Didn't receive it?
+        try_again: Try again
+        new_title: New Password
+        new_subtitle: Choose a new password for your account
+        new_password: New password
+        repeat_password: Repeat password
+        submit_new: Reset password
+        done: Your password has been reset. Please log in.
+    link:
+        title: Email Me a Sign-In Link
+        heading: Sign in by email
+        subtitle: No password needed
+        lead: >-
+            Type your email and we'll send you a link that signs you in — no
+            password to remember or type. The link works for 15 minutes.
+        email: Email
+        submit: Email me a sign-in link
+        new_here: New to NouriLoop?
+        create_account: Create your account
+        sent_title: Check Your Email
+        sent_heading: Check your email
+        sent_lead: >-
+            If an account exists for that address, a sign-in link is on its
+            way. Open the email and tap the button — the link works for 15
+            minutes.
+        sent_nothing: >-
+            Nothing arriving? Check your spam folder, or {link}request another
+            link{link_end}.
+        confirm_title: Finish Signing In
+        confirm_heading: Almost there
+        confirm_lead: One tap and you're signed in.
+        confirm_submit: Finish signing in
+        confirm_footer: Didn't request this? You can safely close this page.
+        too_many: Too many sign-in links requested. Please try again later.
+        to_phone_sent: >-
+            Sent. Open the email on your phone and tap the button to pick up where
+            you left off — the link works for 15 minutes.
+        to_phone_failed: We couldn't send that link just now. Please try again.
+dashboard:
+    ghost:
+        preview: "Preview"
+        inflammation_text: >-
+            Log a few meals and NouriLoop scores how inflammatory your day's
+            food was — this card fills in on its own.
+        glucose_text: >-
+            Wear a glucose sensor (Lingo or Stelo)? Connect it and every meal
+            you log gets its own glucose-response curve here.
+        glucose_cta: "Connect your CGM"
+    title: Dashboard
+    greeting: >-
+        {period, select, morning {Good morning} afternoon {Good afternoon}
+        other {Good evening}}, {name}!
+    log_meal: Log Meal
+    sync:
+        none: No health data yet.
+        import_cta: Import or sync your health data
+        today: Health data synced today
+        latest: latest reading {time}
+        last_reading: >-
+            Last health reading {date} ({count, plural, one {# day ago}
+            other {# days ago}})
+        stale: >-
+            {count, plural, one {No health reading in # day}
+            other {No health reading in # days}}
+        check_cta: Import or check your sync
+    calories:
+        kcal_today: kcal today
+        target: '{percent}% of 2,000 kcal target'
+    protein:
+        today: protein today
+        focus: Protein focus
+        to_go: '{grams} g to go'
+        reached: Target reached
+        target: '{percent}% of {grams} g target'
+        scaled: (scaled to your body weight)
+        set_weight: (set a weight reading for a personalized target)
+    inflammation:
+        heading: Your food's effect today
+        tooltip: >-
+            Educational estimate from today's logged foods, not medical advice.
+        see_trends: See trends
+        pushed_pro: Pushed pro-inflammatory
+        pushed_anti: Pushed anti-inflammatory
+        band:
+            strong_anti: Anti-inflammatory
+            mild_anti: Mildly anti-infl.
+            neutral: Neutral
+            mild_pro: Mildly pro-infl.
+            strong_pro: Pro-inflammatory
+        takeaway:
+            strong_anti: Today's meals lean anti-inflammatory — nice work.
+            mild_anti: Today's meals lean mildly anti-inflammatory.
+            neutral: Today's meals are about inflammation-neutral so far.
+            mild_pro: Today's meals lean mildly pro-inflammatory.
+            strong_pro: >-
+                Today's meals lean pro-inflammatory — worth balancing out.
+    symptoms:
+        heading: How do you feel today?
+        manage: Manage…
+        save: Save check-in
+    glucose:
+        heading: Today's glucose responses
+        insights: Insights…
+        empty: >-
+            No meals with enough glucose readings yet today. Responses appear
+            here as your sensor data fills in after each meal.
+    meals:
+        empty: No meals logged today yet.
+        log_first: Log Your First Meal
+        heading: Today's Meals
+        photo_alt: Meal photo
+        protein: protein
+        history_link: View meal history
+goal:
+    summary_pattern: '{aggregation} {metric} {direction} {target} {unit}'
+    metric:
+        calories: Calories
+        protein: Protein
+        carbohydrates: Carbohydrates
+        fat: Fat
+        saturated_fat: Saturated fat
+        fiber: Fiber
+        sugar: Sugar
+        sodium: Sodium
+    direction:
+        at_most: at most
+        at_least: at least
+        maintain: around
+    aggregation:
+        daily_average: daily average
+        window_total: window total
+    frequency:
+        daily: Daily
+        weekly: Weekly
+    output:
+        summary: Text summary
+        chart: Summary with chart
+        report: Full report
+    status:
+        achieved: Goal achieved
+        on_track: On track
+        off_track: Off track
+        no_data: No meals logged
+        error: Evaluation failed
+        on_track_hint_first: First check-in — nothing to compare against yet
+        on_track_hint_improving: >-
+            {direction, select, at_least {Below target, trending up} at_most
+            {Above target, trending down} other {Outside the range, moving
+            closer}}
+    checkin:
+        no_data: >-
+            No meals were logged in the last {days} days, so there's nothing to
+            measure for "{name}" yet. Log a few meals and your next check-in
+            will have something to show.
+        fallback: '{status}: you are at {current} {unit} against a target of {target}. {trend}'
+        trend_first: >-
+            This is the first check-in, so there is no previous period to
+            compare against.
+        trend_improving: >-
+            Improving — {current} {unit} now vs. {prev} {unit} over the
+            previous {days} days.
+        trend_slipping: >-
+            Slipping — {current} {unit} now vs. {prev} {unit} over the
+            previous {days} days.
+        trend_holding: >-
+            Holding steady — {current} {unit} now vs. {prev} {unit} over the
+            previous {days} days.
+    day:
+        1: Monday
+        2: Tuesday
+        3: Wednesday
+        4: Thursday
+        5: Friday
+        6: Saturday
+        7: Sunday
+    day_short:
+        1: Mon
+        2: Tue
+        3: Wed
+        4: Thu
+        5: Fri
+        6: Sat
+        7: Sun
+    ref:
+        calories: >-
+            There is no one-size-fits-all calorie target — it depends on your
+            body size, activity, and goals. Most adults fall between 1,600 and
+            2,800 kcal/day.
+        protein: >-
+            The Daily Value for protein is 50 g/day; active people often aim
+            higher (roughly 1.2–1.6 g per kg of body weight).
+        carbohydrates: The Daily Value for total carbohydrate is 275 g/day (2,000 kcal basis).
+        fat: The Daily Value for total fat is 78 g/day (2,000 kcal basis).
+        saturated_fat: >-
+            The Daily Value for saturated fat is 20 g/day; diets lower in
+            saturated fat are generally encouraged.
+        fiber: >-
+            The Daily Value for fiber is 28 g/day (about 14 g per 1,000 kcal).
+            Most adults get far less than this.
+        sugar: The Daily Value for added sugars is 50 g/day; less is generally better.
+        sodium: The Daily Value for sodium is 2,300 mg/day.
+    warning:
+        positive_target: The target value should be greater than zero.
+        maintain_range: A "maintain" goal needs an upper value greater than the lower value.
+        window_range: The evaluation window should be between 1 and 90 days.
+        calorie_floor: >-
+            A calorie ceiling of {target} kcal/day is below {floor} kcal —
+            very low for most adults. Consider reviewing this with a
+            healthcare professional.
+        calorie_ceiling: A calorie floor of {target} kcal/day is unusually high.
+        at_least_limit: >-
+            Setting a goal to consume *at least* {target} {unit} of {metric}
+            is unusual — these are typically things to limit. Double-check the
+            direction.
+    index:
+        title: Goals
+        heading: Nutrition Goals
+        new: New goal
+        lead: >-
+            Set a measurable goal and NouriLoop will check your logged meals
+            against it on a schedule, sending you a progress note. This is
+            wellness feedback, not medical advice.
+        empty: You haven't set any goals yet.
+        create_first: Create your first goal
+        paused: Paused
+        due_now: due now
+        next: next {time}
+    chat:
+        title: New goal
+        heading: Set a Goal
+        manual: Set it up manually
+        back: Goals
+        greeting: >-
+            Hi! I can help you set a nutrition goal. Tell me what you'd like
+            to work on — something like "eat less sugar", "get more fiber", or
+            "keep my calories steady" — and I'll help turn it into something
+            measurable we can track.
+        proposal_fallback: Your goal
+        target: 'Target:'
+        window: 'Window:'
+        window_val: '{days, plural, one {last # day} other {last # days}} ({aggregation})'
+        checkin: 'Check-in:'
+        at: '{frequency} at {time}'
+        output: 'Output:'
+        warnings_heading: 'Worth a second look:'
+        ack: I understand and want to create this goal anyway.
+        create: Create this goal
+        keep_chatting: or keep chatting below to adjust it.
+        reply_ph: Type your reply…
+        message_aria: Message
+        start_over: Start over
+        error_reply: Sorry — I had trouble responding just now. Please try again.
+        too_long: Please keep each message under {max} characters.
+        turn_limit: "This conversation has gotten long. Start over below with a fresh summary of what you'd like to work on."
+        rate_limited: "You've sent a lot of messages in the last hour. Please try again a little later."
+        no_proposal: There is no goal to confirm yet — keep chatting until I propose one.
+        daily_note: >-
+            Daily check-ins are part of Loop+, so this goal will check in
+            weekly. {link}See plans{link_end}.
+    starter:
+        heading: Quick start
+        lead: The most common aims, one tap each — pick one and it's set.
+        note: >-
+            One tap creates the goal with a weekly check-in. Targets start at
+            standard daily values, adjusted to your own history — you can edit
+            or delete it anytime.
+        or_chat: Or describe your own goal in the chat below.
+        fiber: Eat more fiber
+        protein: Hit a daily protein target
+        sugar: Cut back on sugar
+        calories: Stay under a calorie target
+        name_fiber: More fiber
+        name_protein: More protein
+        name_sugar: Less sugar
+        name_calories: Calorie target
+    created: Goal created. Your first check-in is scheduled for {time}.
+    form:
+        heading: New Goal
+        back: Back
+        chat_hint: >-
+            Not sure what target to pick? {link}Set it up with a guided chat
+            instead{link_end} — it suggests sensible numbers based on your
+            logs.
+        double_check: 'Please double-check this goal:'
+        ack: I understand and want to set this goal anyway.
+        name: Goal name
+        optional: (optional)
+        name_ph: e.g. Cut back on sugar
+        track: Track
+        direction: Direction
+        target: Target
+        to: to
+        upper_ph: upper
+        target_ph: e.g. 30
+        measured_as: Measured as
+        window_days: Evaluation window (days)
+        schedule: Check-in schedule
+        frequency: Frequency
+        daily_locked: >-
+            Daily check-ins are part of Loop+ — {link}see plans{link_end}.
+        day: Day
+        time: Time
+        hour_aria: Hour
+        minute_aria: Minute
+        time_note: 24-hour, your local time.
+        delivery: Delivery
+        output_format: Output format
+        channel_note: >-
+            Check-ins are delivered via your {link}notification channel
+            setting{link_end}.
+        create: Create goal
+        hint_baseline: You currently average about {n} {unit}/day.
+        hint_none: No recent meals logged, so there's no baseline yet.
+    show:
+        all_goals: All goals
+        paused: Paused
+        definition: Definition
+        metric: 'Metric:'
+        target: 'Target:'
+        window: 'Window:'
+        window_val: '{days, plural, one {last # day} other {last # days}}, {aggregation}'
+        by: 'By:'
+        schedule_delivery: Schedule & delivery
+        runs: 'Runs:'
+        runs_at: at {time}
+        next_run: 'Next run:'
+        last_run: 'Last run:'
+        never: never
+        output: 'Output:'
+        channel: 'Channel:'
+        channel_val: via your {link}notification channel setting{link_end}
+        channel_inapp: in-app (the bell and this page) — email/SMS delivery comes with Loop+
+        allowance: '{used} of {limit} included check-ins used.'
+        allowance_link: Upgrade for unlimited check-ins.
+        paused_allowance_heading: Check-ins paused
+        paused_allowance_body: >-
+            You've used all {limit} check-ins included with your free
+            account. Your goal and its full history stay right here —
+            upgrade to keep the check-ins coming.
+        upgrade_resume: Upgrade to resume check-ins
+        resume_locked: >-
+            You've used all {limit} included check-ins — upgrade to resume
+            this goal's check-ins.
+        pause: Pause
+        resume: Resume
+        delete: Delete
+        delete_confirm: Delete this goal and its check-in history?
+        prompt_heading: Evaluation prompt
+        prompt_advanced: (advanced)
+        prompt_note: >-
+            This is the prompt NouriLoop sends to Claude on each check-in. The
+            progress numbers are computed in the app and inserted via the
+            {placeholders}; you can reword the rest.
+        prompt_save: Save prompt
+        prompt_too_long: >-
+            That prompt is too long ({chars} characters; the limit is
+            {limit}). Please shorten it.
+        prompt_updated: '“{name}” prompt updated (now v{version}).'
+        prompt_no_changes: No changes to the evaluation prompt.
+        checkins: Check-in history
+        no_checkins: No check-ins yet.
+        first_runs: The first runs {time}.
+        vs_target: '{value} {unit} vs. target {target} {unit}'
+        chart_alt: Progress chart
+        tokens: '{count, plural, one {# token} other {# tokens}}'
+        resumed: Goal resumed.
+        paused_flash: Goal paused.
+        deleted: Goal deleted.
+    notice:
+        allowance_paused_title: Check-ins paused for “{name}”
+        allowance_paused_body: >-
+            You've used all {limit} check-ins included with your free
+            account. Your goal and its history are untouched — upgrade to
+            keep weekly check-ins coming.
+        daily_to_weekly_title: “{name}” now checks in weekly
+        daily_to_weekly_body: >-
+            Daily check-ins are part of Loop+, so this goal now checks in
+            weekly. Everything else is unchanged.
+cgm:
+    title: Connect Your CGM
+    heading: Connect Your Lingo or Stelo
+    lead: >-
+        A one-time setup that sends your glucose readings to NouriLoop
+        automatically, so every meal you log gets its own blood-sugar
+        response curve.
+    need_heading: What you'll need
+    need_items: >-
+        <li>An <strong>Abbott Lingo</strong> or <strong>Dexcom Stelo</strong>
+        sensor that's already showing readings in the Apple
+        <strong>Health</strong> app on your iPhone.</li> <li>Your
+        <strong>iPhone</strong> and about <strong>10 minutes</strong>.</li>
+        <li>A small helper app called <strong>Health Auto Export</strong>
+        (Step 1). It does the sending; its automatic-sync feature needs the
+        app's own small subscription (Basic is $2.99, or $6.99 for a year of
+        Premium).</li>
+    need_note: >-
+        Before you start: open the Health app and confirm you can see recent
+        glucose readings there. If Health has no readings, NouriLoop can't
+        receive any either — check your sensor's own app first.
+    step1_heading: Install "Health Auto Export"
+    step1_install: >-
+        On your iPhone, install {link}Health Auto Export – JSON+CSV{link_end}
+        from the App Store. Reading this on a computer? Point your iPhone
+        camera at the QR code below to jump straight there.
+    qr_alt: App Store QR code
+    step1_permissions: >-
+        When you first open it, it asks for permission to read your Health
+        data. Tapping <strong>Turn On All</strong> is easiest — but you're in
+        control: if you prefer, turn on only what you want NouriLoop to see.
+        <strong>Blood Glucose</strong> is the one this setup needs;
+        <strong>Weight, Steps, Sleep, Heart Rate, and Blood Pressure</strong>
+        are also put to good use in your charts and trends.
+    permissions_alt: Health access prompt with Blood Glucose enabled
+    step2_heading: Create your NouriLoop access token
+    step2_lead: >-
+        The token is like a special password that lets the helper app — and
+        only it — send health data to your NouriLoop account.
+    token_reveal: Your new token — you'll paste it in Step 3
+    copy: Copy
+    copied: Copied
+    token_once: >-
+        For your security this is the only time it's shown — but don't worry
+        about memorizing it: Step 3 below already includes it, ready to copy.
+    token_again: >-
+        You already have a token, but for your security we only show a token
+        once. That's fine — just create a fresh one and use it below.
+    create_token: Create my token
+    step3_heading: Set up the automation in Health Auto Export
+    step3_lead: >-
+        In the Health Auto Export app, open <strong>Automations</strong> and
+        create a new <strong>REST API</strong> automation. Enter exactly
+        these values — use the Copy buttons and paste on your phone (if
+        you're signed in to iCloud on both, copying here usually lets you
+        paste there):
+    row_url: URL
+    row_method: Method
+    row_format: Export format
+    row_header_name: Header name
+    row_header_value: Header value
+    bearer_hint: >-
+        <code>Bearer</code> + a space + your token — do {link}Step
+        2{link_end} first and this fills in for you.
+    row_data_type: Data type
+    data_type_body: >-
+        <strong>Health Metrics</strong>, then under "Select Health Metrics"
+        tapping <strong>Select All</strong> is easiest — NouriLoop charts
+        glucose, weight, steps, sleep, heart rate, and blood pressure, and
+        simply ignores anything else. Prefer to share less? Select only
+        <strong>Blood Glucose</strong> (the one this setup needs) plus
+        whichever of the others you want NouriLoop to see.
+    row_cadence: Sync cadence
+    cadence_body: >-
+        Once a <strong>day</strong> is plenty — each morning's sync brings
+        yesterday's curves. Prefer same-day curves? A faster cadence (say,
+        hourly) is fine too; NouriLoop ignores readings it already has.
+    summarize_warning: >-
+        <strong>One setting matters more than any other:</strong> in Export
+        Settings, turn <strong>Summarize Data off</strong>. When it's on, the
+        app sends daily summaries instead of your actual readings — they
+        still import, but a whole day collapses into a single number, and
+        NouriLoop needs the ~5-minute readings to draw your meal curves. The
+        rest are fine as they come (Export Format <code>JSON</code>, Export
+        Version v2, Date Range Default); turning <strong>Batch Requests
+        on</strong> is a good idea — it splits a big first export into
+        smaller sends.
+    hae_screen_alt: Health Auto Export — {name} screen
+    step4_heading: Send your first export
+    step4_body: >-
+        Save the automation, then run it once by hand — open it and tap its
+        manual <strong>export / update</strong> button. (After this first
+        time, the app sends new readings on the schedule you chose.)
+    manual_export_alt: Health Auto Export — manual export trigger
+    step5_heading: Watch it arrive
+    step5_lead: >-
+        This page checks for your data automatically every few seconds —
+        leave it open while you finish the steps on your phone.
+    noscript: (JavaScript is off in this browser — refresh the page to update.)
+    rung_token: Token created
+    rung_token_sub: Step 2 — your access token exists.
+    rung_phone: Your phone reached NouriLoop
+    rung_phone_sub: The token was used recently — the automation connected.
+    rung_arrived: Glucose readings arrived
+    rung_arrived_sub: >-
+        {count, plural, one {# reading} other {# readings}} in the last
+        {hours} hours
+    rung_arrived_tpl: '{count} readings in the last {hours} hours'
+    rung_latest: '(latest: {time})'
+    rung_quality: Readings look right
+    rung_quality_sub: Frequent readings — enough detail for meal curves.
+    state_no_token: >-
+        Create your token in {link}Step 2{link_end}, then set up the
+        automation on your phone.
+    state_token_unused: >-
+        Token ready ✓ — once you finish Steps 3 and 4 on your phone, its
+        first export will show up here.
+    state_waiting: >-
+        Your phone connected ✓ — now waiting for glucose readings. After you
+        run the export (Step 4) they usually appear within a minute. If
+        nothing arrives, check in the Health app that your sensor is writing
+        Blood Glucose readings.
+    state_sparse: >-
+        <strong>Almost!</strong> Readings arrived, but too few / too far
+        apart ({count} in the last two days) for meal curves. This is almost
+        always the <strong>Summarize Data</strong> setting: in your
+        automation's Export Settings, turn it <strong>off</strong>, then
+        export again.
+    state_dense: >-
+        <strong>It works!</strong> {count} readings, about {gap} minutes
+        apart — exactly what meal curves need.
+    success_heading: You're connected
+    success_lead: >-
+        From here on, your glucose flows in automatically on the schedule you
+        chose in Health Auto Export. What to do next:
+    success_chart: '{link}See your glucose chart{link_end} on the Health Metrics page.'
+    success_meal: >-
+        {link}Log your next meal{link_end} — with glucose flowing, each meal
+        gets its own response curve about 3 hours after you eat.
+    success_insights: >-
+        {link}Open Glucose Insights{link_end} to see which meals move your
+        blood sugar most (and least).
+    upsell: >-
+        <strong>Your glucose is flowing — Loop+ puts it to work.</strong>
+        Loop+ correlates every meal you log with your readings: per-meal
+        response curves, biggest-riser and gentlest-meal rankings, and more.
+        {link}See plans{link_end}
+glucose_page:
+    title: Glucose Insights
+    heading: Glucose Insights
+    vs_est: '% vs. est.'
+    locked_heading: CGM Glucose Correlation
+    locked_lead: >-
+        Connect your continuous glucose data to see which meals raised your
+        glucose the most and least, and which spiked more than their nutrition
+        predicted. This is a Loop+ feature.
+    upgrade: Upgrade to Loop+
+    not_connected: >-
+        Haven't connected your sensor yet? {link}The guided setup{link_end}
+        takes about 10 minutes.
+    empty: No glucose-tracked meals in this period yet.
+    empty_sub: >-
+        Once you log meals while wearing a continuous glucose sensor, this
+        page ranks which meals raised your glucose the most and least.
+    empty_cta: >-
+        Wear a Lingo or Stelo but don't see data? {link}Connect it with the
+        guided setup{link_end}.
+    meals_analyzed: '{count, plural, one {Meal analyzed} other {Meals analyzed}}'
+    avg_rise: Avg rise ({unit})
+    avg_iauc: Avg iAUC ({unit})
+    window: Window
+    biggest: Biggest glucose rises
+    gentlest: Gentlest on you
+    above_expected: Spiked more than their nutrition predicted
+    above_note: >-
+        These meals raised your glucose more than a glycemic-load estimate of
+        their carbs, fiber, sugar, fat, and protein would suggest — worth
+        watching for patterns.
+    coach: AI Pattern Coach
+    coach_note: >-
+        Generated from your own glucose responses — an educational wellness
+        signal, not medical advice.
+    coach_unavailable: Coach unavailable right now — please try again shortly.
+    premium: Premium
+    coach_pitch: >-
+        Go beyond the rankings: an AI deep-dive reads your glucose responses
+        against the foods, timing, and combinations behind them — surfacing
+        personal patterns ("rice spikes you, but not with beans") and
+        concrete swaps to try.
+    coming_soon: Coming soon
+    footer: >-
+        These are educational wellness signals, not medical measures.
+        Rankings cover meals with enough continuous-glucose readings to chart
+        a response.
+predict:
+    title: Predict "What If"
+    lead: >-
+        See how a dietary change would affect your inflammation score,
+        nutrition, weight, and symptoms — computed from your real 30-day
+        history.
+    step1: 1. Describe your scenario
+    scenario_type: Scenario type
+    type_favorite: Eat a favorite every day
+    type_supp_add: Add a supplement
+    type_supp_remove: Remove a supplement
+    type_free: Describe a change
+    which_favorite: Which favorite meal?
+    search_favorites: Search favorites…
+    select: — select —
+    which_supplement: Which supplement?
+    inactive_suffix: (inactive)
+    describe: Describe the change
+    describe_ph: e.g. I reduce added sugar by half for two weeks
+    remaining: '{count, plural, one {# character remaining} other {# characters remaining}}'
+    # Plain-placeholder twin of `remaining` for the client-side counter (JS can't
+    # run ICU plurals; it picks the one-branch or fills this template).
+    remaining_tpl: '{count} characters remaining'
+    hint_add: Only supplements you are not currently taking are shown.
+    hint_remove: Only your active supplements are shown.
+    row_better: Better
+    row_watch: Watch
+    free_text_failed: >-
+        Unable to generate a projection for this scenario right now. Please
+        try again or choose a concrete scenario type for a computed result.
+    window: Projection window
+    weeks: '{count, plural, one {# week} other {# weeks}}'
+    dimensions: Project these dimensions
+    dim_inflammation: Inflammation score
+    dim_nutrition: Nutrition (macros & gaps)
+    dim_weight: Weight
+    dim_symptoms: Symptoms
+    submit: Project this scenario
+    step2: 2. Projection results
+    qualitative: >-
+        This projection is a qualitative AI estimate based on your scenario
+        description, not a computed result from NouriLoop's scoring engine.
+    col_dimension: Dimension
+    col_current: Current (30-day avg)
+    col_projected: Projected
+    col_change: Change
+    means: What this means
+    loop_plus_only: Predict "What If" is a Loop+ feature. Upgrade to access it.
+    rate_limited: You've reached the projection limit for now — please try again later.
+    err_type: Please select a scenario type.
+    err_window: Please select a valid projection window (1, 2, or 4 weeks).
+    err_dimensions: Please select at least one dimension to project.
+    err_favorite: Please select a valid favorite meal.
+    err_supplement: Please select a valid supplement.
+    err_remove_inactive: You can only remove a supplement you currently take.
+    err_add_active: That supplement is already in your daily routine.
+    err_free_text: Please describe your scenario.
+    err_free_text_len: Scenario description must be {max} characters or fewer.
+    row:
+        infl_avg: Inflammation Score (avg)
+        see_narrative: See narrative
+        gaps: Nutrient gaps (< 75% RDA)
+        gaps_count: '{count, plural, one {# nutrient} other {# nutrients}}'
+        weight_after: Weight (est. after {weeks, plural, one {# week} other {# weeks}})
+        symptom_trend: '{label} (trend)'
+    note:
+        computed: >-
+            Inflammation and nutrition projections are computed from
+            NouriLoop's scoring engine over your last 30 days; weight uses a
+            standard energy-balance estimate. Educational estimates, not
+            medical advice.
+        gaps: >-
+            Nutrition gap projections are computed from your current diet
+            averages plus the supplement's daily nutrient contribution (its
+            per-serving nutrients × your servings per day). Educational
+            estimates, not medical advice.
+        removed: >-
+            Projections show your estimated nutrition gaps if this supplement
+            is removed. Educational estimates, not medical advice.
+        qualitative: >-
+            This is a qualitative AI estimate based on your scenario
+            description, not a computed projection. Educational estimates,
+            not medical advice.
+    fallback:
+        infl: >-
+            Your inflammation score would {direction, select, down {decrease}
+            other {increase}} by {points} points to {score}.
+        calories: >-
+            Your daily calorie intake would {direction, select, up {increase}
+            other {decrease}} by about {kcal} kcal.
+        closing: This is an educational estimate based on your logged data.
+symptom_page:
+    title: Symptoms
+    heading: Symptoms
+    vs_inflammation: See vs. inflammation
+    none_tracked: You're not tracking any symptoms yet.
+    none_tracked_sub: >-
+        Turn one on below to start a daily check-in and see how it tracks with
+        your diet.
+    checkin_today: Check-in for today
+    checkin_date: Check-in for {date}
+    date: Date
+    note: Note
+    optional: (optional)
+    note_ph: e.g. flare after dinner, slept poorly
+    save_today: Save today's check-in
+    update_today: Update today's check-in
+    save_this: Save this check-in
+    update_this: Update this check-in
+    manage: Manage symptoms
+    manage_lead: >-
+        Turn symptoms on or off, or add your own. Only enabled symptoms appear
+        in your check-in and on Trends.
+    builtin: built-in
+    custom: custom
+    higher_better: higher is better
+    higher_worse: higher is worse
+    delete_confirm: Delete “{name}” and its history?
+    add_custom: Add a custom symptom
+    add_ph: e.g. brain fog, skin rash, mood
+    add_higher_better: Higher is better
+    add: Add
+    history: History
+    no_history: >-
+        No check-ins yet. Log how you feel each day to see how it tracks with
+        your diet.
+    col_date: Date
+    col_symptoms: Symptoms
+    col_note: Note
+    slider:
+        low: Low
+        none: None
+        high: High
+        worst: Worst
+    saved: Symptom check-in saved.
+    name_required: Enter a name for the symptom.
+    added: '“{name}” added to your symptoms.'
+    builtin_no_delete: Built-in symptoms can be turned off but not deleted.
+    removed: Symptom removed.
+metric_summary:
+    total_daily: daily totals
+    total_hourly: hourly totals
+    average_daily: daily averages, range shaded
+    average_hourly: hourly averages, range shaded
+    reading_daily: daily readings
+    reading_hourly: hourly readings
+health:
+    connect_cgm_cta: "Connect your CGM"
+    title: Health Metrics
+    heading: Health Metrics
+    import_btn: Import
+    days_btn: '{days}d'
+    cgm_pitch: >-
+        <strong>Wear a Lingo or Stelo?</strong> Connect it once and your
+        glucose flows in automatically — every meal you log gets its own
+        blood-sugar response curve. {link}Start the guided setup{link_end}
+    empty: No health data yet for this period.
+    import_data: Import data
+    readings: '{count, plural, one {# reading} other {# readings}} · {bucket}'
+    privacy: 'How we handle your health data: {link}Health Data Privacy Notice{link_end}'
+    import:
+        title: Import Health Metrics
+        back: Back
+        upload: Upload
+        upload_kinds: (XML, JSON or CSV)
+        file_hint: >-
+            Accepts Apple Health XML exports, Health Export JSON, or CSV
+            files. Large histories (a full <code>export.xml</code> can be
+            hundreds of MB) won't fit an upload — use the sync CLI / API
+            instead.
+        source: Source label
+        source_note: (CSV only — optional)
+        source_ph: e.g. Garmin, Dexcom, manual
+        source_hint: Ignored for Apple Health XML (source is read from the file).
+        json_app: Source app
+        json_app_note: (JSON only — optional)
+        auto_detect: Auto-detect
+        json_app_hint: Leave on auto-detect unless the format isn't recognized.
+        agree: >-
+            By importing, you agree to how NouriLoop handles your health data
+            — see our {link}Health Data Privacy Notice{link_end}.
+        submit: Import
+        tab_apple: Apple Health XML
+        tab_json: Health Export JSON
+        tab_csv: CSV
+        hint_csv: CSV detected — optionally set a source label below.
+        hint_xml: Apple Health XML detected — source label will be read from the file.
+        hint_json: Health-export JSON detected — pick a source app only if auto-detect fails.
+        choose_file: Please choose a file to upload.
+        upload_failed: 'Upload failed: {error}'
+        failed: 'Import failed: {error}'
+        done: >-
+            Imported {imported, plural, one {# new reading} other {# new
+            readings}} from {format}, {skipped, plural, one {skipped #
+            duplicate or unrecognized record} other {skipped # duplicates or
+            unrecognized records}}.
+        apple_how: How to export from Apple Health
+        apple_steps: >-
+            <li>Open the <strong>Health</strong> app on your iPhone</li>
+            <li>Tap your profile picture → <strong>Export All Health
+            Data</strong></li> <li>Share / AirDrop the zip to your Mac</li>
+            <li>Unzip — the file you need is
+            <code>apple_health_export/export.xml</code></li> <li>Upload that
+            <code>export.xml</code> file here</li>
+        apple_what: What gets imported
+        apple_note: >-
+            Sleep stages are also imported; other record types (steps,
+            workouts, etc.) are skipped. Uploads are size-capped (~100&nbsp;MB
+            on the server), so for a full <code>export.xml</code> use an
+            {link}API token{link_end} with the local sync script
+            (<code>scripts/apple-health-sync.php</code>) instead.
+        json_how: Health-export JSON (iPhone apps)
+        json_lead: >-
+            JSON exports from supported iPhone apps are recognized
+            automatically — leave <strong>Source app</strong> on auto-detect
+            (pick one only if detection fails). Currently supported:
+        json_apps: >-
+            <li><strong>Health Auto Export</strong> —
+            <code>data.metrics[]</code> shape; includes <strong>blood
+            glucose</strong>, heart rate, weight, steps and sleep.</li>
+            <li><strong>Health Export</strong> — <code>exportInfo</code>
+            header + camelCase keys; weight, body fat, resting heart rate,
+            steps and sleep.</li>
+        json_note: >-
+            Each app's own units are honored (e.g. lb→kg, mmol/L→mg/dL).
+            Types NouriLoop doesn't track (calories, BMI, VO₂max, dietary
+            totals, workouts, etc.) are skipped. For automated daily syncing,
+            point the <code>scripts/apple-health-sync.php</code> script at
+            the exported <code>.json</code> file (or its folder) with an
+            {link}API token{link_end}.
+        csv_how: Supported CSV formats
+        csv_lead: 'Two layouts are accepted:'
+        csv_row: 1. Row-per-metric
+        csv_col: 2. Columnar
+        csv_names: 'Recognized metric names:'
+        more_errors: '… and {count, plural, one {# more error} other {# more errors}}.'
+supplement:
+    no_data_window: >-
+        No meals logged in the {days, plural, one {last # day} other {last
+        # days}} — pick a longer period, or log recent meals to see your
+        nutrient coverage.
+    title: Supplements
+    heading: Supplement Recommendations
+    scan_btn: Scan a supplement
+    day_avg: '{days}-day avg'
+    lead: >-
+        Based on your average daily nutrition over the <strong>{days, plural,
+        one {last # day} other {last # days}}</strong>. Nutrients below 75% of
+        the recommended daily allowance (RDA) are flagged.
+    no_meals: No meal data yet. Log some meals to get recommendations.
+    log_meal: Log a meal
+    no_gaps: >-
+        Great news — no significant nutrient gaps detected in the {days,
+        plural, one {last # day} other {last # days}}!
+    gaps_detected: >-
+        {count, plural, one {<strong># nutrient gap detected.</strong>} other
+        {<strong># nutrient gaps detected.</strong>}} These are estimates
+        based on AI food analysis. Consult a healthcare professional before
+        starting supplements.
+    pct_rda: '{pct}% RDA'
+    avg_rda: 'Avg: {avg} {unit} / day · RDA: {rda} {unit}'
+    yours: Your supplements
+    none_yet: >-
+        None yet. {link}Scan a bottle{link_end} and active supplements will be
+        folded into the nutrient totals above.
+    active_note: Active supplements are counted toward your daily nutrient totals above.
+    per_serving: '{count, plural, one {# nutrient per serving} other {# nutrients per serving}}'
+    active: Active
+    inactive: Inactive
+    servings_day: Servings/day
+    save: Save
+    disable: Disable
+    enable: Enable
+    delete_confirm: Remove {name}?
+    scan:
+        title: Scan a Supplement
+        back: Back
+        lead: >-
+            Take a clear photo of the <strong>Supplement Facts</strong> panel.
+            If the label wraps around the bottle, snap it in <strong>two or
+            three photos</strong> and select them all — we'll read across them
+            and combine the results. You can review and edit everything before
+            saving.
+        photos: Supplement label photo(s)
+        submit: Read label
+        failed: We couldn't read that label. Please try again with a clearer photo.
+    confirm:
+        title: Review Supplement
+        lead: >-
+            Check what we read from the label and adjust anything. Blank or
+            zero values are ignored.
+        confidence: '{pct}% confidence'
+        name: Name
+        serving_size: 'Serving size: {size}'
+        servings_per_day: Servings / day
+        macros: Per-serving macros
+        micros: Per-serving vitamins & minerals
+        save: Save supplement
+        cancel: Cancel
+    added: '“{name}” added to your supplements.'
+    removed: Supplement removed.
+nutrient_full:
+    fiber: Fiber
+    vitaminA: Vitamin A
+    vitaminB1: Vitamin B1 (Thiamine)
+    vitaminB2: Vitamin B2 (Riboflavin)
+    vitaminB3: Vitamin B3 (Niacin)
+    vitaminB6: Vitamin B6
+    vitaminB9: Folate (B9)
+    vitaminB12: Vitamin B12
+    vitaminC: Vitamin C
+    vitaminD: Vitamin D
+    vitaminE: Vitamin E
+    vitaminK: Vitamin K
+    calcium: Calcium
+    iron: Iron
+    magnesium: Magnesium
+    phosphorus: Phosphorus
+    potassium: Potassium
+    zinc: Zinc
+    selenium: Selenium
+    calories: Calories
+    protein: Protein
+    carbohydrates: Carbohydrates
+    fat: Total Fat
+    saturatedFat: Saturated Fat
+    sugar: Sugar
+    sodium: Sodium
+supp_suggestion:
+    fiber: >-
+        Consider a fiber supplement (psyllium husk) or eat more legumes, whole
+        grains, and vegetables.
+    vitaminA: >-
+        Consider a Vitamin A supplement or increase intake of liver, sweet
+        potato, and carrots.
+    vitaminB1: Consider a B-complex supplement or eat more whole grains and legumes.
+    vitaminB2: Consider a B-complex supplement or eat more dairy, eggs, and lean meats.
+    vitaminB3: Consider a B-complex supplement or eat more poultry, fish, and peanuts.
+    vitaminB6: >-
+        Consider a Vitamin B6 supplement or eat more poultry, fish, potatoes,
+        and bananas.
+    vitaminB9: >-
+        Consider a Folate or B-complex supplement. Good food sources: leafy
+        greens, beans.
+    vitaminB12: Consider a Vitamin B12 supplement (especially important for plant-based diets).
+    vitaminC: >-
+        Consider a Vitamin C supplement or eat more citrus, bell peppers, and
+        broccoli.
+    vitaminD: >-
+        Consider a Vitamin D3 supplement — most people are deficient,
+        especially indoors.
+    vitaminE: Consider a Vitamin E supplement or eat more nuts, seeds, and vegetable oils.
+    vitaminK: Consider a Vitamin K2 supplement or eat more leafy greens and fermented foods.
+    calcium: >-
+        Consider a Calcium supplement or increase dairy, fortified plant
+        milks, and leafy greens.
+    iron: >-
+        Consider an Iron supplement — consult your doctor first as excess iron
+        is harmful.
+    magnesium: >-
+        Consider a Magnesium glycinate supplement — commonly deficient and
+        aids sleep.
+    potassium: 'Increase potassium-rich foods: bananas, avocados, sweet potatoes, beans.'
+    zinc: Consider a Zinc supplement or eat more oysters, beef, pumpkin seeds.
+    selenium: >-
+        Two Brazil nuts daily provide the RDA of Selenium, or consider a
+        supplement.
+delivery:
+    digest:
+        subject: NouriLoop — a few things worth a look
+        hi: 'Hi {name}, here''s what''s worth a look:'
+        no_meals_title: No meals logged today
+        no_meals_body: >-
+            You haven't logged any meals yet today. A quick photo keeps your
+            daily totals and nutrition trends accurate.
+        stale_title: Health metrics are out of date
+        stale_last: 'Your most recent reading was on {date}. It''s been over a week —'
+        stale_none: You haven't logged any health metrics yet —
+        stale_tail: >-
+            import your latest weight, glucose, or sleep data to keep your
+            trends accurate.
+        calorie_title: >-
+            {date} calories looked {direction, select, low {low} other {high}}
+        calorie_logged: You logged about <strong>{value} kcal</strong>
+        calorie_vs_avg: ' versus your usual ~{average} kcal/day'
+        calorie_low_note: If that wasn't intentional, you may be under-eating.
+        calorie_high_note: Worth a glance if you're tracking intake.
+        supp_title: Nutrient gaps this week
+        supp_lead: 'Based on the last 7 days, these nutrients came in low:'
+        supp_gap: '{label} — {pct}% of target.'
+        footer: >-
+            You're receiving this because notifications are enabled on your
+            account. You can change what you receive on the Settings ›
+            Notifications page.
+    inapp:
+        no_meals_title: No meals logged today
+        no_meals_body: >-
+            Nothing logged for {date} yet — snap a photo to keep your log
+            current.
+        stale_title: Health metrics need an update
+        stale_body: Your last reading was {date}. Import fresh data when you can.
+        stale_body_none: >-
+            We don't have any health readings yet. Import some to unlock your
+            trends.
+        calorie_title: >-
+            Calories looked {direction, select, low {low} other {high}} {date}
+        calorie_body_avg: >-
+            You logged {value} kcal, {direction, select, low {below} other
+            {above}} your usual ~{average} kcal/day.
+        calorie_body: >-
+            You logged {value} kcal, which is {direction, select, low {below}
+            other {above}} the typical healthy range.
+        supp_title: Weekly supplement suggestions
+        supp_body_none: >-
+            A few nutrients ran low this week — see your supplement
+            suggestions.
+        supp_body: >-
+            {count, plural, one {# nutrient ran low this week: {list}.} other
+            {# nutrients ran low this week: {list}.}}
+    sms:
+        no_meals: no meals logged today
+        stale: health metrics out of date
+        calories: '{date}: {value} kcal ({direction, select, low {low} other {high}})'
+        supplements: >-
+            {count, plural, one {# nutrient low this week} other {# nutrients
+            low this week}}
+        wrapper: 'NouriLoop: {body}. See the app.'
+    checkin:
+        subject: 'Goal check-in: {name}'
+        hi: 'Hi {name}, here''s your check-in for <strong>{goal}</strong>.'
+        vs_target: vs. target {direction} {value} {unit}
+        chart_alt: Progress chart
+        view: View this goal
+        footer: >-
+            This is wellness feedback, not medical advice. You're receiving it
+            because you set up a goal check-in on NouriLoop — you can pause or
+            delete the goal anytime from its page.
+        inapp_title: '{goal} — {status}'
+        sms: 'NouriLoop goal "{name}": {status}. See the app for details.'
+    email:
+        hi: 'Hi {name},'
+        change_lead: >-
+            You asked to switch your NouriLoop sign-in email to this address.
+            Click the button to confirm the change.
+        change_cta: Confirm new email
+        change_note: >-
+            If you didn't request this, you can ignore this message — nothing
+            changes until the button is clicked. The link works for 24 hours.
+        changed_notice: >-
+            The sign-in email for your NouriLoop account was just changed to
+            {new}. If this was you, no action is needed. If it wasn't, contact
+            info@nouriloop.com right away.
+        team: — The NouriLoop team
+        link_lead: Tap the button below to sign in to NouriLoop — no password needed.
+        link_cta: Sign in to NouriLoop
+        link_expiry: >-
+            This link works once and expires in {minutes, plural, one {#
+            minute} other {# minutes}}. If it has expired, just request a new
+            one from the sign-in page.
+        link_ignore: >-
+            Didn't ask for this? You can safely ignore this email — no one can
+            sign in without it.
+        verify_lead: Tap the button below to confirm this email address — it also signs you in.
+        verify_cta: Confirm your email & sign in
+        verify_note: >-
+            Confirming lets sign-in links and any reminders you turn on reach
+            you. The link expires in 24 hours — if it has, just request
+            another from the banner in the app, or sign in by email link (that
+            confirms it too).
+        reset_hi: Hi!
+        reset_lead: To reset your password, please visit the following link
+        reset_expiry: This link will expire in {duration}.
+        reset_bye: Cheers!
+    transactional:
+        login_link_subject: Your NouriLoop sign-in link
+        verify_subject: Confirm your NouriLoop email
+        reset_subject: Your password reset request
+        email_change_subject: Confirm your new NouriLoop email
+        email_changed_subject: Your NouriLoop sign-in email was changed
+help_assistant:
+    fallback_none: >-
+        I couldn't find a close match. Browse the help topics below, or try
+        rephrasing your question.
+    fallback_intro: 'Here are the help pages most related to your question:'
+    # Search-keyword lines for the NL assistant's multilingual retrieval
+    # (HelpAssistantService::localizedKeywords) — NOT user-visible text. One line
+    # per help topic: space-separated synonyms a user might type when asking about
+    # it. Translators: replace with natural terms in your language (accents fine —
+    # matching folds them); don't translate word-for-word, and never use `{`.
+    # Required in every full catalog (CatalogConsistencyTest enforces it).
+    keywords:
+        dashboard: today overview home screen daily summary view
+        log-meal: >-
+            log record meal food photo picture snap camera breakfast lunch
+            dinner snack eat ate portion serving
+        favorites: favorite favourite saved repeat reuse re-log quick frequent
+        import-recipe: >-
+            import recipe recipes cookbook card handwritten scan
+            photograph batch servings yield cook ingredients
+            steps dish
+        health-metrics: >-
+            import health data weight glucose steps sleep heart rate blood
+            pressure apple watch scale sync upload csv xml
+        supplements: supplement vitamin mineral label scan pill capsule multivitamin
+        inflammation: inflammation inflammatory anti-inflammatory score diet flare
+        symptoms: >-
+            symptom pain stiffness energy headache migraine bloating joint
+            track rate correlate
+        glucose: glucose blood sugar spike response curve insights cgm rise
+        connect-cgm: >-
+            connect cgm lingo stelo sensor continuous glucose monitor setup
+            iphone automatic readings export
+        goals: goal target check-in checkin progress protein fiber reminder coach
+        settings: >-
+            settings notifications timezone units language email sms text api
+            token account preferences tone voice glp-1 subscription billing
+            plan upgrade cancel delete
+inbox:
+    title: Notifications
+    empty: No notifications yet.
+    empty_sub: Goal check-ins and reminders from NouriLoop will show up here.
+    new: New
+    gone: That item is no longer available.
+favorite:
+    empty_cta: "Log a meal to get started"
+    title: Favorites
+    heading: Favorite Meals
+    log_photo: Log from a photo instead
+    sort: Sort
+    sort_recent: Recently used
+    sort_used: Most used
+    sort_name: Name
+    empty: >-
+        No favorites yet. Save a meal as a favorite from its detail page or
+        the review screen to reuse it here without re-analyzing a photo.
+    savings: Claude analyses skipped by reusing favorites
+    search_ph: Search favorites by name…
+    used: '{count, plural, one {Used #×} other {Used #×}}'
+    last_used: ', last {date}'
+    meal: Meal
+    servings: Servings
+    log_it: Log it
+    edit: Edit
+    delete: Delete
+    delete_confirm: Delete this favorite? Meals already logged from it are kept.
+    name: Name
+    protein_g: Protein g
+    carbs_g: Carbs g
+    fat_g: Fat g
+    save: Save changes
+    no_matches: No favorites match your search.
+    saved: Saved “{name}” to your favorites.
+    logged: Logged “{name}”.
+    updated: Updated “{name}”.
+    removed: Favorite removed.
+meal:
+    type:
+        breakfast: Breakfast
+        lunch: Lunch
+        dinner: Dinner
+        snack: Snack
+    form:
+        meal_type: Meal Type
+        photo: Food Photo
+        notes: Notes (optional)
+        notes_ph: Tell the AI anything the photo doesn't show — dish name, restaurant, ingredients, how it was made…
+        describe: Describe your meal
+        describe_ph: E.g. chicken caesar salad from Sweetgreen, large, no croutons
+    history:
+        title: Meal History
+        heading: Meal History
+        lead: Every meal you've logged, newest first.
+        filter_from: From
+        filter_to: To
+        filter_type: Meal type
+        filter_all: All types
+        filter_apply: Filter
+        filter_clear: Clear
+        empty: You haven't logged any meals yet.
+        empty_cta: Log Your First Meal
+        no_match: No meals match these filters.
+        showing: Showing {first}–{last} of {total, plural, one {# meal} other {# meals}}
+        prev: Previous
+        next: Next
+    edit:
+        title: Edit Meal
+        back: Back to meal
+        lead: >-
+            Change the meal type, time, notes, nutrition numbers, or portion —
+            every chart and average updates automatically.
+        when_label: Date & time
+        when_help: Moving this meal to a different day moves its nutrition, score, and charts to that day too.
+        day_change_warning: >-
+            You're moving this meal to a different day. Both days' totals,
+            scores, and charts will update.
+        day_change_confirm: Move this meal and its totals to the new day
+        day_change_required: Please confirm moving this meal to a different day.
+        future_time: That date and time is in the future.
+        nutrition_heading: Nutrition
+        nutrition_hint: >-
+            Fix any number the AI got wrong — these are the values every chart
+            and average uses. Leave a field blank to keep its current value.
+        portion_label: Portion adjustment
+        portion_help: >-
+            Multiplies the whole meal once when you save — 0.5 if you ate half
+            of what's recorded, 2 for double.
+        scope_note: 'Changing the photo or re-running the AI analysis happens on its own page:'
+        reanalyze_link: Re-analyze this meal
+        save: Save Changes
+        cancel: Cancel
+        saved: Meal updated.
+    reanalyze:
+        title: Re-analyze Meal
+        heading: Re-analyze this meal
+        back: Back to meal
+        lead: >-
+            Add or replace the photo, correct the description, and the AI will
+            estimate this meal again. You'll see exactly what would change
+            before anything is saved.
+        cost_note: >-
+            This runs a fresh AI analysis and uses one of your monthly
+            analyses — the same allowance that logging a meal draws on.
+        has_manual_edits: >-
+            You corrected this meal's numbers by hand on {date}. A re-analysis
+            can replace them, so you'll be asked to confirm before it does.
+        photo_label: Photo (optional)
+        photo_help: >-
+            Add up to 3 photos — a better shot of the meal, or its
+            nutrition-facts label. Leave this empty to re-estimate from the
+            description alone.
+        photo_help_reuse: >-
+            Add up to 3 photos — a better shot of the meal, or its
+            nutrition-facts label. Leave this empty and the AI re-reads this
+            meal's current photo along with your description.
+        current_photo: This meal's current photo
+        replace_photo: Use my first new photo as this meal's photo (replaces the current one)
+        description_label: Description for the AI to use
+        description_help: >-
+            Correct or add anything the photo doesn't show — dish name,
+            restaurant, ingredients, how it was made. Saved as this meal's
+            notes if you apply the result.
+        need_input: Add a photo or describe the meal — there's nothing to re-estimate from.
+        photos_expired: >-
+            The photos you uploaded for this re-analysis are no longer
+            available, so the estimate can be applied but this meal keeps its
+            current photo.
+        submit: Re-analyze this meal
+        review_title: Review Re-analysis
+        review_heading: Review the new estimate
+        review_lead: >-
+            Nothing has changed yet. Here's what applying this re-analysis
+            would do to the numbers behind your charts and averages.
+        no_changes: >-
+            The AI came back with the same numbers, so applying this would
+            change nothing. The analysis still counted against your monthly
+            allowance.
+        new_photos: New photos
+        photo_will_replace: The first of these becomes the meal's photo when you apply.
+        photo_aid_only: >-
+            Used for this estimate only — the meal keeps its current photo, and
+            these are discarded either way.
+        new_description: Proposed description
+        old_description: Current description
+        new_ingredients: Proposed ingredients
+        ingredients_replaced: Applying replaces the meal's ingredient list with this one.
+        ai_unsure: The AI was unsure about
+        diff_heading: What would change
+        confidence_line: 'AI confidence: {proposed}% for this estimate, was {current}%.'
+        col_nutrient: Nutrient
+        col_current: Now
+        col_proposed: Proposed
+        col_change: Change
+        change_added: newly estimated
+        change_removed: no longer estimated
+        overwrite_strong: This would replace numbers you corrected yourself.
+        overwrite_text: >-
+            You edited this meal's nutrition by hand on {date}. Tick the box
+            below if you want the new AI estimate to take over from your
+            corrections.
+        overwrite_confirm: Replace my manual corrections with this estimate
+        overwrite_required: Please confirm replacing your manual corrections first.
+        apply: Apply this estimate
+        discard: Discard
+        discard_help: >-
+            Discarding keeps the meal exactly as it is. Either way, the
+            analysis is already counted.
+        applied: New estimate applied.
+        discarded: Re-analysis discarded — the meal is unchanged.
+    ingredients: Identified Ingredients
+    photo_alt: Meal photo
+    log:
+        title: Log Meal
+        heading: Log a Meal
+        favorite_pitch: Eat this often? Log a favorite
+        favorite_sub: Reuse a saved meal — no photo, no re-analyzing.
+        drop_hint: Drag & drop a photo here, or click to browse
+        drop_formats: JPEG, PNG, WebP, HEIC · max 20 MB
+        submit: Analyze & Log Meal
+        analyzing: Analyzing your meal with AI… this takes a few seconds.
+        analyzing_btn: Analyzing…
+        limit_reached: >-
+            You've used your 10 free analyses this month. Upgrade to Loop for
+            unlimited photos.
+        analyze_failed: We couldn't analyze that photo. Please try again in a moment.
+        reanalyze_failed: We couldn't re-analyze that. Please try again in a moment.
+        retry_lead: Your photo is saved — no need to upload it again.
+        retry_sub: Your meal type and notes are kept too. Just retry when you're ready.
+        retry_button: Retry analysis
+        need_photo_or_text: Add a photo or describe your meal — either works.
+        multi_hint: Up to 3 photos of one meal — e.g. the dish plus its nutrition label.
+        use_camera: Take a photo now
+        preparing: Preparing photo…
+        describe_toggle: No photo? Describe your meal instead
+        describe_hint: The AI estimates nutrition from your words — you'll review and adjust before saving.
+        allowance_left: '{remaining, plural, one {# of {limit} free AI analyses left this month} other {# of {limit} free AI analyses left this month}}'
+        allowance_upgrade: Upgrade for unlimited
+        session_expired: Your session expired — please review and submit again.
+        saved: Meal logged.
+        saved_portions: Meal logged ({count} servings).
+        deleted: Meal deleted.
+        favorite_saved: Saved “{name}” to your favorites.
+    clarify:
+        title: Clarify Meal
+        heading: Confirm & Refine
+        round: Round {round}
+        ai_confidence: AI confidence
+        hint_confident: >-
+            The AI is confident in this estimate — you can save it now, or
+            tweak the ingredients first.
+        hint_questions: >-
+            Not fully confident yet — answer the questions below (or fix the
+            ingredients) and re-analyze for a sharper estimate.
+        hint_no_more: >-
+            The AI couldn't get more confident on its own — save the estimate
+            as-is, or fix the ingredients and re-analyze.
+        your_meal_alt: Your meal
+        described_as: You described
+        ingredients_count: '{count, plural, one {# ingredient} other {# ingredients}} — tap to review or edit'
+        logging_for: Logging for {datetime}
+        change: change
+        favorite_name_link: Name this favorite (optional)
+        ai_sees: AI sees
+        edit_hint: Edit anything that's wrong
+        col_ingredient: Ingredient
+        col_amount: Amount
+        col_unit: Unit
+        optional_ph: optional
+        unit_ph: g / cup…
+        remove: Remove
+        add_ingredient: Add ingredient
+        amounts_note: >-
+            Amounts are <strong>optional</strong> — packaged labels don't list
+            them. NouriLoop links these ingredient <em>names</em> to your
+            symptoms and inflammation score, and the nutrition above comes
+            straight from the label.
+        questions_heading: 'Additional questions:'
+        answer_ph: Your answer…
+        extra_photo: Add another photo
+        extra_photo_eg: — e.g. a nutrition-facts label
+        extra_photo_lead: >-
+            Got the packaging or label? Add it here and
+            <strong>re-analyze</strong> — the AI reads it together with your
+            meal photo for a sharper estimate.
+        added_photo_alt: Added photo
+        previous_answers: Previous answers
+        nutrition_heading: Estimated nutrition
+        for_one: — for one serving
+        for_n: — for {count} servings
+        servings_q: How many servings did you eat?
+        servings_unit: servings
+        servings_note: >-
+            The estimate above is for <strong>one serving</strong>. Ate more or
+            less — say a whole pizza that's 4 servings? Change this and the
+            numbers update live; that's what gets saved. (The ingredient
+            <em>Amount</em> is just each item's size — it doesn't scale the
+            total.)
+        glp1_tip: >-
+            <strong>GLP-1 tip:</strong> smaller, protein-first portions are
+            easier to tolerate and help protect lean mass. If you couldn't
+            finish the serving, set this below 1 so your log reflects what you
+            actually ate.
+        when_q: When did you eat this?
+        when_note: >-
+            Defaults to the photo's timestamp — adjust if you're logging this
+            after the fact.
+        backdate: >-
+            Heads up — this will be logged for {date}, not today. Change the
+            date above if that's not what you meant.
+        favorite_name: Favorite name
+        favorite_name_hint: — used if you save this as a favorite
+        favorite_ph: e.g. Tuesday oatmeal
+        save: Save to log
+        save_fav: Save to log & add to favorites
+        reanalyze: Re-analyze with corrections
+        round_limit: "You've refined this estimate as far as it goes — adjust the servings if needed and save it."
+        save_anyway: Save to log anyway
+    show:
+        first_meal_text_backdated: >-
+            NouriLoop read its nutrition for you — no manual entry. It's saved
+            under its own date, and your next setup step is waiting on the
+            dashboard.
+        first_meal_cta_backdated: "Go to the dashboard"
+        first_meal_strong: "That's your first meal logged! 🎉"
+        first_meal_text: >-
+            NouriLoop read its nutrition for you — no manual entry. Your
+            dashboard now scores today's food, and your next setup step is
+            waiting there.
+        first_meal_cta: "See today's score"
+        title: Meal Detail
+        back: Dashboard
+        duplicate_strong: Possible duplicate.
+        duplicate_text: >-
+            You already logged this same photo at this date and time. If you
+            didn't mean to add it again, delete this entry.
+        duplicate_confirm: Delete this duplicate entry?
+        delete_confirm: Delete this meal entry?
+        delete: Delete Entry
+        edit: Edit
+        edited: Edited {date}
+        nutrition_edited: Edited by you · {date}
+        reanalyzed: AI re-analyzed {date}
+        reanalyze: Re-analyze with AI
+        reanalyze_hint: >-
+            Better photo, or the description was off? Run the AI again — you'll
+            review the new numbers before anything changes. Uses one monthly
+            analysis.
+        reanalyze_cta: Re-analyze this meal
+        ai_description: AI Description
+        notes: Notes
+        nutrition_heading: Nutrition Summary
+        ai_confidence: 'AI confidence:'
+        save_favorite: Save as favorite
+        favorite_ph: Favorite name
+        save: Save
+        favorite_hint: Reuse this meal later without re-analyzing a photo.
+        glucose:
+            heading: Glucose Response
+            confidence: >-
+                {level, select, high {High confidence} moderate {Moderate
+                confidence} low {Low confidence} other {{level} confidence}}
+            peak: Peak ({unit})
+            rise: Rise from baseline
+            time_to_peak: Time to peak
+            back_to_baseline: Back to baseline
+            narrative: >-
+                After this meal your glucose rose from a baseline of
+                <strong>{baseline} {unit}</strong> to a peak of <strong>{peak}
+                {unit}</strong> ({delta}) about <strong>{minutes}
+                minutes</strong> later{return_clause}. Based on {count, plural,
+                one {# glucose reading} other {# glucose readings}} around this
+                meal. This is an educational wellness signal, not a medical
+                measure.
+            return_clause: >-
+                , returning to baseline by <strong>{minutes} minutes</strong>
+            sparse: >-
+                Only {count, plural, one {# glucose reading} other {# glucose
+                readings}} near this meal — not enough to chart a response
+                curve. Continuous glucose data (e.g. an always-on sensor) gives
+                a full reading every few minutes.
+            vs_estimate: vs. Nutritional Estimate
+            gl_badge_title: >-
+                Estimated glycemic load based on carbs, fiber, sugar, fat, and
+                protein
+            band_much_lower: >-
+                Your response was <strong>significantly lower</strong> than
+                this meal's nutritional profile suggests — fat, protein, or
+                food composition may be blunting absorption.
+            band_lower: >-
+                Your response was <strong>moderately lower than
+                expected</strong> for this nutritional profile.
+            band_as_expected: >-
+                Your response was <strong>within the expected range</strong>
+                for this meal's nutritional content.
+            band_higher: >-
+                Your response was <strong>higher than expected</strong> — this
+                meal may have raised glucose more than its macros alone
+                predict.
+            band_much_higher: >-
+                Your response was <strong>substantially higher than
+                expected</strong> — worth noting if you see this pattern
+                consistently.
+            band_closing: >-
+                The estimate uses a glycemic load model derived from this
+                meal's carbs, fiber, sugar, fat, and protein.
+            gl_low: low
+            gl_medium: medium
+            gl_high: high
+            chart_minutes: Minutes relative to meal (0 = meal)
+            chart_glucose: Glucose ({unit})
+            chart_baseline: Baseline
+        locked:
+            lead: >-
+                You have glucose data around this meal. Upgrade to Loop+ to see
+                the response curve, peak, and how the measured rise compares to
+                this meal's nutrition.
+            upgrade: Upgrade to Loop+
+confidence:
+    high: High
+    medium: Medium
+    low: Low
+macro:
+    kcal: kcal
+    abbr_protein: P
+    abbr_carbs: C
+    abbr_fat: F
+    protein: Protein
+    carbs: Carbs
+    fat: Fat
+nutrient:
+    fiber: Fiber
+    sugar: Sugar
+    saturated_fat: Saturated Fat
+    sodium: Sodium
+    potassium: Potassium
+    calcium: Calcium
+    iron: Iron
+    magnesium: Magnesium
+    zinc: Zinc
+    vitamin_a: Vitamin A
+    vitamin_c: Vitamin C
+    vitamin_d: Vitamin D
+    vitamin_b12: Vitamin B12
+trends:
+    title: Insights & Trends
+    subtitle: >-
+        {days, plural, one {Patterns across your last # day} other {Patterns
+        across your last # days}} — not just today.
+    empty: No data yet for this period.
+    log_first: Log your first meal
+    back: Back to overview
+    about: About this chart
+    about_plural: About these charts
+    tap_hint: >-
+        Tap any tile to open its chart, with an explanation of what it shows
+        and how it's calculated.
+    arrows_legend: >-
+        The arrows show the <strong>direction over the last {days,
+        plural, one {# day} other {# days}}</strong> — not today on its own: <span
+        class="text-nowrap"><i class="bi bi-arrow-up-right"></i>
+        rising</span>, <span class="text-nowrap"><i class="bi
+        bi-arrow-down-right"></i> falling</span>, <span
+        class="text-nowrap"><i class="bi bi-arrow-right"></i> holding
+        steady</span>. Whether a change is good or bad is shown by the tile's
+        color (<span class="text-success fw-semibold">green</span> good ·
+        <span class="text-warning fw-semibold">amber</span> watch · <span
+        class="text-danger fw-semibold">red</span> attention).
+    trend_up: Trending up
+    trend_down: Trending down
+    trend_flat: Holding steady
+    trend_title: >-
+        {days, plural, one {{label} over the last # day} other {{label} over
+        the last # days}}
+    last_days: '({days, plural, one {last # day} other {last # days}})'
+    inflammation:
+        heading: Dietary Inflammation Score
+        legend: >-
+            −10 anti-inflammatory · 0 neutral · +10 pro-inflammatory. An
+            educational estimate from logged foods — not medical advice.
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> a daily −10 (anti-)
+            to +10 (pro-inflammatory) estimate of your logged food — an
+            educational wellness signal, not medical advice.</p> <p
+            class="mb-1"><strong>Data source:</strong> each day's logged meals
+            — their analyzed nutrition and ingredient list.</p> <p
+            class="mb-1"><strong>How it's calculated:</strong> a pure
+            heuristic (no AI) blends a nutrient backbone (saturated fat,
+            sugar, sodium push pro; fiber + antioxidant micros A/C/D/E, B6,
+            folate, B12, Mg, Zn, Se as %RDA push anti — directionality per the
+            Dietary Inflammatory Index) with food-keyword adjustments
+            (processed meat / fried / sugary → pro; fatty fish, olive oil,
+            leafy greens, berries, turmeric → anti, capped per meal), summed
+            per local day and clamped to −10…+10.</p>
+        track_symptom: >-
+            {link}Track a symptom{link_end} (joint pain, bloating, headache,
+            energy…) to see how it moves with this score on the
+            <strong>Symptoms</strong> tile.
+    symptom:
+        heading: '{label} relationships'
+        legend: >-
+            How <strong>{label}</strong> tracks against what you ate — and, if
+            you import health data, your body metrics. Each factor gets its
+            own mini chart in its real units, stacked under {label} so you can
+            scan straight down to see whether a factor moved the same day.
+            Below each chart we list only the factors with a
+            <strong>statistically significant</strong> correlation.
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> {label}'s daily level
+            (0–10) stacked above the other factors you track, each in its own
+            units. The <em>Diet</em> stack covers protein, carbs, fat, fiber
+            and your dietary inflammation score; the <em>Health</em> stack
+            covers steps, blood glucose, weight and nightly sleep (shown only
+            if you've imported those metrics).</p> <p
+            class="mb-1"><strong>Why stacked instead of overlaid:</strong>
+            these factors use very different units (grams vs mg/dL vs steps),
+            so overlaying them on one axis either hides the real numbers or
+            buries the shape in clutter. Stacking keeps each factor's true
+            scale while lining every panel up on the same date axis — hover
+            any point for its exact value.</p> <p
+            class="mb-1"><strong>Significant correlations:</strong> for every
+            factor we compute a Pearson <em>r</em> both same-day and next-day
+            (effects can lag), and a two-tailed significance test. Only
+            correlations with at least {minDays, plural, one {# matched day}
+            other {# matched days}} and p &lt; 0.05 are listed — descriptive, not causal, and clearer the more you
+            log.</p>
+        diet_heading: Diet & {label}
+        health_heading: Health metrics & {label}
+        diet_corr: Significant diet correlations
+        health_corr: Significant health correlations
+        corr_line: >-
+            <strong>{factor}</strong> {relation} {label} ({lag}, r = {r},
+            {n, plural, one {# day} other {# days}}).
+        corr_positive: rose and fell together with
+        corr_negative: moved opposite to
+        same_day: same day
+        next_day: next day
+        inflammation_heading: >-
+            Inflammation ↔ {label} — {n, plural, one {# matched day} other {#
+            matched days}}
+        same_day_avg: >-
+            Same-day {label} averaged <strong>{pro}</strong> on
+            pro-inflammatory days vs <strong>{other}</strong> on other
+            days{r_note}.
+        next_day_avg: >-
+            Next-day {label} averaged <strong>{pro}</strong> vs
+            <strong>{other}</strong>{r_note}.
+        r_note: ' (correlation r = {r})'
+        r_note_short: ' (r = {r})'
+        no_corr: >-
+            No statistically significant correlations yet over this window —
+            keep logging and any that emerge will appear here.
+    nausea:
+        heading: Possible nausea triggers
+        insufficient: >-
+            Keep logging nausea check-ins — once you have a few more days
+            ({days, plural, one {# so far} other {# so far}}), NouriLoop can
+            flag which foods tend to show up on your higher-nausea days.
+        none: >-
+            No foods stood out as linked to higher nausea across your {days,
+            plural, one {last # logged day} other {last # logged days}}
+            (average nausea {avg}/10).
+        lead: >-
+            Foods that showed up more on your higher-nausea days over {days,
+            plural, one {# logged day} other {# logged days}} (average nausea
+            {avg}/10). This is an association, not
+            a cause — a wellness signal, not medical advice.
+        stats: nausea {eaten} when eaten vs {not} otherwise
+        days_eaten: '{count, plural, one {# day} other {# days}}'
+    sleep:
+        heading: Sleep
+        bars: Bars = total sleep hours.
+        gap_line: Orange line = hours from dinner to sleep onset.
+        glucose_dots: Red dots = evening glucose peak (6–10 PM).
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> nightly total sleep
+            hours, an optional dinner→sleep gap line, and evening glucose
+            dots.</p> <p class="mb-1"><strong>Data source:</strong> imported
+            sleep-stage data (Core/Deep/REM/inBed), meal timestamps, and
+            glucose readings.</p> <p class="mb-1"><strong>How it's
+            calculated:</strong> total hours = sum of a night's sleep stages;
+            gap = hours from dinner to sleep onset; evening glucose dot =
+            peak {unit} from 6–10 PM. The table below pairs each night's
+            dinner, evening glucose (peak 6–10 PM), gap, overnight glucose
+            (average midnight–6 AM) and sleep, color-coded by fixed
+            thresholds.</p>
+        table_heading: Dinner → Glucose → Sleep
+        table_legend: >-
+            Evening glucose = peak {unit} from 6–10 PM. Overnight glucose =
+            avg {unit} from midnight–6 AM. Color coding: <span class="badge
+            bg-success">good</span> <span class="badge bg-warning
+            text-dark">watch</span> <span class="badge bg-danger">high</span>
+        col_night: Night
+        col_dinner: Dinner
+        col_cal: Cal
+        col_eve_glucose: Eve. Glucose
+        col_gap: Gap
+        col_overnight: Overnight Glucose
+        col_sleep: Sleep
+    health:
+        heading: Health Metrics
+        legend: Shaded band = daily min–max range
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> imported body
+            measurements over time, with a daily range band. Tap a metric
+            button to add/remove its line.</p> <p class="mb-1"><strong>Data
+            source:</strong> readings imported via Apple Health, Health Auto
+            Export, or the ingestion API.</p> <p class="mb-1"><strong>How
+            it's calculated:</strong> per local day the line = daily average
+            and the shaded band = daily min–max; no transform beyond unit
+            normalization (e.g. lb→kg). The good / watch / attention badge on
+            each metric's overview tile flags its latest reading against
+            simple, non-medical thresholds.</p>
+    calories:
+        heading: Daily Calories
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> total calories
+            logged per day.</p> <p class="mb-1"><strong>Data source:</strong>
+            your logged meals' analyzed calories.</p> <p
+            class="mb-1"><strong>How it's calculated:</strong> sum of meal
+            calories per local day. The overview badge flags when the daily
+            average falls below 1,200 or above 3,500 kcal.</p>
+    macros:
+        heading: Average Macros
+        about: >-
+            <p class="mt-2 mb-1"><strong>Shows:</strong> your average daily
+            protein / carb / fat split, in calories.</p> <p
+            class="mb-1"><strong>Data source:</strong> logged meals over the
+            selected period.</p> <p class="mb-1"><strong>How it's
+            calculated:</strong> average grams/day over the {days, plural, one
+            {last # day} other {last # days}} × 4 (protein), 4 (carbs), 9
+            (fat) kcal per gram.</p>
+    js:
+        calories_label: Calories (kcal)
+        inflammation_label: Inflammation score
+        inflammation_axis: Inflammation
+        sleep_label: Sleep (hr)
+        hr: hr
+        gap_label: Dinner → Sleep (hr)
+        gap_axis: hr after dinner
+        eve_glucose_label: Evening Glucose peak ({unit})
+        tip_gap: 'Dinner → Sleep: {v} hr'
+        tip_eve_glucose: 'Evening glucose: {v} {unit}'
+        tip_sleep: 'Sleep: {v} hr'
+        protein: Protein
+        carbs: Carbs
+        carbohydrates: Carbohydrates
+        fat: Fat
+        fiber: Fiber
+metric:
+    weight: Weight
+    blood_glucose: Blood Glucose
+    blood_pressure_systolic: Blood Pressure (Systolic)
+    blood_pressure_diastolic: Blood Pressure (Diastolic)
+    heart_rate: Heart Rate
+    body_fat_percentage: 'Body Fat %'
+    steps: Steps
+    sleep_in_bed: Sleep (In Bed)
+    sleep_asleep: Sleep
+    sleep_core: Sleep (Core)
+    sleep_deep: Sleep (Deep)
+    sleep_rem: Sleep (REM)
+metric_unit:
+    steps: steps
+insight:
+    theme:
+        consequences: What your food did to you
+        body: Your body over time
+        intake: What you ate
+    tile:
+        inflammation: Inflammation
+        sleep: Sleep
+        symptom: Symptom
+        calories: Calories
+        macros: Macros
+        micros: Micronutrients
+    unit:
+        hr_avg: hr avg
+        kcal_avg: kcal avg
+        g_pcf: g P/C/F
+        out_of_10: / 10
+        below_target: below target
+    note:
+        log_meals: Log meals to see this
+        no_sleep: No sleep data yet
+        no_checkins: No check-ins yet
+        on_track: on track
+        below_sleep_target: below 7 hr target
+        band_strong_pro: strongly pro-inflammatory
+        band_mild_pro: pro-inflammatory
+        band_neutral: neutral
+        band_mild_anti: anti-inflammatory
+        band_strong_anti: strongly anti-inflammatory
+        low: low
+        moderate: moderate
+        good: good
+        high: high
+        elevated: elevated
+        in_range: in range
+        above_range: above range
+        below_range: below range
+        latest: latest
+        trending_up: trending up
+        trending_down: trending down
+        holding_steady: holding steady
+        daily_average: daily average
+        all_at_target: all at target
+        below_rda: below 75% RDA
+        days_ago: '{count, plural, one {# day ago} other {# days ago}}'
+symptom:
+    level_aria: '{label}: {level} of 10'
+    builtin:
+        joint_pain: Joint pain
+        joint_stiffness: Joint stiffness
+        bloating: Bloating / digestive
+        headache: Headache / migraine
+        energy: Energy level
+        mental_acuity: Mental acuity
+        nausea: Nausea
+        satiety: Fullness / satiety
+# Factor labels for InflammationScoreService (translator-injected, so the
+# dashboard chips and the Trends tooltips localize together). The en values
+# reproduce the service's historical English output exactly.
+inflammation:
+    factor:
+        saturatedFat: Saturated fat
+        sugar: Sugar
+        sodium: Sodium
+        fiber: Fiber
+        vitaminA: Vitamin A
+        vitaminC: Vitamin C
+        vitaminD: Vitamin D
+        vitaminE: Vitamin E
+        vitaminB6: Vitamin B6
+        vitaminB9: Folate
+        vitaminB12: Vitamin B12
+        magnesium: Magnesium
+        zinc: Zinc
+        selenium: Selenium
+        food: 'Food: {name}'
+        supplement_suffix: '{label} (supplement)'
+    keyword:
+        bacon: Bacon
+        sausage: Sausage
+        hot_dog: Hot dog
+        hotdog: Hotdog
+        salami: Salami
+        pepperoni: Pepperoni
+        deli_meat: Deli meat
+        bologna: Bologna
+        soda: Soda
+        cola: Cola
+        soft_drink: Soft drink
+        energy_drink: Energy drink
+        fried: Fried
+        french_fries: French fries
+        doughnut: Doughnut
+        donut: Donut
+        pastry: Pastry
+        cake: Cake
+        cookie: Cookie
+        candy: Candy
+        white_bread: White bread
+        margarine: Margarine
+        shortening: Shortening
+        salmon: Salmon
+        sardine: Sardine
+        mackerel: Mackerel
+        anchovy: Anchovy
+        herring: Herring
+        trout: Trout
+        spinach: Spinach
+        kale: Kale
+        chard: Chard
+        arugula: Arugula
+        collard: Collard
+        blueberr: Blueberries
+        strawberr: Strawberries
+        raspberr: Raspberries
+        broccoli: Broccoli
+        cauliflower: Cauliflower
+        brussels: Brussels sprouts
+        cabbage: Cabbage
+        walnut: Walnut
+        almond: Almond
+        chia: Chia
+        flax: Flax
+        turmeric: Turmeric
+        ginger: Ginger
+        garlic: Garlic
+        green_tea: Green tea
+        olive_oil: Olive oil
+        avocado: Avocado
+        lentil: Lentil
+        chickpea: Chickpea
+onboarding:
+    aria: Getting started with NouriLoop
+    title: Get set up
+    bonus_left: One optional bonus step
+    steps_left: '{count} of 3 quick steps left'
+    dismiss_confirm: Hide setup? You can bring it back from Settings ▸ Notifications.
+    dismiss_aria: Hide setup checklist
+    dismiss_title: Hide setup
+    skip_setup: Skip setup
+    optional_tag: Optional — last step
+    meal:
+        heading: Log your first meal
+        lead: >-
+            Snap a photo of a meal — NouriLoop reads the nutrition for you, no
+            manual entry. It's the core of everything else here.
+        cta: Take a photo
+        desktop_lead: >-
+            On a computer? Just type what you ate — NouriLoop reads the nutrition
+            from your description, no photo needed. It's the core of everything
+            else here.
+        desktop_cta: Describe a meal in words
+        phone_cta: Rather use your phone's camera? Email me a sign-in link
+    goal:
+        heading: Set a nutrition goal
+        lead: >-
+            Pick a one-tap starter goal — NouriLoop checks your logged meals
+            against it each week and sends a friendly progress note.
+        custom: Prefer your own? Chat with the AI or set it up manually
+    notifications:
+        recommended_btn: "Recommended: just the evening reminder"
+        recommended_hint: "One tap — fine-tune anytime in Settings."
+        or_pick: "or pick individually:"
+        stale_hint: "Matters once you import health data."
+        calories_hint: "Matters after a few days of logged meals."
+        supplements_hint: "Matters once you've logged meals for a week or so."
+        heading: Turn on reminders
+        lead: >-
+            Optional email nudges that keep the loop going. Pick what's useful
+            — you can change any of this later in Settings.
+        times_use: Times use {timezone}
+        change: change
+        no_meals: Evening nudge if I haven't logged a meal
+        stale: Reminder when my health data goes stale
+        calories: Heads-up when calories look off
+        supplements: Supplement suggestions for nutrient gaps
+        save: Save preferences
+        saved: Preferences saved. You can fine-tune them anytime in Settings.
+    health:
+        question: Do you wear a glucose sensor (Lingo or Stelo)?
+        lead: >-
+            Connecting one unlocks per-meal glucose curves. No sensor? You can
+            import Apple Health data — or just finish up. Everything works
+            without it.
+        yes_connect: Yes — connect it (guided setup)
+        no_import: No — import Apple Health data
+        not_now: Not now, finish setup
+    visibility_saved: Setup checklist preference saved.
+settings:
+    back: Settings
+    index:
+        title: Settings
+        lead: Manage your preferences, notifications, security, billing, and account.
+    category:
+        preferences: Preferences
+        notifications: Notifications
+        security: Security & API
+        billing: Billing
+        account: Account
+    item:
+        timezone: Timezone
+        units: Units
+        language: Language
+        glp1: GLP-1 mode
+        tone: Voice & tone
+        notifications: Notifications
+        api_tokens: API tokens
+        subscription: Subscription
+        profile: Name & email
+        account: Delete my data or account
+    profile:
+        title: Name & email
+        lead: Your display name and the email address you sign in with.
+        name_label: Name
+        email_label: Email address
+        email_help: >-
+            Changing your email sends a confirmation link to the new address —
+            nothing changes until you click it, and your current address keeps
+            working in the meantime.
+        password_label: Current password
+        password_help: Only needed when changing your email address.
+        save: Save Changes
+        saved: Profile updated.
+        wrong_password: That password isn't right.
+        email_in_use: That email address is already in use.
+        confirm_sent: >-
+            Confirmation sent to {email} — your sign-in email will change when
+            you click the link there.
+        rate_limited: >-
+            A confirmation email was sent recently — please check the new
+            address's inbox (and spam folder) first.
+        send_failed: We couldn't send the confirmation email — please try again in a moment.
+        confirm_invalid: That confirmation link is invalid or has expired — request the change again.
+        confirm_wrong_account: That link belongs to a different account. Sign in with the account you were changing.
+        confirm_success: Your sign-in email is now {email}.
+    timezone:
+        title: Timezone
+        lead: NouriLoop shows times and decides what counts as “today” in your timezone.
+        label: Your timezone
+        help: >-
+            Used for your dashboard “today”, daily charts, reminders, and the
+            times shown across NouriLoop.
+        forward_note: >-
+            Changing this only affects what happens going forward — past
+            entries keep the date and time you logged them.
+        save: Save timezone
+        saved: Timezone saved.
+    units:
+        title: Units
+        lead: Choose how your weight and blood glucose are displayed across NouriLoop.
+        label: Units
+        help: >-
+            Controls how your weight and blood glucose readings are shown. Your
+            imported data isn't changed — only the display.
+        save: Save units
+        saved: Units saved.
+    unit_system:
+        metric: Metric (kg, mmol/L)
+        imperial: Imperial / US (lb, mg/dL)
+    glp1:
+        title: GLP-1 Mode
+        heading: GLP-1 mode
+        lead: Tracking tailored for GLP-1 medications.
+        label: Enable GLP-1 mode
+        help: >-
+            Tailors NouriLoop for GLP-1 medications (e.g. Ozempic, Wegovy,
+            Zepbound, Mounjaro): a protein-focus card on your dashboard,
+            nausea-trigger insights, and small-portion guidance. Enabling this
+            also turns on the Nausea and Fullness/satiety symptom check-ins,
+            which you can manage on the Symptoms page. These are educational
+            wellness features, not medical advice.
+        feature_protein: >-
+            <strong>Protein focus</strong> — a dashboard card tracking today's
+            protein against a target scaled to your latest body weight.
+        feature_nausea: >-
+            <strong>Nausea triggers</strong> — once you log nausea check-ins,
+            an insight that surfaces which foods tend to show up on your worse
+            days.
+        feature_portion: >-
+            <strong>Portion guidance</strong> — small-portion, protein-first
+            prompts when you review a logged meal.
+        save: Save
+        saved: GLP-1 mode saved.
+    tone:
+        title: Voice & Tone
+        heading: Voice & tone
+        lead: >-
+            Tune how NouriLoop's AI coaching notes <em>sound</em> — your goal
+            check-ins, glucose Pattern Coach, and "what if" projections. Slide
+            to taste. (These dials change the wording only, never the facts or
+            the not-medical-advice part — we promise the robot won't diagnose
+            you, no matter how funny you make it.)
+        humor: Humor
+        humor_low: If I loosened my tie, I might hyperventilate
+        humor_high: Robin Williams on crack
+        warmth: Warmth
+        warmth_low: Clinical
+        warmth_high: Southern Grandma
+        education: Education level
+        education_low: I just arrived on Earth
+        education_high: PhD in Nuclear Physics
+        dh1: Buttoned-up
+        dh2: Dry wit
+        dh3: Easygoing
+        dh4: Quite the jokester
+        dh5: Comedy unleashed
+        dw1: Just the facts
+        dw2: Cordial
+        dw3: Friendly
+        dw4: Warm hug
+        dw5: Grandma's kitchen
+        de1: Explain like I just got here
+        de2: Keep it simple
+        de3: Everyday smart
+        de4: Bring the detail
+        de5: Talk nerdy to me
+        save: Save voice
+        saved: Voice & tone saved. Your next coaching note will sound the part.
+    notifications:
+        title: Notification Settings
+        heading: Notifications
+        lead: Choose how and when NouriLoop reaches you.
+        channel: Deliver notifications via
+        phone: Mobile number (for text messages)
+        phone_help: Use E.164 format, e.g. +1 followed by your 10-digit number.
+        phone_required: Add a mobile number to receive text messages.
+        consent_required: Please agree to the SMS terms to enable text messages.
+        sms_upsell: >-
+            Text (SMS) delivery is a paid feature — the daily digest by
+            text starts with Loop, and goal check-ins by email or text come
+            with Loop+. {link}See plans{link_end}.
+        which: Which notices to send
+        no_meals: Remind me in the evening if I haven't logged any meals that day
+        stale: Remind me when I haven't logged health metrics in over a week
+        calories: Alert me when a day's calories are unusually low or high
+        supplements: Send me weekly supplement suggestions when nutrients run low
+        save: Save preferences
+        saved: Notification preferences saved.
+        checklist: Getting started
+        checklist_label: Show the setup checklist (until complete)
+        checklist_save: Save
+    channel:
+        email: Email only
+        sms: Text message only
+        both: Email and text
+    api_tokens:
+        title: API Tokens
+        lead: >-
+            Bearer tokens let a device or script send health data to
+            NouriLoop's ingestion API without your password. Setting up a
+            Lingo/Stelo CGM? Use the {link}guided setup{link_end} instead — it
+            creates the token for you.
+        reveal: Your new token — copy it now
+        copy: Copy
+        reveal_warning: >-
+            This is the only time it's shown. NouriLoop stores only a hash —
+            if you lose it, revoke it and create a new one.
+        new_label: New token
+        new_ph: e.g. iPhone, Mac sync script
+        create: Create
+        none: No tokens yet.
+        col_name: Name
+        col_created: Created
+        col_last_used: Last used
+        col_actions: Actions
+        never: never
+        revoke: Revoke
+        revoke_confirm: Revoke “{name}”? Any device using it will stop working.
+        created_flash: Token “{name}” created — copy it now, it won't be shown again.
+        revoked_flash: Token revoked.
+        usage: Using a token
+        hae_heading: Health Auto Export (iPhone app)
+        hae_text: >-
+            In a <strong>REST API</strong> automation, choose
+            <strong>JSON</strong> format and post the app's data <em>as-is</em>
+            to the <strong>health-export</strong> endpoint — it auto-detects
+            the app and maps the metrics for you:
+        hae_tip: >-
+            Tip: to see a daily range (not just an average) for
+            <strong>glucose, heart rate, and blood pressure</strong>, give
+            those metrics their own automation set to <strong>disaggregated /
+            Summarize off</strong> so every reading is sent — keep cumulative
+            metrics like steps and sleep on a separate daily-summary
+            automation.
+        custom_heading: Custom script or other apps
+        custom_text: 'Send your own metrics in this shape to the structured endpoint:'
+    subscription:
+        title: Subscription
+        current_plan: Current plan
+        upgrade: Upgrade
+        change_plan: Change plan
+        manage_heading: Manage billing
+        manage_text: >-
+            Update your payment method, view invoices, or cancel — handled
+            securely by Stripe. Access continues through the end of your
+            billing period after a cancel.
+        manage_btn: Manage subscription
+        no_billing: >-
+            You don't have a billing account yet. Choose a plan on the
+            {link}pricing page{link_end} to get started.
+    account:
+        title: Delete My Data or Account
+        lead: Two different actions — read the difference before choosing.
+        scheduled_heading: Deletion scheduled
+        scheduled_text: >-
+            Your account and all its data will be permanently deleted on
+            {date}. Until then your account stays fully active — you can keep
+            logging in and using NouriLoop.
+        cancel: Cancel deletion
+        fresh_heading: Start fresh
+        fresh_text: >-
+            Permanently deletes all your logged meals, photos, health metrics,
+            symptoms, supplements, and goals. Your <strong>account, login,
+            preferences, API tokens, and subscription stay exactly as they
+            are</strong> — you can log back in and start logging from a clean
+            slate immediately. This cannot be undone.
+        fresh_confirm: >-
+            Delete all your logged meals, health data, goals, and supplements?
+            Your account and login stay active. This cannot be undone.
+        fresh_btn: Delete my data
+        fresh_done: Your data has been deleted. Log a meal whenever you're ready to start fresh.
+        delete_heading: Delete my account
+        delete_text: >-
+            Schedules your <strong>entire account</strong> — login, data,
+            preferences, and subscription — for permanent deletion in
+            {days, plural, one {# day} other {# days}}. Any active
+            subscription is cancelled immediately. Your account stays usable
+            during those {days, plural, one {# day} other {# days}} — just
+            log back in
+            any time before the date and click "Cancel deletion" to change
+            your mind. After that date, everything is permanently and
+            irreversibly removed.
+        delete_confirm: >-
+            Schedule your account for permanent deletion? You can cancel any
+            time before the deletion date by logging back in.
+        delete_btn: Delete my account
+        delete_scheduled: >-
+            Your account is scheduled for deletion on {date}. Log back in any
+            time before then to cancel.
+        cancel_done: Account deletion cancelled — welcome back.
+    language:
+        title: Language
+        lead: Choose the language NouriLoop uses with you.
+        label: Language
+        help: >-
+            Translation is rolling out gradually — some parts of NouriLoop may
+            still appear in English for now.
+        save: Save language
+        saved: Language saved.
+# ── Public marketing pages (i18n Phase 4): /about, /pricing, /lp/* ──────────
+# List-item blobs are trusted HTML fragments rendered with |trans|raw (house
+# pattern — see cgm.need_items); embedded links use ICU placeholders
+# ({plans_link}…{link_end}) so translators can reorder around the markup.
+# Prices are NEVER literal in these messages — templates pass a {price}
+# param fed by subscription_price() (the SubscriptionTier single source).
+about:
+    title: AI-Powered Nutrition Tracking
+    seo_description: >-
+        Track meals with a photo, import recipes, see your inflammation score,
+        connect your CGM, and get personalized nutrition goals.
+    jsonld_description: >-
+        AI-powered nutrition tracking: photo meal logging, recipe
+        import, a dietary inflammation score, CGM glucose insights,
+        and personalized nutrition goals.
+    hero_lead: >-
+        NouriLoop turns everyday photos of your food into a clear picture of
+        how you eat — and connects it to how you feel. Snap a meal, and AI
+        does the tedious part: estimating nutrition, spotting ingredients,
+        and asking the right questions. Over time, NouriLoop closes the loop
+        between your diet, your health metrics, and your symptoms, so you
+        can see what's actually working.
+    any_phone: >-
+        Works on the phone you already have — iPhone or Android. NouriLoop runs
+        in your phone's browser, so there's nothing to install.
+    create_account: Create your account
+    sign_in: Sign in
+    plans: Free to start. Want Loop+? {plans_link}See plans{link_end}.
+    disclaimer: >-
+        NouriLoop is an educational wellness tool, not a medical device. Its
+        scores and insights are designed to help you understand patterns in
+        your own data — they are not medical advice or diagnosis.
+    logging:
+        heading: Effortless food logging
+        items: >-
+            <li><strong>Snap-a-photo nutrition</strong> — Take a picture of
+            your meal and NouriLoop's AI estimates calories, protein, carbs,
+            fat, fiber, sugar, and a full panel of vitamins and
+            minerals.</li> <li><strong>Confirm &amp; Refine</strong> — Every
+            estimate gets a quick review screen where you can adjust
+            ingredients, answer a clarifying question or two, and fine-tune
+            before saving.</li> <li><strong>Portion control</strong> — Ate
+            half? Ate double? Set how many servings you actually had and
+            every number scales instantly.</li> <li><strong>Add a label for
+            accuracy</strong> — Attach a second photo, like a
+            nutrition-facts label, and the AI combines both for a sharper
+            estimate.</li> <li><strong>Log on your schedule</strong> —
+            Forgot to log at the table? Backdate a meal to when you actually
+            ate it.</li> <li><strong>Favorites</strong> — Save the meals you
+            eat often and re-log them in one tap — no re-analysis, no
+            waiting.</li>
+            <li><strong>Import a recipe</strong> — Photograph a
+            cookbook page or a handwritten recipe card, and
+            NouriLoop reads the ingredients and yield, works out
+            per-serving nutrition, and saves it as a favorite —
+            keeping the ingredients and steps so you can cook
+            from it later.</li>
+    nutrition:
+        heading: Understand your nutrition
+        items: >-
+            <li><strong>Daily dashboard</strong> — See today's intake and
+            key signals at a glance.</li> <li><strong>Trends over
+            time</strong> — Visual charts of your nutrition and health
+            metrics so you can spot the direction you're heading.</li>
+            <li><strong>Nutrient adequacy &amp; supplement
+            suggestions</strong> — NouriLoop reviews your last week of
+            eating against recommended intakes and flags where you're
+            consistently coming up short.</li> <li><strong>Supplement
+            tracking</strong> — Scan a supplement label with your camera,
+            and NouriLoop reads the facts panel and folds your daily
+            supplements into its adequacy picture — so suggestions reflect
+            what you already take.</li>
+    loop:
+        heading: 'Close the loop: diet ↔ how you feel'
+        items: >-
+            <li><strong>Dietary inflammation score</strong> — A daily,
+            easy-to-read signal of how pro- or anti-inflammatory your food
+            choices were, based on established nutrition research.</li>
+            <li><strong>Symptom check-ins</strong> — Track the symptoms that
+            matter to you (joint pain, digestion, headaches, energy, mental
+            clarity, or your own custom ones) with a quick daily slider whose
+            mood face keeps the scale reading the same way every time.</li>
+            <li><strong>Per-symptom relationships</strong> — Each symptom gets
+            its own view, charting it against your diet (protein, carbs, fat,
+            fiber, and your inflammation score) and your body metrics (steps,
+            glucose, weight, sleep). NouriLoop runs the statistics and shows
+            only the relationships that are statistically significant in your
+            own data — both same-day and next-day, since some effects
+            lag.</li> <li><strong>"What if?" predictions</strong>
+            <em>(Loop+)</em> — Wondering what eating your favorite meal every
+            day for two weeks would do? NouriLoop projects how your
+            inflammation score, nutrition, weight, and symptoms would likely
+            trend — computed from your own history and explained in plain
+            English.</li> <li><strong>Glucose response insights</strong> — If
+            you use a continuous glucose monitor, NouriLoop maps each meal's
+            blood-sugar response, compares it to what your meal's nutrition
+            predicted, and ranks which meals spiked you most and least.</li>
+            <li><strong>AI Pattern Coach</strong> <em>(Loop+)</em> — Goes a
+            step further: an AI deep-dive reads your own glucose responses
+            across meals — the foods, timing, and combinations behind them —
+            and writes a personalized coaching summary, calling out the
+            patterns it sees and a few concrete adjustments to try. Grounded
+            entirely in your data.</li>
+    goals:
+        heading: Personalized goals & coaching
+        items: >-
+            <li><strong>Conversational goal setup</strong> — Tell NouriLoop
+            something like "I want to eat more fiber," and an AI coach turns
+            it into a concrete, measurable goal grounded in your own eating
+            habits.</li> <li><strong>Scheduled check-ins</strong> — NouriLoop
+            evaluates your progress on a schedule you choose and delivers a
+            friendly summary, chart, or report straight to your inbox.</li>
+            <li><strong>Coaching in your voice</strong> — Three simple sliders
+            tune how NouriLoop's AI writes to you — from clinical to warm,
+            buttoned-up to playful, plain-and-simple to expert — so your
+            check-ins and insights sound the way you like.</li>
+            <li><strong>Safe, realistic targets</strong> — Goals are checked
+            against safe limits, and you're warned before setting a target
+            that could be unsafe.</li>
+    health:
+        heading: Your health data, your way
+        items: >-
+            <li><strong>Rich health metrics</strong> — Track weight, blood
+            glucose, blood pressure, heart rate, body fat, steps, and sleep
+            stages alongside your nutrition.</li> <li><strong>Easy
+            imports</strong> — Bring in history from Apple Health, popular
+            health-export apps, or a simple spreadsheet.</li>
+            <li><strong>Automatic syncing</strong> — On iPhone, connect an
+            automated export so your phone sends new readings to NouriLoop on
+            its own. On Android, import a compatible file from a supported
+            health-export app — automatic syncing is in progress.</li>
+    real_life:
+        heading: Built for real life
+        items: >-
+            <li><strong>Smart reminders</strong> — Optional nudges when you
+            haven't logged a meal, your health readings are getting stale,
+            your calories look off, or your nutrient gaps are widening.</li>
+            <li><strong>Notification center</strong> — A bell and inbox
+            right in the app gather your goal check-ins and reminders in one
+            place, so nothing slips by even if you skip email.</li>
+            <li><strong>Email, text, or in-app</strong> — Get notifications
+            and goal check-ins however you prefer.</li> <li><strong>Your
+            timezone, your day</strong> — "Today" always means <em>your</em>
+            local day, wherever you are.</li> <li><strong>GLP-1
+            mode</strong> — A dedicated mode for people on GLP-1
+            medications, with protein-forward guidance, portion help, and
+            awareness of common nausea triggers.</li>
+    privacy:
+        heading: Private & secure
+        items: >-
+            <li><strong>Personal, multi-user accounts</strong> — Your data is
+            yours, kept separate from other accounts and protected.</li>
+            <li><strong>Clear privacy practices</strong> — Plain-language
+            notices explain how your health data is handled, including any
+            services involved in processing it. See our {health_link}Health
+            Data Privacy Notice{link_end}.</li>
+    closing: >-
+        NouriLoop — close the loop between what you eat and how you feel.
+    company: >-
+        NouriLoop is built and operated by NouriLoop LLC, an Oregon (USA)
+        company. NouriLoop LLC is also the developer of
+        <strong>Campaigner</strong>.
+pricing_page:
+    title: Plans & Pricing
+    seo_description: >-
+        Free and Loop+ plans for AI nutrition tracking, recipe
+        import, CGM glucose insights, and personalized goal
+        check-ins.
+    heading: Choose your plan
+    subtitle: Close the loop between what you eat and how you feel.
+    billing_period: Billing period
+    monthly: Monthly
+    annual: Annual
+    save_badge: save up to {percent}%
+    loop_tagline: Everything you need to track and improve your nutrition.
+    loop_plus_tagline: For deeper, data-driven feedback on your body.
+    per_month: /mo
+    per_year: /yr
+    feature:
+        unlimited_photos: 'Unlimited photo & recipe analyses'
+        goal_checkins: Weekly goal check-ins with no limit
+        sms_reports: Text (SMS) reports
+        assistant: AI help assistant
+        inflammation: Dietary inflammation score
+        symptoms: Symptom check-ins
+        supplements: Supplement tracking
+        everything_in_loop: '<strong>Everything in Loop</strong>, plus:'
+        cgm: Glucose response insights
+        coach: AI Pattern Coach
+        daily_checkins: Daily goal check-ins, delivered by email or text
+        predictive: “What if?” predictions
+    most_insight: Most insight
+    current_plan: Your current plan
+    get_loop: Get Loop
+    get_loop_plus: Get Loop+
+    free_note: >-
+        Every account — including Free — gets goal setup with
+        {limit, plural, one {its first # goal check-in} other {its
+        first # goal check-ins}}, plus {photoLimit, plural, one {#
+        AI analysis} other {# AI analyses}} each month — meal photos
+        or recipe imports. Favorite meals are included on every
+        plan — re-logging a saved favorite never uses an analysis.
+    free_strip: >-
+        <strong>Free · ${price}</strong> — {photoLimit, plural, one {# AI
+        analysis} other {# AI analyses}} a month and {limit, plural, one {your
+        first goal check-in} other {your first # goal check-ins}}.
+    free_cta: Create a free account
+    cancel_note: >-
+        Cancel any time. Access continues through the end of your billing
+        period.
+    wellness_note: >-
+        NouriLoop is a wellness tool, not a medical device. Subscription
+        does not include any medical services or advice.
+lp:
+    layout:
+        cta_default: Try NouriLoop free
+        no_card: Free account. No credit card needed.
+        any_phone: >-
+            Works on the phone you already have — iPhone or Android. NouriLoop
+            runs in your phone's browser, so there's nothing to install.
+        disclaimer: >-
+            NouriLoop is an educational wellness tool, not a medical device.
+            Its scores and insights help you understand patterns in your own
+            data — they are not medical advice or diagnosis, and they aren't
+            a substitute for talking to your doctor.
+    # Copy rule (Marketing Plan §2), enforced in EVERY locale's catalog: the
+    # "diabetes" page says "blood sugar"/"glucose" — never the condition
+    # word. The slug/key name is an internal campaign name, not visible text.
+    diabetes:
+        seo_description: >-
+            Photo-log your meals and see your actual CGM glucose response
+            for the next 3 hours. Works with Abbott Lingo and Stelo — no
+            proprietary hardware.
+        title: See How Every Meal Affects Your Blood Sugar
+        headline: See how every meal affects your blood sugar
+        lead: >-
+            Photo-log your meal, and NouriLoop overlays your actual CGM
+            readings for the next three hours — so you can finally see which
+            foods spike you and which don't. Works with the Abbott Lingo or
+            Stelo sensor you already own.
+        cta: Try free — works with your Lingo or Stelo
+        sensor_note: >-
+            <strong>Which sensor, which phone?</strong> Lingo and Stelo both
+            work on iPhone. On Android, Stelo works — Lingo doesn't share its
+            readings with other apps. Not sure? Start free and ask us; we'll
+            tell you straight.
+        curve_alt: >-
+            A meal's glucose response: the CGM curve around the meal with
+            baseline, peak, time to peak, and a comparison against the
+            meal's nutritional estimate
+        one_place_heading: Your meals and your glucose, finally in one place
+        one_place_intro: >-
+            You log meals in one app and your sensor logs glucose in another
+            — and nothing connects the two. NouriLoop does:
+        one_place_items: >-
+            <li><strong>Snap a photo of your meal.</strong> The nutrition —
+            carbs, sugar, fiber, protein, and more — is estimated from the
+            image. No database searching.</li> <li><strong>Your CGM readings
+            arrive automatically.</strong> On iPhone, a scheduled export from
+            Apple Health does it — a guided setup walks you through it once.
+            On Android, you can import your readings from a compatible file
+            today, and we're working on making it automatic.</li> <li><strong>Every meal gets a response curve:</strong>
+            your baseline, your peak, how long it took to get there, and how
+            long it took to come back down.</li> <li><strong>Meals are
+            ranked against each other</strong> — your biggest spikes, your
+            gentlest meals, and the meals that spiked you more than their
+            nutrition predicted.</li>
+            <li><strong>Import your own recipes.</strong>
+            Photograph a cookbook page or a recipe card once —
+            NouriLoop reads the ingredients, estimates
+            per-serving carbs and sugar, and saves it as a
+            favorite, so logging home cooking takes one
+            tap.</li>
+        insights_alt: >-
+            The Glucose Insights page ranking meals: biggest glucose rises,
+            gentlest meals, and meals that spiked more than their nutrition
+            predicted
+        price_heading: No proprietary hardware. No $200-a-year program.
+        price_body: >-
+            Apps like Nutrisense and Levels charge $200+ a year and want you
+            on their sensor program. NouriLoop Loop+ is
+            <strong>${price}/year</strong> and works with the
+            over-the-counter sensor you already wear.
+        compare_them_name: Metabolic coaching apps
+        compare_them_price: $200+/yr
+        compare_them_sub: Proprietary sensor programs, subscription required
+        compare_us_price: ${price}/yr
+        compare_us_sub: Works with your existing Lingo or Stelo · 7-day free trial
+        confidence_heading: A nutrition estimate that tells you when it's guessing
+        confidence_body: >-
+            Most apps say your dinner was "423 calories" — a false-precision
+            number you know can't be right. NouriLoop shows a confidence
+            score with every estimate and asks a clarifying question when a
+            photo is ambiguous, so you know when to trust the number and
+            when to refine it.
+        founder: >-
+            <strong>Why NouriLoop exists:</strong> it was built by a
+            developer in his 60s who wears the same Lingo sensor this page
+            talks about — because after months of logging meals in one app
+            and watching glucose in another, no tool would connect the two
+            without a $200-a-year hardware program. So he built it.
+        footnote: >-
+            Free to start — photo logging and glucose import are included
+            free. Per-meal glucose correlation is part of Loop+
+            (${price}/year, 7-day free trial). No credit card needed to sign
+            up.
+    fiber:
+        seo_description: >-
+            Track fiber, vitamins, and minerals from a photo of your meal —
+            no database lookup. See which nutrients you are consistently
+            missing.
+        title: Track Your Fiber Intake From a Photo
+        headline: >-
+            Your doctor said to eat more fiber.<br>Here's how to know if you
+            are.
+        lead: >-
+            Most apps don't track fiber at all — or hide it behind manual
+            database entry, where you have to know the exact food item
+            first. NouriLoop estimates fiber, vitamins, and minerals from a
+            photo of your meal, and shows you whether you're actually
+            hitting your target, day after day.
+        cta: Track your fiber intake free
+        summary_alt: >-
+            A logged meal's Nutrition Summary: AI confidence, calories and
+            macros, then fiber, sodium, potassium, calcium, iron, magnesium,
+            zinc, and vitamins A and C
+        photo_heading: Fiber from a photo — no database searching
+        photo_items: >-
+            <li><strong>Snap a photo of your plate.</strong> NouriLoop
+            estimates fiber alongside a full nutrient panel — folate,
+            magnesium, potassium, vitamins A through E, and 15+ others —
+            from the image itself.</li> <li><strong>Every estimate comes
+            with a confidence score</strong>, and a quick review screen lets
+            you adjust ingredients or attach the nutrition-facts label for a
+            sharper number. Honest estimates, not false precision.</li>
+            <li><strong>Your daily dashboard shows where today stands</strong>
+            — so "eat more fiber" becomes a number you can actually
+            watch.</li>
+            <li><strong>Cook at home? Import the recipe
+            once.</strong> Photograph the cookbook page or
+            recipe card, and NouriLoop reads the ingredients,
+            works out fiber and the full nutrient panel per
+            serving, and saves it as a favorite you can log in
+            one tap.</li>
+        gaps_heading: See which nutrients you're consistently missing
+        gaps_alt: >-
+            The Supplements page: flagged nutrient gaps and your saved
+            supplements
+        gaps_intro: >-
+            One good day doesn't answer your doctor's question — the week
+            does. NouriLoop reviews your last 7 days against recommended
+            intakes and flags the nutrients you're consistently coming up
+            short on.
+        gaps_items: >-
+            <li><strong>Gap analysis over 7, 14, 30, or 90 days</strong> —
+            see whether your fiber average is trending where it should.</li>
+            <li><strong>Supplements counted in:</strong> scan a supplement
+            label with your camera and NouriLoop folds what you already take
+            into the picture, so the gaps it flags are the real ones.</li>
+            <li><strong>Trends over time</strong> — charts of your intake so
+            you can show yourself (and your doctor) the direction you're
+            heading.</li>
+        serious_heading: Built for people who take their doctor's advice seriously
+        serious_body: >-
+            NouriLoop was built by a developer in his 60s who was tired of
+            nutrition apps that either ignored micronutrients or pretended
+            to more precision than a photo can give. It tells you what it
+            knows, tells you when it's guessing, and keeps the score where
+            you can see it — which is what following through on medical
+            advice actually takes.
+        footnote: >-
+            Free to start — your first 10 photo analyses each month are
+            included. Unlimited photo logging is part of Loop (${price}/year).
+            No credit card needed to sign up.
+    inflammation:
+        seo_description: >-
+            A daily inflammation score computed from what you actually ate,
+            tracked alongside how you feel — so you can see whether your
+            diet change is working.
+        title: Is Your Anti-Inflammatory Diet Working?
+        headline: Anti-inflammatory diet? Find out if it's actually working.
+        lead: >-
+            You've cut the processed food and added the salmon and leafy
+            greens — but nothing tells you whether it's helping. NouriLoop
+            scores every day's eating on an inflammation scale, from what
+            you actually ate, and tracks how you feel alongside it. After a
+            couple of weeks, the pattern is right there on the chart.
+        cta: See your inflammation score — free
+        overview_alt: >-
+            The Insights & Trends overview, led by the daily
+            inflammation-score tile
+        score_heading: A daily inflammation score, from photos of your food
+        score_items: >-
+            <li><strong>Snap a photo of each meal</strong> — the nutrition
+            is estimated from the image, in seconds. No manual database
+            entry.</li> <li><strong>Every day gets a score from −10 to
+            +10:</strong> saturated fat, sugar, and sodium push it toward
+            pro-inflammatory; fiber, antioxidant vitamins, fatty fish, olive
+            oil, leafy greens, and berries pull it the other way.</li>
+            <li><strong>It's transparent, rule-based scoring</strong> built
+            on published nutrition research — the same directionality as the
+            Dietary Inflammatory Index — not a black box.</li>
+            <li><strong>It works retroactively:</strong> a day scored last
+            Tuesday is a data point, so your chart fills in as you log.</li>
+        feel_heading: >-
+            Log how you feel. See which foods line up with your worst days.
+        feel_intro: >-
+            A ten-second daily slider tracks whatever matters to you — joint
+            pain, stiffness, digestion, energy, or your own custom symptoms.
+            NouriLoop charts each one against your diet, day by day.
+        chart_alt: >-
+            A Trends relationship panel stacking a symptom against protein,
+            carbs, fat, fiber, and inflammation score
+        feel_stats: >-
+            Then it runs the statistics for you — same-day <em>and</em>
+            next-day, since food effects often lag — and surfaces only the
+            relationships that are statistically significant in your data. Not
+            a hunch. Not guesswork. Your own numbers, over weeks, showing
+            which way things move together.
+        founder: >-
+            <strong>Why NouriLoop exists:</strong> it was built by a
+            developer in his 60s with osteoarthritis who needed to know
+            which foods triggered his flares. He'd made the diet changes
+            everyone recommends — and had no way to tell whether they were
+            working, or which foods lined up with his worst days. So he
+            built the tool that could.
+        footnote: >-
+            The inflammation score and symptom tracking are free features.
+            No credit card needed to sign up.
+    # Campaign B (Weight Loss / Calorie Tracking) rebuild page. Honesty rule
+    # (Comprehensive Review §9): goal setting and scheduled check-ins are paid
+    # features (Loop / Loop+) and are labeled as such — never implied free.
+    weight_loss:
+        seo_description: >-
+            Photo-log meals in seconds and get honest calorie estimates
+            with a confidence score — a calorie counter that tells you when
+            it's guessing instead of pretending to be exact.
+        title: The Calorie Counter That Admits Uncertainty
+        headline: The calorie counter that admits uncertainty
+        lead: >-
+            Other apps say your dinner was "423 calories" — as if anyone
+            could know that from a database entry. NouriLoop estimates your
+            meal from a photo, shows a confidence score with every
+            estimate, and tells you when to trust the number and when to
+            refine it. Honest estimates you can actually act on.
+        cta: Try honest calorie tracking — free
+        summary_alt: >-
+            A logged meal's Nutrition Summary: the AI confidence score,
+            calories and macros, and the full nutrient panel below
+        photo_heading: Snap a photo. Skip the database search.
+        photo_items: >-
+            <li><strong>Log a meal in seconds.</strong> Snap a photo — the
+            calories, protein, carbs, and fat are estimated from the image.
+            No more searching a database for "burrito, medium
+            salsa."</li> <li><strong>Every estimate shows its
+            confidence.</strong> A quick review screen lets you adjust
+            ingredients, answer a clarifying question, or attach the
+            nutrition-facts label for a sharper number.</li>
+            <li><strong>No false precision.</strong> When a photo can only
+            support a rough estimate, NouriLoop says so — a number you can
+            trust beats a precise-looking guess.</li>
+            <li><strong>Home cooking counts too.</strong>
+            Photograph a recipe — a cookbook page or a
+            handwritten card — and NouriLoop works out
+            per-serving calories once. From then on, logging
+            that dish takes one tap.</li>
+        day_heading: Watch the week, not just the meal
+        day_alt: >-
+            The NouriLoop dashboard: today's calories and protein alongside
+            recent averages
+        day_items: >-
+            <li><strong>Your dashboard shows where today stands</strong> —
+            calories and protein against your own recent averages, not a
+            generic target.</li> <li><strong>Your weight rides
+            along:</strong> import it from Apple Health or your smart
+            scale, and Trends charts it next to what you ate.</li>
+            <li><strong>Patterns over 7 to 90 days</strong> — because one
+            indulgent dinner doesn't matter; the month does.</li>
+        goal_heading: When you're ready, set a goal in plain English
+        goal_alt: >-
+            A nutrition goal's page: the target, a progress chart, and the
+            check-in history
+        goal_body: >-
+            Tell NouriLoop "keep me under 2000 calories a day" in a short
+            chat and it becomes a concrete, measurable goal. On a schedule
+            you choose, NouriLoop evaluates the meals you actually logged
+            and sends a plain-language check-in with a progress chart —
+            encouragement when it's working, a course correction when it
+            isn't.
+        goal_tier_note: >-
+            Goal setup is free, and every account includes its first
+            {limit} check-ins. Loop (${loop_price}/year) keeps them coming
+            weekly; Loop+ (${plus_price}/year) adds daily check-ins
+            delivered by email or text. Paid plans start with a 7-day free
+            trial.
+        founder: >-
+            <strong>Why NouriLoop exists:</strong> it was built by a
+            developer in his 60s who got tired of calorie counters that
+            pretended a database entry could be exact. He wanted a tool
+            that was honest about what it knew — and told him when it was
+            guessing. So he built one.
+        footnote: >-
+            Free to start — your first 10 photo analyses each month and
+            your goals' first {limit} check-ins are included. Unlimited
+            photo logging and weekly check-ins are part of Loop
+            (${price}/year); daily check-ins delivered by email or text are
+            part of Loop+. No credit card needed to sign up.
+
+# Recipe photo import: photograph a cookbook page / printout / handwritten
+# card, review the AI's reading, and save it as a per-serving favorite.
+recipe:
+    import_cta: Import a recipe
+    badge: From a recipe
+    steps: 'Ingredients & steps'
+    ingredients_for: '{servings, plural, one {Ingredients — makes # serving} other {Ingredients — makes # servings}}'
+    imported: Saved “{name}” to your favorites — log it from there any time.
+    scan:
+        title: Import a Recipe
+        back: Back
+        photos: Recipe photos
+        submit: Read This Recipe
+        lead: >-
+            Photograph a recipe — a cookbook page, a printed page, or a
+            handwritten card. Up to {max} photos of one recipe (front and
+            back, or several pages). NouriLoop reads the ingredients and
+            yield, works out the nutrition per serving, and saves it as a
+            favorite you can log in one tap.
+        failed: >-
+            Sorry — we could not read that recipe. Try again with clearer,
+            well-lit photos.
+    confirm:
+        title: Confirm Your Recipe
+        lead: Check what we read — fix any ingredient line, set the servings, and save.
+        confidence: '{pct}% confident'
+        name: Recipe name
+        servings: Servings it makes
+        servings_help: Nutrition is divided by this, so the favorite stores one serving.
+        ingredients: Ingredients
+        ingredient: Ingredient
+        amount: Amount
+        unit: Unit
+        add_line: Add a line
+        remove_hint: Clear a name to drop that line.
+        batch: Whole recipe
+        per_serving: Per serving
+        questions: 'The AI was not sure about:'
+        answers_hint: >-
+            Answer what you can and re-run the reading — or just correct the
+            fields yourself.
+        reanalyze: Re-run with my answers
+        save: Save as favorite
+        cancel: Cancel
+        bad_servings: Enter how many servings the recipe makes (a number above zero).
+        instructions: Preparation steps (kept for your reference)

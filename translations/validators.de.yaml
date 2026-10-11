@@ -1,0 +1,25 @@
+# German translations for the app's custom constraint messages. The validators
+# domain uses the English message string itself as the key (Symfony's own
+# convention for constraint messages), and is deliberately NOT an intl-icu
+# domain — constraint placeholders use the validator's {{ limit }} syntax,
+# which ICU MessageFormat would fail to parse. Symfony ships translations for
+# its built-in default messages; only messages we override live here.
+'Please enter your name': 'Bitte geben Sie Ihren Namen ein'
+'Please enter your email': 'Bitte geben Sie Ihre E-Mail-Adresse ein'
+'Please enter your email.': 'Bitte geben Sie Ihre E-Mail-Adresse ein.'
+'Please enter a valid email address.': 'Bitte geben Sie eine gültige E-Mail-Adresse ein.'
+'Passwords must match.': 'Die Passwörter müssen übereinstimmen.'
+'Please enter a password': 'Bitte geben Sie ein Passwort ein'
+'Password must be at least {{ limit }} characters': 'Das Passwort muss mindestens {{ limit }} Zeichen lang sein'
+'Your password should be at least {{ limit }} characters': 'Ihr Passwort muss mindestens {{ limit }} Zeichen lang sein'
+'The password fields must match.': 'Die Passwortfelder müssen übereinstimmen.'
+'This password has appeared in a known data breach — please choose a different one.': 'Dieses Passwort ist in einem bekannten Datenleck aufgetaucht — bitte wählen Sie ein anderes.'
+'Enter a valid number in E.164 format, e.g. +15555550123.': 'Geben Sie eine gültige Nummer im E.164-Format ein, z. B. +4915123456789.'
+'Please upload at least one photo.': 'Bitte laden Sie mindestens ein Foto hoch.'
+'Please upload valid images (JPEG, PNG, WebP, or HEIC).': 'Bitte laden Sie gültige Bilder hoch (JPEG, PNG, WebP oder HEIC).'
+'Please upload a valid image (JPEG, PNG, WebP, or HEIC).': 'Bitte laden Sie ein gültiges Bild hoch (JPEG, PNG, WebP oder HEIC).'
+'Please enter your feedback.': 'Bitte geben Sie Ihr Feedback ein.'
+'Please upload at most {{ limit }} photos of one meal.': 'Bitte laden Sie höchstens {{ limit }} Fotos einer Mahlzeit hoch.'
+'Please upload at most {{ limit }} photos of one recipe.': 'Bitte laden Sie höchstens {{ limit }} Fotos eines Rezepts hoch.'
+'Please upload at most {{ limit }} photos of one supplement label.': 'Bitte laden Sie höchstens {{ limit }} Fotos des Etiketts eines Nahrungsergänzungsmittels hoch.'
+'There is already an account with this email': 'Mit dieser E-Mail-Adresse existiert bereits ein Konto'

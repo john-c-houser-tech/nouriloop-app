@@ -1,0 +1,30 @@
+# Test-only container overrides (auto-loaded by MicroKernelTrait in the `test`
+# environment). The E2E suite runs the app as a real server via Panther, so we
+# can't swap a mock service per-request the way a WebTestCase could — instead we
+# replace the HttpClient that every Claude-calling service depends on with a
+# MockHttpClient backed by FakeAnthropicResponder. Result: deterministic AI
+# responses, zero tokens, no network.
+services:
+    App\Tests\Http\FakeAnthropicResponder:
+        public: false
+
+    test.anthropic_http_client:
+        class: Symfony\Component\HttpClient\MockHttpClient
+        arguments:
+            $responseFactory: '@App\Tests\Http\FakeAnthropicResponder'
+
+    # ClaudeClient is the only module that calls the Messages API (text and vision),
+    # so it is the only one whose HTTP client is swapped. autowire: true so any
+    # *other* constructor dependency still autowires (this definition doesn't
+    # inherit the main services.yaml _defaults).
+    App\Service\ClaudeClient:
+        autowire: true
+        arguments:
+            $httpClient: '@test.anthropic_http_client'
+            $anthropicApiKey: '%anthropic_api_key%'
+
+    # No DNS lookups in tests (same posture as the disabled HIBP check): the
+    # stub inherits the typo map but answers the MX question deterministically
+    # (only StubEmailDeliverabilityChecker::NO_MX_DOMAIN fails).
+    App\Service\EmailDeliverabilityChecker:
+        class: App\Tests\Stub\StubEmailDeliverabilityChecker

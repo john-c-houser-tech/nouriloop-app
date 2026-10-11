@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}You're subscribed — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-5 text-center" style="max-width: 560px;">
+    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+    <h1 class="fw-bold mt-3">You're subscribed!</h1>
+    <p class="text-muted">
+        Welcome to <strong>{{ tier.label }}</strong>. Your new features are unlocked and
+        ready to use. If you started a free trial, you won't be charged until it ends —
+        you can manage or cancel any time from your subscription settings.
+    </p>
+    <div class="d-flex gap-2 justify-content-center mt-4">
+        <a href="{{ path('app_dashboard') }}" class="btn btn-success">
+            <i class="bi bi-house-door"></i> Go to dashboard
+        </a>
+        <a href="{{ path('app_settings_subscription') }}" class="btn btn-outline-secondary">
+            Manage subscription
+        </a>
+    </div>
+</div>
+{% endblock %}

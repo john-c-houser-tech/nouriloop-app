@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Health Data Privacy Notice — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 760px;">
+    <h1 class="fw-bold mb-1">NouriLoop Health Data Privacy Notice</h1>
+    <p class="text-muted">Effective date: June 9, 2026 · Last updated: October 8, 2026</p>
+
+    <p>This notice explains how NouriLoop LLC (“NouriLoop,” “we”) handles the
+    health and wellness information you provide. Please read it before uploading
+    health metrics.</p>
+
+    <h2 class="h5 fw-bold mt-4">1. What this covers</h2>
+    <p>Health and wellness data you choose to add to NouriLoop, and what NouriLoop
+    works out from it, including:</p>
+    <ul>
+        <li><strong>Health metrics</strong> you import (e.g., weight, body fat, blood
+        glucose, blood pressure, heart rate, steps, sleep) by file upload or an
+        automated export from your phone;</li>
+        <li><strong>Symptom check-ins</strong> you record;</li>
+        <li><strong>The analysis of your meals</strong> — the nutrition estimates
+        derived from the meal photos and descriptions you submit, your dietary
+        inflammation score, your nutrient gaps, your blood glucose response to
+        meals, and your goal progress;</li>
+        <li>Account info (email, display name) and notification preferences/phone number.</li>
+    </ul>
+
+    <h2 class="h5 fw-bold mt-4">2. How we use it</h2>
+    <ul>
+        <li>To display your dashboards, trends, and 7-day nutrient-gap / supplement insights;</li>
+        <li>To run the food-photo analysis that estimates nutrition;</li>
+        <li>To run the AI features you choose to use: goal setup and check-ins,
+        AI Pattern Coach, “What if?” predictions, and the help assistant;</li>
+        <li>To send the notifications you have <strong>opted in</strong> to (all
+        notifications are off by default);</li>
+        <li>To operate, secure, and maintain the service.</li>
+    </ul>
+
+    <h2 class="h5 fw-bold mt-4">3. Who we share it with (service providers only)</h2>
+    <p>We do <strong>not sell</strong> your health data and do <strong>not</strong>
+    share it for advertising. We share the minimum necessary with processors that
+    operate the service on our behalf:</p>
+    <ul>
+        <li><strong>Anthropic</strong> (Claude API) — runs NouriLoop’s AI features.
+        It receives only what the feature you are using needs:
+            <ul>
+                <li>meal, recipe, and supplement-label photos, plus what you add
+                while an estimate is being made or refined — meal descriptions and
+                notes, your answers to the AI’s follow-up questions, and ingredient
+                corrections — for nutrition analysis;</li>
+                <li>your <strong>blood glucose readings</strong> and the meals
+                around them, if you use AI Pattern Coach (Loop+);</li>
+                <li>your nutrition averages, dietary inflammation score, nutrient
+                gaps, and goal progress, plus what you type into the goal-setup
+                chat or a “What if?” scenario and the favorite meal or supplement
+                a scenario names, for goal setup and check-ins and for “What if?”
+                predictions;</li>
+                <li>the questions you ask the help assistant.</li>
+            </ul>
+        </li>
+        <li><strong>Twilio</strong> — your mobile number and message text, only if you
+        enable SMS.</li>
+        <li><strong>IONOS</strong> — to deliver email notifications and
+        password resets.</li>
+        <li>Disclosures required by law, or to protect rights and safety.</li>
+    </ul>
+
+    <h2 class="h5 fw-bold mt-4">4. Storage, security, and location</h2>
+    <p>Your data is stored in our database on servers located in the United States. We
+    use reasonable administrative and technical safeguards — encrypted transport
+    (HTTPS/TLS), authentication, and access controls. No system is perfectly secure,
+    and we cannot guarantee absolute security.</p>
+
+    <h2 class="h5 fw-bold mt-4">5. Data retention</h2>
+    <p>We keep your data while your account is active and as needed to provide the
+    service. You may request deletion at any time (see Your rights); we delete or
+    de-identify it subject to any legal retention obligations.</p>
+
+    <h2 class="h5 fw-bold mt-4">6. Your rights</h2>
+    <p>Depending on where you live, you may have rights to access, export, correct, or
+    delete your personal/health information (e.g., under the CCPA/CPRA or GDPR). To
+    exercise them, contact us at info@nouriloop.com. You can also delete individual meals
+    in the app and turn off any notification at any time.</p>
+
+    <h2 class="h5 fw-bold mt-4">7. HIPAA</h2>
+    <p>HIPAA applies to “covered entities” (health plans, healthcare providers,
+    clearinghouses) and their business associates. NouriLoop is a
+    <strong>direct-to-consumer wellness tool</strong>: the data here is information
+    <strong>you</strong> voluntarily provide about yourself, so NouriLoop is
+    <strong>not acting as a HIPAA covered entity</strong>, and this notice is
+    <strong>not</strong> a HIPAA Notice of Privacy Practices. If you received NouriLoop
+    through, or use it on behalf of, a healthcare provider or health plan, that
+    organization’s HIPAA notice governs your information with them.</p>
+
+    <h2 class="h5 fw-bold mt-4">8. Children</h2>
+    <p>NouriLoop is not directed to children under 13, and we do not knowingly
+    collect their information.</p>
+
+    <h2 class="h5 fw-bold mt-4">9. Changes &amp; contact</h2>
+    <p>We may update this notice and will revise the “Last updated” date. Questions:
+    NouriLoop LLC, 5441 S Macadam Ave Ste N, Portland OR 97239, info@nouriloop.com.</p>
+</div>
+{% endblock %}

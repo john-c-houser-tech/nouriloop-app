@@ -1,0 +1,46 @@
+{% extends 'lp/_layout.html.twig' %}
+
+{# Campaign D ("Anti-Inflammatory Diet Tracking") + Meta Campaign 2 landing page.
+   Framed around the diet behavior, not a medical condition (Marketing Plan §5
+   Campaign D policy note). The founder story names his own osteoarthritis — a
+   first-person fact, per the §8 spec — but the copy never asserts anything about
+   the visitor's health. #}
+
+{% block lp_title %}{{ 'lp.inflammation.title'|trans }} — NouriLoop{% endblock %}
+{% block lp_headline %}{{ 'lp.inflammation.headline'|trans }}{% endblock %}
+{% block lp_lead %}{{ 'lp.inflammation.lead'|trans }}{% endblock %}
+{% block lp_cta_label %}{{ 'lp.inflammation.cta'|trans }}{% endblock %}
+
+{% block lp_body %}
+
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/inflammation.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="{{ 'lp.inflammation.overview_alt'|trans }}">
+</figure>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.inflammation.score_heading'|trans }}</h2>
+    <ul class="mb-0">{{ 'lp.inflammation.score_items'|trans|raw }}</ul>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4 fw-bold">{{ 'lp.inflammation.feel_heading'|trans }}</h2>
+    <p>{{ 'lp.inflammation.feel_intro'|trans }}</p>
+    <figure class="figure d-block border rounded shadow-sm overflow-hidden mb-3 w-100">
+        <img src="{{ asset('images/help/symptoms-chart.png') }}" class="figure-img img-fluid mb-0 w-100"
+             alt="{{ 'lp.inflammation.chart_alt'|trans }}">
+    </figure>
+    <p class="mb-0">{{ 'lp.inflammation.feel_stats'|trans|raw }}</p>
+</section>
+
+<section class="mb-4">
+    <div class="border rounded-3 p-3 bg-light">
+        <p class="mb-0">{{ 'lp.inflammation.founder'|trans|raw }}</p>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block lp_footnote %}
+    {{ 'lp.inflammation.footnote'|trans }}
+{% endblock %}

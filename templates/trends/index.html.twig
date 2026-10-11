@@ -1,0 +1,1222 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'trends.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-graph-up text-brick"></i> {{ 'trends.title'|trans }} {{ help_link('inflammation') }}</h2>
+            <p class="text-muted small mb-0">{{ 'trends.subtitle'|trans({'days': days}) }}</p>
+        </div>
+        <div class="btn-group">
+            {% for d in [7, 14, 30, 90] %}
+            <a href="{{ path('app_trends', {days: d}) }}"
+               class="btn btn-{{ days == d ? 'success' : 'outline-secondary' }} btn-sm">{{ d }}d</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# `correlations` is populated only for symptoms with *logged* entries — the same
+       condition under which a per-symptom panel renders below — so a symptom-only user
+       (no meals/health/sleep) still gets the dashboard, while an enabled-but-unlogged
+       symptom alone correctly falls through to the empty state. #}
+    {% if calorieTotals is empty and healthAggByType is empty and sleepData is empty and correlations is empty %}
+    <div class="card p-5 text-center text-muted">
+        <i class="bi bi-bar-chart fs-1 text-brick mb-2"></i>
+        <p class="mb-2">{{ 'trends.empty'|trans }}</p>
+        <a href="{{ path('app_meal_log') }}" class="btn btn-success btn-sm">{{ 'trends.log_first'|trans }}</a>
+    </div>
+    {% else %}
+
+    <style>
+        .insight-tile { cursor: pointer; transition: box-shadow .15s, transform .15s; }
+        .insight-tile:hover:not(:disabled) { box-shadow: 0 .25rem .75rem rgba(0,0,0,.12); transform: translateY(-1px); }
+        .insight-tile:disabled { cursor: default; }
+        .insight-panel canvas { max-height: 60vh; }
+        /* Give the time-series charts room to breathe instead of squashing them into
+           a ~100–150px band. A fixed-height wrapper + maintainAspectRatio:false keeps
+           the width responsive while the height stays generous. (The macro doughnut
+           sizes itself and is left alone.) */
+        .insight-chart-wrap { position: relative; height: 340px; }
+        @media (max-width: 575.98px) { .insight-chart-wrap { height: 260px; } }
+        /* Small-multiples stack: one compact panel per factor, own axis/units, no
+           normalization. Panels share a left-aligned label column and only the
+           bottom-most panel in a stack shows date ticks. */
+        .symptom-multiples { display: flex; flex-direction: column; }
+        .symptom-mini-panel { display: flex; align-items: stretch; gap: 8px; }
+        .symptom-mini-label {
+            width: 92px; flex: 0 0 92px; font-size: .75rem; color: var(--bs-secondary-color, #6c757d);
+            display: flex; align-items: center; line-height: 1.15; padding-right: 4px;
+        }
+        .symptom-mini-chart { position: relative; flex: 1 1 auto; height: 56px; }
+        .symptom-mini-panel.symptom-mini-symptom .symptom-mini-chart { height: 84px; }
+        .symptom-mini-panel.symptom-mini-last .symptom-mini-chart { height: 76px; }
+        @media (max-width: 575.98px) {
+            .symptom-mini-label { width: 56px; flex-basis: 56px; font-size: .7rem; }
+        }
+    </style>
+
+    {# Status → presentation. ok=green, watch=amber, alert=red, muted=disabled. #}
+    {% set statusMeta = {
+        'ok':    {border: 'border-success',   text: 'text-success',        icon: 'bi-check-circle-fill'},
+        'watch': {border: 'border-warning',   text: 'text-warning',        icon: 'bi-exclamation-triangle-fill'},
+        'alert': {border: 'border-danger',    text: 'text-danger',         icon: 'bi-exclamation-octagon-fill'},
+        'muted': {border: 'border-secondary', text: 'text-muted',          icon: 'bi-dash-circle'},
+    } %}
+    {# Trend = which way the data has moved over the period (direction only). #}
+    {% set trendMeta = {
+        'up':   {icon: 'bi-arrow-up-right',   label: 'trends.trend_up'|trans},
+        'down': {icon: 'bi-arrow-down-right', label: 'trends.trend_down'|trans},
+        'flat': {icon: 'bi-arrow-right',      label: 'trends.trend_flat'|trans},
+    } %}
+
+    {# ════════════════════════════════════════════════════════════════════
+       OVERVIEW — compact status tiles grouped by theme. Tap a tile to open
+       its chart in the matching detail panel below (toggled by JS).
+       ════════════════════════════════════════════════════════════════════ #}
+    <div id="insight-overview">
+        <div class="text-muted small mb-4">
+            <p class="mb-2">{{ 'trends.tap_hint'|trans }}</p>
+            <p class="mb-0">{{ 'trends.arrows_legend'|trans({'days': days})|raw }}</p>
+        </div>
+        {% for group in insightCards %}
+        {% if group.cards is not empty %}
+        <h5 class="fw-bold mb-2 {{ group.theme == 'consequences' ? 'text-consequence' : '' }}">
+            {% if group.theme == 'consequences' %}<i class="bi bi-arrow-repeat"></i> {% endif %}{{ group.title }}
+        </h5>
+        <div class="row g-3 mb-4">
+            {% for card in group.cards %}
+            {% set sm = statusMeta[card.status] %}
+            <div class="col-6 col-lg-3">
+                {% if card.linkRoute is defined %}
+                <a href="{{ path(card.linkRoute, card.linkParams|default({})) }}"
+                   class="insight-tile card h-100 w-100 text-start p-3 border-2 text-decoration-none {{ sm.border }}">
+                {% else %}
+                <button type="button"
+                        class="insight-tile card h-100 w-100 text-start p-3 border-2 {{ sm.border }}{{ not card.available ? ' opacity-50' : '' }}"
+                        {% if card.available %}data-panel="{{ card.panel }}"{% if card.metric is defined %} data-metric="{{ card.metric }}"{% endif %}{% else %}disabled{% endif %}>
+                {% endif %}
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="fw-semibold small text-body">{{ card.title }}</span>
+                        <i class="bi {{ sm.icon }} {{ sm.text }}"></i>
+                    </div>
+                    <div class="fs-4 fw-bold lh-1 text-body">
+                        {{ card.headline }}{% if card.unit %}<small class="text-muted fs-6 fw-normal"> {{ card.unit }}</small>{% endif %}
+                        {% if card.trend is defined and card.trend %}{% set tm = trendMeta[card.trend] %}<i class="bi {{ tm.icon }} text-muted fs-6 ms-1" title="{{ 'trends.trend_title'|trans({'label': tm.label, 'days': days}) }}"></i>{% endif %}
+                    </div>
+                    <div class="small {{ card.available ? sm.text : 'text-muted' }} mt-1 text-truncate">{{ card.note }}</div>
+                {% if card.linkRoute is defined %}</a>{% else %}</button>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════════
+       DETAIL PANELS — one chart at a time, full width, with an explainer.
+       Hidden by default; JS reveals the one whose tile was tapped.
+       ════════════════════════════════════════════════════════════════════ #}
+
+    {# ── Inflammation (+ symptom overlay + correlations) ─────────────────── #}
+    {% if inflammationDaily is not empty %}
+    <section class="insight-panel d-none" data-panel="inflammation">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-3 consequence-accent">
+            <div class="mb-3">
+                <h5 class="fw-bold mb-0">{{ 'trends.inflammation.heading'|trans }} {{ 'trends.last_days'|trans({'days': days}) }}</h5>
+                <small class="text-muted">{{ 'trends.inflammation.legend'|trans }}</small>
+            </div>
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about'|trans }}</summary>
+                {{ 'trends.inflammation.about'|trans|raw }}
+            </details>
+            <div class="insight-chart-wrap"><canvas id="inflammationChart"></canvas></div>
+            {% if not hasEnabledSymptoms %}
+            <div class="mt-3 small text-muted">
+                <i class="bi bi-info-circle"></i>
+                {{ 'trends.inflammation.track_symptom'|trans({
+                    'link': '<a href="' ~ path('app_symptoms') ~ '">',
+                    'link_end': '</a>',
+                })|raw }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── Symptom relationships — one panel per enabled, logged symptom ────── #}
+    {% for id, s in symptomSeriesByType %}
+    {% if s.data is not empty %}
+    {% set dietCorr   = symptomCorrelations[id].diet   ?? [] %}
+    {% set healthCorr = symptomCorrelations[id].health ?? [] %}
+    <section class="insight-panel d-none" data-panel="symptom-{{ id }}">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-3 consequence-accent">
+            <div class="mb-3">
+                <h5 class="fw-bold mb-0">{{ 'trends.symptom.heading'|trans({'label': s.label}) }} {{ 'trends.last_days'|trans({'days': days}) }}</h5>
+                <small class="text-muted">{{ 'trends.symptom.legend'|trans({'label': s.label|lower|e})|raw }}</small>
+            </div>
+
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about_plural'|trans }}</summary>
+                {{ 'trends.symptom.about'|trans({'label': s.label|lower|e, 'minDays': correlationMinDays})|raw }}
+            </details>
+
+            <h6 class="fw-semibold mb-1">{{ 'trends.symptom.diet_heading'|trans({'label': s.label|lower}) }}</h6>
+            <div class="symptom-multiples" id="symptomDietMultiples-{{ id }}" data-symptom-id="{{ id }}"></div>
+
+            {% if dietCorr is not empty %}
+            <div class="mt-3 p-3 bg-light rounded small">
+                <div class="fw-semibold mb-1"><i class="bi bi-link-45deg"></i> {{ 'trends.symptom.diet_corr'|trans }}</div>
+                <ul class="mb-0">
+                    {% for c in dietCorr %}
+                    <li>{{ 'trends.symptom.corr_line'|trans({
+                        'factor': c.label|e,
+                        'relation': c.isPositive ? 'trends.symptom.corr_positive'|trans : 'trends.symptom.corr_negative'|trans,
+                        'label': s.label|lower|e,
+                        'lag': c.lagDays == 0 ? 'trends.symptom.same_day'|trans : 'trends.symptom.next_day'|trans,
+                        'r': c.r,
+                        'n': c.n,
+                    })|raw }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {# Inflammation keeps its own pro-/other-day framing #}
+            {% for c in correlations|filter(c => c.id == id) %}
+            {% set sd = c.data.sameDay %}
+            {% set nd = c.data.nextDay %}
+            {% if sd.n > 0 %}
+            <div class="mt-3 p-3 bg-light rounded small">
+                <div class="fw-semibold mb-1">
+                    <i class="bi bi-fire"></i>
+                    {{ 'trends.symptom.inflammation_heading'|trans({'label': c.label|lower, 'n': sd.n}) }}
+                </div>
+                <ul class="mb-1">
+                    <li>{{ 'trends.symptom.same_day_avg'|trans({
+                        'label': c.label|lower|e,
+                        'pro': sd.proAvgPain is not null ? sd.proAvgPain : '—',
+                        'other': sd.otherAvgPain is not null ? sd.otherAvgPain : '—',
+                        'r_note': sd.r is not null ? 'trends.symptom.r_note'|trans({'r': sd.r}) : '',
+                    })|raw }}</li>
+                    {% if nd.n > 0 %}
+                    <li>{{ 'trends.symptom.next_day_avg'|trans({
+                        'label': c.label|lower|e,
+                        'pro': nd.proAvgPain is not null ? nd.proAvgPain : '—',
+                        'other': nd.otherAvgPain is not null ? nd.otherAvgPain : '—',
+                        'r_note': nd.r is not null ? 'trends.symptom.r_note_short'|trans({'r': nd.r}) : '',
+                    })|raw }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            {% if hasHealthFactors %}
+            <h6 class="fw-semibold mt-4 mb-1">{{ 'trends.symptom.health_heading'|trans({'label': s.label|lower}) }}</h6>
+            <div class="symptom-multiples" id="symptomHealthMultiples-{{ id }}" data-symptom-id="{{ id }}"></div>
+
+            {% if healthCorr is not empty %}
+            <div class="mt-3 p-3 bg-light rounded small">
+                <div class="fw-semibold mb-1"><i class="bi bi-link-45deg"></i> {{ 'trends.symptom.health_corr'|trans }}</div>
+                <ul class="mb-0">
+                    {% for c in healthCorr %}
+                    <li>{{ 'trends.symptom.corr_line'|trans({
+                        'factor': c.label|e,
+                        'relation': c.isPositive ? 'trends.symptom.corr_positive'|trans : 'trends.symptom.corr_negative'|trans,
+                        'label': s.label|lower|e,
+                        'lag': c.lagDays == 0 ? 'trends.symptom.same_day'|trans : 'trends.symptom.next_day'|trans,
+                        'r': c.r,
+                        'n': c.n,
+                    })|raw }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if dietCorr is empty and healthCorr is empty %}
+            <div class="mt-3 small text-muted">
+                <i class="bi bi-info-circle"></i>
+                {{ 'trends.symptom.no_corr'|trans }}
+            </div>
+            {% endif %}
+
+            {# ── GLP-1 nausea-trigger flagging — only under the nausea symptom ── #}
+            {% if nauseaTriggers and nauseaTypeId == id %}
+            <hr class="my-4">
+            <h6 class="fw-semibold mb-1"><i class="bi bi-capsule"></i> {{ 'trends.nausea.heading'|trans }}</h6>
+            {% if nauseaTriggers.insufficient %}
+            <div class="small text-muted">
+                {{ 'trends.nausea.insufficient'|trans({'days': nauseaTriggers.evaluatedDays}) }}
+            </div>
+            {% elseif nauseaTriggers.triggers is empty %}
+            <div class="small text-muted">
+                {{ 'trends.nausea.none'|trans({'days': nauseaTriggers.evaluatedDays, 'avg': nauseaTriggers.overallAvg}) }}
+            </div>
+            {% else %}
+            <div class="small text-muted mb-2">
+                {{ 'trends.nausea.lead'|trans({'days': nauseaTriggers.evaluatedDays, 'avg': nauseaTriggers.overallAvg}) }}
+            </div>
+            <ul class="list-unstyled mb-0 small">
+                {% for t in nauseaTriggers.triggers %}
+                <li class="d-flex justify-content-between align-items-center border-bottom py-1 gap-2">
+                    <span class="text-capitalize fw-semibold">{{ t.food }}</span>
+                    <span class="text-muted text-end">
+                        {{ 'trends.nausea.stats'|trans({'eaten': t.avgWhenEaten, 'not': t.avgWhenNot}) }}
+                        <span class="badge bg-warning-subtle text-warning-emphasis ms-1">+{{ t.lift }}</span>
+                        <span class="d-block d-sm-inline">{{ 'trends.nausea.days_eaten'|trans({'count': t.daysEaten}) }}</span>
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+    {% endfor %}
+
+    {# ── Sleep (+ dinner→glucose→sleep table) ────────────────────────────── #}
+    {% if sleepData is not empty %}
+    <section class="insight-panel d-none" data-panel="sleep">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-3 consequence-accent">
+            <div class="mb-3">
+                <h5 class="fw-bold mb-0">{{ 'trends.sleep.heading'|trans }} {{ 'trends.last_days'|trans({'days': days}) }}</h5>
+                <small class="text-muted">
+                    {{ 'trends.sleep.bars'|trans }}
+                    {% if sleepGapData is not empty %} {{ 'trends.sleep.gap_line'|trans }}{% endif %}
+                    {% if nightlyData|filter(n => n.evening_glucose_peak is not null) is not empty %} {{ 'trends.sleep.glucose_dots'|trans }}{% endif %}
+                </small>
+            </div>
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about'|trans }}</summary>
+                {{ 'trends.sleep.about'|trans({'unit': glucoseUnit})|raw }}
+            </details>
+            <div class="insight-chart-wrap"><canvas id="sleepChart"></canvas></div>
+        </div>
+
+        {% if nightlyData is not empty %}
+        <div class="card p-4 mb-4 consequence-accent">
+            <h5 class="fw-bold mb-1">{{ 'trends.sleep.table_heading'|trans }}</h5>
+            <p class="text-muted small mb-3">{{ 'trends.sleep.table_legend'|trans({'unit': glucoseUnit})|raw }}</p>
+            <div class="table-responsive">
+            <table class="table table-sm align-middle" style="font-size:.875rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>{{ 'trends.sleep.col_night'|trans }}</th>
+                        <th>{{ 'trends.sleep.col_dinner'|trans }}</th>
+                        <th class="text-end">{{ 'trends.sleep.col_cal'|trans }}</th>
+                        <th class="text-end">{{ 'trends.sleep.col_eve_glucose'|trans }}</th>
+                        <th class="text-end">{{ 'trends.sleep.col_gap'|trans }}</th>
+                        <th class="text-end">{{ 'trends.sleep.col_overnight'|trans }}</th>
+                        <th class="text-end">{{ 'trends.sleep.col_sleep'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for n in nightlyData|reverse %}
+                <tr>
+                    <td class="text-muted">{{ n.date|local_date('MMMd') }}</td>
+                    <td>{{ n.dinner_time ?? '—' }}</td>
+                    <td class="text-end">{{ n.dinner_calories is not null ? (n.dinner_calories|format_number) ~ ' kcal' : '—' }}</td>
+                    <td class="text-end">
+                        {% if n.evening_glucose_peak is not null %}
+                            {% set gc = n.evening_glucose_peak < 140 ? 'success' : (n.evening_glucose_peak < 180 ? 'warning' : 'danger') %}
+                            <span class="badge bg-{{ gc }}">{{ n.evening_glucose_display|format_number }} {{ glucoseUnit }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if n.gap_hours is not null %}
+                            {% set gapc = n.gap_hours >= 3 ? 'success' : (n.gap_hours >= 2 ? 'warning' : 'danger') %}
+                            <span class="badge bg-{{ gapc }}">{{ n.gap_hours|format_number }} hr</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if n.overnight_glucose is not null %}
+                            {% set oc = n.overnight_glucose <= 100 ? 'success' : (n.overnight_glucose <= 140 ? 'warning' : 'danger') %}
+                            <span class="badge bg-{{ oc }}">{{ n.overnight_glucose_display|format_number }} {{ glucoseUnit }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if n.sleep_hours is not null %}
+                            {% set sc = n.sleep_hours >= 7 ? 'success' : (n.sleep_hours >= 6 ? 'warning' : 'danger') %}
+                            <span class="badge bg-{{ sc }}">{{ n.sleep_hours|format_number }} hr</span>
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {# ── Health metrics (per-metric tiles all open this shared chart) ─────── #}
+    {% if healthAggByType is not empty %}
+    <section class="insight-panel d-none" data-panel="health">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold mb-0">{{ 'trends.health.heading'|trans }} {{ 'trends.last_days'|trans({'days': days}) }}</h5>
+                    <small class="text-muted">{{ 'trends.health.legend'|trans }}</small>
+                </div>
+                <div class="d-flex flex-wrap gap-2" id="metric-toggles">
+                    {% for typeVal, meta in metricMeta %}
+                    <button class="btn btn-sm btn-outline-secondary metric-toggle{{ loop.first ? ' active' : '' }}"
+                            data-metric="{{ typeVal }}">
+                        {{ meta.label }}
+                        <small class="text-muted">({{ meta.unit }})</small>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about'|trans }}</summary>
+                {{ 'trends.health.about'|trans|raw }}
+            </details>
+            <div class="insight-chart-wrap"><canvas id="healthChart"></canvas></div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── Calories ────────────────────────────────────────────────────────── #}
+    {% if calorieTotals is not empty %}
+    <section class="insight-panel d-none" data-panel="calories">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-3">
+            <h5 class="fw-bold mb-3">{{ 'trends.calories.heading'|trans }} {{ 'trends.last_days'|trans({'days': days}) }}</h5>
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about'|trans }}</summary>
+                {{ 'trends.calories.about'|trans|raw }}
+            </details>
+            <div class="insight-chart-wrap"><canvas id="calorieChart"></canvas></div>
+        </div>
+    </section>
+
+    {# ── Macros ──────────────────────────────────────────────────────────── #}
+    <section class="insight-panel d-none" data-panel="macros">
+        <a href="#" class="insight-back d-inline-flex align-items-center gap-1 text-decoration-none small mb-3">
+            <i class="bi bi-arrow-left"></i> {{ 'trends.back'|trans }}
+        </a>
+        <div class="card p-4 mb-3">
+            <h5 class="fw-bold mb-3">{{ 'trends.macros.heading'|trans }}</h5>
+            <details class="small text-muted mb-3">
+                <summary class="fw-semibold text-body">{{ 'trends.about'|trans }}</summary>
+                {{ 'trends.macros.about'|trans({'days': days})|raw }}
+            </details>
+            <canvas id="macroChart" height="160"></canvas>
+        </div>
+    </section>
+
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{# Mirror the body's data check so the router/charts load whenever the dashboard
+   renders — including the symptom-only case (correlations non-empty). #}
+{% if calorieTotals is not empty or healthAggByType is not empty or sleepData is not empty or correlations is not empty %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+{# Emit all PHP data as JS constants before entering verbatim #}
+<script>
+const calorieData    = {{ calorieTotals|json_encode|raw }};
+const healthAggData  = {{ healthAggByType|json_encode|raw }};
+const metricMeta     = {{ metricMeta|json_encode|raw }};
+const avgsData       = {{ averages|json_encode|raw }};
+const trendDays      = {{ days }};
+const sleepNights    = {{ sleepData|json_encode|raw }};
+const sleepGaps      = {{ sleepGapData|json_encode|raw }};
+const nightlyData    = {{ nightlyData|json_encode|raw }};
+const inflammationDaily = {{ inflammationDaily|json_encode|raw }};
+const symptomSeriesByType = {{ symptomSeriesByType|json_encode|raw }};
+const dailyMacros = {{ dailyMacros|json_encode|raw }};
+const symptomHealthFactors = {{ symptomHealthFactors|json_encode|raw }};
+const symptomHealthMeta = {{ symptomHealthMeta|json_encode|raw }};
+const glucoseUnit = {{ glucoseUnit|json_encode|raw }};
+{# Localized strings for the verbatim JS below — trans can't run inside
+   {% verbatim %}, so everything user-visible is seeded here. #}
+const L = {{ {
+    'caloriesLabel': 'trends.js.calories_label'|trans,
+    'inflammationLabel': 'trends.js.inflammation_label'|trans,
+    'inflammationAxis': 'trends.js.inflammation_axis'|trans,
+    'sleepLabel': 'trends.js.sleep_label'|trans,
+    'hr': 'trends.js.hr'|trans,
+    'gapLabel': 'trends.js.gap_label'|trans,
+    'gapAxis': 'trends.js.gap_axis'|trans,
+    'eveGlucoseLabel': 'trends.js.eve_glucose_label'|trans({'unit': glucoseUnit}),
+    'tipGap': 'trends.js.tip_gap'|trans({'v': '@v@'}),
+    'tipEveGlucose': 'trends.js.tip_eve_glucose'|trans({'v': '@v@', 'unit': glucoseUnit}),
+    'tipSleep': 'trends.js.tip_sleep'|trans({'v': '@v@'}),
+    'protein': 'trends.js.protein'|trans,
+    'carbs': 'trends.js.carbs'|trans,
+    'carbohydrates': 'trends.js.carbohydrates'|trans,
+    'fat': 'trends.js.fat'|trans,
+    'fiber': 'trends.js.fiber'|trans,
+}|json_encode|raw }};
+const DOC_LANG = document.documentElement.lang || 'en';
+</script>
+
+{% verbatim %}
+<script>
+// ── Shared color palette ─────────────────────────────────────────────
+const METRIC_COLORS = ['#C23A2D','#35628a','#6f42c1','#fd7e14','#20c997','#6c757d'];
+function hexToRgba(hex, a) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+}
+
+// Fixed y-axis label width for the symptom small-multiples stacks (see
+// setupSymptomPanels) so every mini chart's plot area starts at the same x
+// position regardless of how wide its own tick text happens to be.
+const MINI_Y_AXIS_WIDTH = 34;
+function formatMiniTick(v) {
+    if (typeof v !== 'number') return v;
+    const abs = Math.abs(v);
+    if (abs < 1000) return v;
+    return (v / 1000).toFixed(abs >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k';
+}
+function formatMiniDateTick(iso) {
+    const parts = String(iso).split('-');
+    if (parts.length !== 3) return iso;
+    const d = new Date(Date.UTC(+parts[0], +parts[1] - 1, +parts[2]));
+    return d.toLocaleDateString(DOC_LANG, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
+// ── Union of all dates across calorie and health data ─────────────────
+const allDatesSet = new Set();
+calorieData.forEach(d => allDatesSet.add(d.date));
+Object.values(healthAggData).forEach(series => series.forEach(d => allDatesSet.add(d.bucket)));
+const allDates = Array.from(allDatesSet).sort();
+const maxTicks  = Math.min(trendDays + 1, allDates.length);
+
+// Shared x-axis options (one label per day)
+const sharedXAxis = {
+    ticks: {
+        maxTicksLimit: maxTicks,
+        maxRotation: 45,
+        autoSkip: true,
+    },
+    grid: { color: 'rgba(0,0,0,.05)' },
+};
+
+// Focus hook for the shared health-metrics chart (a per-metric overview tile
+// calls this to show just its own series). Symptoms now have their own panels.
+let focusHealthMetric = () => {};
+
+// ── 1. Calorie bar chart ──────────────────────────────────────────────
+function initCalorie() {
+    if (!document.getElementById('calorieChart')) return;
+    const calorieByDate = {};
+    calorieData.forEach(d => { calorieByDate[d.date] = parseFloat(d.calories) || 0; });
+
+    new Chart(document.getElementById('calorieChart'), {
+        type: 'bar',
+        data: {
+            labels: allDates,
+            datasets: [{
+                label: L.caloriesLabel,
+                data: allDates.map(d => calorieByDate[d] ?? null),
+                backgroundColor: 'rgba(13,148,136,0.65)',
+                borderColor:     'rgba(13,148,136,1)',
+                borderWidth: 1,
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: sharedXAxis,
+                y: { beginAtZero: true, ticks: { maxTicksLimit: 5 } },
+            }
+        }
+    });
+}
+
+// ── 1b. Dietary inflammation score line ───────────────────────────────
+function initInflammation() {
+    if (!(document.getElementById('inflammationChart') && inflammationDaily.length)) return;
+    const BAND_COLORS = {
+        'strong-anti': '#198754', 'mild-anti': '#74c69d', 'neutral': '#adb5bd',
+        'mild-pro': '#f0ad4e', 'strong-pro': '#C23A2D',
+    };
+    const bandByDate = {}, factorsByDate = {};
+    inflammationDaily.forEach(d => {
+        bandByDate[d.date]    = d.band;
+        factorsByDate[d.date] = d.factors;
+    });
+
+    const chartDates  = inflammationDaily.map(d => d.date);
+    const pointColors = chartDates.map(d => BAND_COLORS[bandByDate[d]] || 'rgba(108,117,125,0.35)');
+
+    new Chart(document.getElementById('inflammationChart'), {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [{
+                label: L.inflammationLabel,
+                data: inflammationDaily.map(d => d.score),
+                borderColor: 'rgba(108,117,125,0.7)',
+                backgroundColor: 'rgba(108,117,125,0.10)',
+                pointBackgroundColor: pointColors,
+                pointBorderColor: pointColors,
+                pointRadius: 4,
+                tension: 0.3,
+                fill: true,
+                spanGaps: true,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        afterBody: (items) => {
+                            const factors = factorsByDate[chartDates[items[0].dataIndex]];
+                            if (!factors || !factors.length) return '';
+                            return factors.slice(0, 4).map(f =>
+                                `${f.value > 0 ? '▲' : '▼'} ${f.label}: ${f.value > 0 ? '+' : ''}${f.value}`
+                            ).join('\n');
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: sharedXAxis,
+                y: {
+                    suggestedMin: -10,
+                    suggestedMax: 10,
+                    grid: { color: (c) => c.tick.value === 0 ? 'rgba(0,0,0,.30)' : 'rgba(0,0,0,.05)' },
+                    title: { display: true, text: L.inflammationAxis },
+                },
+            }
+        }
+    });
+}
+
+// ── 1c. Symptom relationships: one panel (diet + health charts) per symptom ──
+// Registers a lazy chart-builder per symptom panel into PANEL_INIT; the router
+// builds each panel's charts the first time it's opened. Each panel is a small-
+// multiples stack (one mini chart per factor, own axis/units) rather than one
+// overlaid multi-line chart — six-plus normalized lines on a shared axis reads as
+// noise; stacking by date lets you scan straight down to see whether a factor
+// spiked the same day as the symptom, at each factor's real scale.
+function setupSymptomPanels() {
+    const typeIds = Object.keys(symptomSeriesByType);
+    if (typeIds.length === 0) return;
+
+    // A factor's raw date-keyed series plus what its mini chart needs to render.
+    const factorSpec = (label, rawByDate, color, unit) => ({ label, rawByDate, color, unit: unit || '' });
+
+    const scoreByDate = {};
+    inflammationDaily.forEach(d => { scoreByDate[d.date] = d.score; });
+
+    // Per-macro date-keyed maps from the daily totals list.
+    const macroByDate = { protein: {}, carbohydrates: {}, fat: {}, fiber: {} };
+    dailyMacros.forEach(d => {
+        macroByDate.protein[d.date]       = d.protein;
+        macroByDate.carbohydrates[d.date] = d.carbohydrates;
+        macroByDate.fat[d.date]           = d.fat;
+        macroByDate.fiber[d.date]         = d.fiber;
+    });
+
+    // Health factor maps (daily average per metric type).
+    const healthByDate = {};
+    Object.keys(symptomHealthFactors).forEach(key => {
+        const m = {};
+        symptomHealthFactors[key].forEach(d => { m[d.bucket] = d.avg; });
+        healthByDate[key] = m;
+    });
+
+    // Renders one small-multiples stack into containerId: a symptom bar mini-panel
+    // (0-10, own axis) followed by one line mini-panel per factor (real units, own
+    // axis). Only the bottom-most panel shows date ticks — the rest just line up
+    // beneath it, so scanning down a column shows whether a factor moved with the
+    // symptom on a given day.
+    const buildMultiples = (containerId, dates, s, factors) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+
+        const hiddenXAxis = { ticks: { display: false }, grid: { display: false } };
+        // Rotated ISO date ticks (sharedXAxis, used elsewhere) overflow past the
+        // y-axis on their leftmost label, which pushes that one panel's plot area
+        // wider than the MINI_Y_AXIS_WIDTH-pinned panels above it. Horizontal,
+        // abbreviated labels avoid the overflow so every panel's left edge matches.
+        const lastRowXAxis = {
+            ticks: {
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 6,
+                font: { size: 10 },
+                callback: function (value) { return formatMiniDateTick(this.getLabelForValue(value)); },
+            },
+            grid: { color: 'rgba(0,0,0,.05)' },
+        };
+        const rows = [{ kind: 'symptom', label: s.label, unit: '0–10' }, ...factors.map(f => ({ ...f, kind: 'factor' }))];
+
+        rows.forEach((row, i) => {
+            const isLast = i === rows.length - 1;
+            const panel = document.createElement('div');
+            panel.className = 'symptom-mini-panel'
+                + (row.kind === 'symptom' ? ' symptom-mini-symptom' : '')
+                + (isLast ? ' symptom-mini-last' : '');
+
+            const label = document.createElement('div');
+            label.className = 'symptom-mini-label';
+            // row.label can be a user-supplied custom symptom name — build the nodes with
+            // textContent, not innerHTML, so it can never be interpreted as markup. A
+            // literal non-breaking space (not a regular space in markup, since there's
+            // no markup here) keeps the label and unit glued onto one line.
+            const labelInner = document.createElement('div');
+            labelInner.textContent = row.label;
+            if (row.unit) {
+                labelInner.appendChild(document.createTextNode(' '));
+                const unitEl = document.createElement('span');
+                unitEl.className = 'text-muted';
+                unitEl.textContent = row.unit;
+                labelInner.appendChild(unitEl);
+            }
+            label.appendChild(labelInner);
+            panel.appendChild(label);
+
+            const chartWrap = document.createElement('div');
+            chartWrap.className = 'symptom-mini-chart';
+            const canvas = document.createElement('canvas');
+            chartWrap.appendChild(canvas);
+            panel.appendChild(chartWrap);
+            container.appendChild(panel);
+
+            // Chart.js sizes each y-axis label area from its own tick text, so "20,000"
+            // and "10" would otherwise push their plot areas to different left offsets —
+            // exactly the misalignment small multiples are supposed to avoid. Abbreviate
+            // large ticks and pin every y-axis to the same fixed pixel width so the
+            // plotted bars/lines all start at the same x position across the stack.
+            const yTicks = { maxTicksLimit: 2, font: { size: 10 }, callback: formatMiniTick };
+            const yAxis = {
+                ticks: yTicks,
+                grid: { color: 'rgba(0,0,0,.05)' },
+                afterFit: (scale) => { scale.width = MINI_Y_AXIS_WIDTH; },
+            };
+            const xScale = isLast ? lastRowXAxis : hiddenXAxis;
+
+            if (row.kind === 'symptom') {
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: { labels: dates, datasets: [{ data: dates.map(d => s.data[d] ?? null), backgroundColor: s.color, borderRadius: 2 }] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => (ctx.raw == null ? null : `${row.label}: ${ctx.raw}`) } },
+                        },
+                        scales: { x: xScale, y: { ...yAxis, min: 0, max: 10 } },
+                    },
+                });
+            } else {
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            data: dates.map(d => row.rawByDate[d] ?? null),
+                            borderColor: row.color,
+                            backgroundColor: row.color,
+                            tension: 0.3,
+                            pointRadius: 0,
+                            borderWidth: 2,
+                            spanGaps: true,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        if (ctx.raw == null) return null;
+                                        const v = Math.round(ctx.raw * 10) / 10;
+                                        return `${row.label}: ${v}${row.unit ? ' ' + row.unit : ''}`;
+                                    },
+                                },
+                            },
+                        },
+                        scales: { x: xScale, y: yAxis },
+                    },
+                });
+            }
+        });
+    };
+
+    // ── Shared diet date axis + a fresh factor-spec factory per chart ─────
+    const dietDateSet = new Set();
+    typeIds.forEach(id => Object.keys(symptomSeriesByType[id].data).forEach(d => dietDateSet.add(d)));
+    inflammationDaily.forEach(d => dietDateSet.add(d.date));
+    dailyMacros.forEach(d => dietDateSet.add(d.date));
+    const dietDates = Array.from(dietDateSet).sort();
+
+    const dietFactors = () => ([
+        factorSpec(L.protein, macroByDate.protein, '#35628a', 'g'),
+        factorSpec(L.carbs, macroByDate.carbohydrates, '#fd7e14', 'g'),
+        factorSpec(L.fat, macroByDate.fat, '#6f42c1', 'g'),
+        factorSpec(L.fiber, macroByDate.fiber, '#20c997', 'g'),
+        factorSpec(L.inflammationLabel, scoreByDate, '#6c757d', ''),
+    ]);
+
+    // ── Shared health date axis + factor-spec factory ─────────────────────
+    const sleepByDate = {};
+    sleepNights.forEach(d => { sleepByDate[d.sleep_date] = d.total_hours; });
+
+    const hasHealth = Object.keys(symptomHealthFactors).length > 0 || sleepNights.length > 0;
+    let healthDates = [];
+    if (hasHealth) {
+        const healthDateSet = new Set();
+        typeIds.forEach(id => Object.keys(symptomSeriesByType[id].data).forEach(d => healthDateSet.add(d)));
+        Object.values(healthByDate).forEach(m => Object.keys(m).forEach(d => healthDateSet.add(d)));
+        Object.keys(sleepByDate).forEach(d => healthDateSet.add(d));
+        healthDates = Array.from(healthDateSet).sort();
+    }
+    const healthFactors = () => {
+        const healthKeys = Object.keys(symptomHealthFactors);
+        const factors = healthKeys.map((key, i) => {
+            const meta = symptomHealthMeta[key] || { label: key, unit: '' };
+            return factorSpec(meta.label, healthByDate[key], METRIC_COLORS[i % METRIC_COLORS.length], meta.unit);
+        });
+        if (sleepNights.length > 0) {
+            factors.push(factorSpec('Sleep', sleepByDate, METRIC_COLORS[healthKeys.length % METRIC_COLORS.length], 'h'));
+        }
+        return factors;
+    };
+
+    // Register a lazy chart-builder per symptom panel.
+    typeIds.forEach(id => {
+        PANEL_INIT['symptom-' + id] = () => {
+            const s = symptomSeriesByType[id];
+            buildMultiples('symptomDietMultiples-' + id, dietDates, s, dietFactors());
+            if (hasHealth) {
+                buildMultiples('symptomHealthMultiples-' + id, healthDates, s, healthFactors());
+            }
+        };
+    });
+}
+
+// ── 2. Health metrics chart with min/max shading ──────────────────────
+function initHealth() {
+    if (!document.getElementById('healthChart')) return;
+    const metricKeys = Object.keys(healthAggData);
+    const datasets   = [];
+    const yScales    = {};
+
+    // Assign first metric to left axis, second to right (avoids overcrowding)
+    const axisPositions = ['left', 'right'];
+
+    metricKeys.forEach((typeVal, i) => {
+        const color  = METRIC_COLORS[i % METRIC_COLORS.length];
+        const meta   = metricMeta[typeVal] || { label: typeVal, unit: '' };
+        const series = healthAggData[typeVal];
+        const axisId = 'y_' + typeVal;
+        const pos    = axisPositions[i] ?? 'right';
+
+        const byDate = {};
+        series.forEach(d => { byDate[d.bucket] = d; });
+
+        // Compute axis bounds from actual data (never force to 0)
+        const allVals = series.flatMap(d => [d.min, d.max]).filter(v => v != null);
+        const dataMin = Math.min(...allVals);
+        const dataMax = Math.max(...allVals);
+        const pad     = Math.max((dataMax - dataMin) * 0.08, 2);
+        const axisMin = Math.floor(dataMin - pad);
+        const axisMax = Math.ceil(dataMax + pad);
+
+        // Min boundary (fills toward max dataset)
+        datasets.push({
+            data:            allDates.map(d => byDate[d]?.min ?? null),
+            borderColor:     'transparent',
+            backgroundColor: hexToRgba(color, 0.13),
+            pointRadius:     0,
+            fill:            '+1',
+            tension:         0.3,
+            spanGaps:        true,
+            yAxisID:         axisId,
+            metricKey:       typeVal,
+            isBand:          true,
+        });
+        // Max boundary
+        datasets.push({
+            data:            allDates.map(d => byDate[d]?.max ?? null),
+            borderColor:     'transparent',
+            backgroundColor: 'transparent',
+            pointRadius:     0,
+            fill:            false,
+            tension:         0.3,
+            spanGaps:        true,
+            yAxisID:         axisId,
+            metricKey:       typeVal,
+            isBand:          true,
+        });
+        // Average line
+        datasets.push({
+            label:           meta.label + ' (' + meta.unit + ')',
+            data:            allDates.map(d => byDate[d]?.avg ?? null),
+            borderColor:     color,
+            backgroundColor: 'transparent',
+            borderWidth:     2,
+            pointRadius:     0,
+            pointHoverRadius: 4,
+            tension:         0.3,
+            spanGaps:        true,
+            fill:            false,
+            yAxisID:         axisId,
+            metricKey:       typeVal,
+        });
+
+        yScales[axisId] = {
+            type:     'linear',
+            position: pos,
+            min:      axisMin,
+            max:      axisMax,
+            title:    { display: true, text: meta.unit, color: color },
+            ticks:    { color: color, maxTicksLimit: 5 },
+            grid:     { drawOnChartArea: pos === 'left', color: 'rgba(0,0,0,.05)' },
+        };
+    });
+
+    const healthChart = new Chart(document.getElementById('healthChart'), {
+        type: 'line',
+        data: { labels: allDates, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        filter: item => !item.hidden && datasets[item.datasetIndex]?.isBand !== true,
+                        boxWidth: 14,
+                        padding: 14,
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            if (datasets[ctx.datasetIndex]?.isBand) return null;
+                            if (ctx.parsed.y === null) return null;
+                            const typeVal = datasets[ctx.datasetIndex]?.metricKey;
+                            const meta2   = metricMeta[typeVal] || {};
+                            const series  = healthAggData[typeVal] || [];
+                            const byDate2 = {};
+                            series.forEach(d => { byDate2[d.bucket] = d; });
+                            const pt  = byDate2[ctx.label];
+                            const avg = ctx.parsed.y.toFixed(1);
+                            const range = pt && pt.min !== pt.max
+                                ? ' (range ' + pt.min.toFixed(1) + '–' + pt.max.toFixed(1) + ')'
+                                : '';
+                            return (meta2.label || typeVal) + ': ' + avg + ' ' + (meta2.unit || '') + range;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: sharedXAxis,
+                ...yScales,
+            }
+        }
+    });
+
+    // ── Toggle buttons (tap-to-add) ─────────────────────────────────────
+    // Show/hide a metric's datasets AND its y-axis together, so a hidden
+    // metric never leaves an orphaned axis cluttering the chart.
+    function setMetricVisible(key, visible) {
+        datasets.forEach((ds, i) => {
+            if (ds.metricKey === key) {
+                healthChart.getDatasetMeta(i).hidden = !visible;
+            }
+        });
+        const axis = healthChart.options.scales['y_' + key];
+        if (axis) { axis.display = visible; }
+    }
+    function styleToggle(btn, visible) {
+        btn.classList.toggle('active', visible);
+        btn.style.opacity = visible ? '' : '0.4';
+    }
+
+    document.querySelectorAll('.metric-toggle').forEach(btn => {
+        const key = btn.dataset.metric;
+        // Start with only the first metric shown (the .active button from Twig);
+        // the rest load hidden so the panel opens on a single, readable series.
+        const startVisible = btn.classList.contains('active');
+        setMetricVisible(key, startVisible);
+        styleToggle(btn, startVisible);
+
+        btn.addEventListener('click', () => {
+            const visible = !btn.classList.contains('active');
+            setMetricVisible(key, visible);
+            healthChart.update();
+            styleToggle(btn, visible);
+        });
+    });
+    healthChart.update();
+
+    // Drilling in from a per-metric tile focuses just that series.
+    focusHealthMetric = (metric) => {
+        document.querySelectorAll('.metric-toggle').forEach(btn => {
+            const on = btn.dataset.metric === metric;
+            setMetricVisible(btn.dataset.metric, on);
+            styleToggle(btn, on);
+        });
+        healthChart.update();
+    };
+}
+
+// ── 3. Sleep chart ───────────────────────────────────────────────────
+function initSleep() {
+    if (!(document.getElementById('sleepChart') && sleepNights.length > 0)) return;
+    const sleepByDate = {};
+    sleepNights.forEach(d => { sleepByDate[d.sleep_date] = d; });
+
+    const gapByDate = {};
+    sleepGaps.forEach(d => { gapByDate[d.date] = d.gap; });
+
+    const evGlucByDate = {};
+    nightlyData.forEach(d => { if (d.evening_glucose_display !== null) evGlucByDate[d.date] = d.evening_glucose_display; });
+
+    const sleepDates   = sleepNights.map(d => d.sleep_date);
+    const sleepHours   = sleepNights.map(d => d.total_hours);
+    const gapValues    = sleepDates.map(d => gapByDate[d] ?? null);
+    const evGlucValues = sleepDates.map(d => evGlucByDate[d] ?? null);
+    const hasGaps      = gapValues.some(v => v !== null);
+    const hasEvGluc    = evGlucValues.some(v => v !== null);
+
+    const sleepDatasets = [{
+        type:            'bar',
+        label:           L.sleepLabel,
+        data:            sleepHours,
+        backgroundColor: 'rgba(111,66,193,0.6)',
+        borderColor:     'rgba(111,66,193,1)',
+        borderWidth:     1,
+        borderRadius:    3,
+        yAxisID:         'ySleep',
+        order:           2,
+    }];
+
+    const sleepScales = {
+        x: {
+            ticks: { maxTicksLimit: Math.min(trendDays + 1, sleepDates.length), maxRotation: 45, autoSkip: true },
+            grid:  { color: 'rgba(0,0,0,.05)' },
+        },
+        ySleep: {
+            type:        'linear',
+            position:    'left',
+            min:         0,
+            max:         12,
+            title:       { display: true, text: L.hr },
+            ticks:       { maxTicksLimit: 5 },
+            grid:        { color: 'rgba(0,0,0,.05)' },
+        },
+    };
+
+    if (hasGaps) {
+        sleepDatasets.push({
+            type:             'line',
+            label:            L.gapLabel,
+            data:             gapValues,
+            borderColor:      '#fd7e14',
+            backgroundColor:  'rgba(253,126,20,0.15)',
+            borderWidth:      2,
+            pointRadius:      4,
+            pointHoverRadius: 6,
+            tension:          0.3,
+            spanGaps:         false,
+            fill:             false,
+            yAxisID:          'yGap',
+            order:            1,
+        });
+        sleepScales.yGap = {
+            type:        'linear',
+            position:    'right',
+            min:         0,
+            max:         8,
+            title:       { display: true, text: L.gapAxis, color: '#fd7e14' },
+            ticks:       { color: '#fd7e14', maxTicksLimit: 5 },
+            grid:        { drawOnChartArea: false },
+        };
+    }
+
+    if (hasEvGluc) {
+        // Evening glucose dots — hidden axis so values are visible in tooltip
+        // without adding a third labeled axis
+        sleepDatasets.push({
+            type:             'line',
+            label:            L.eveGlucoseLabel,
+            data:             evGlucValues,
+            borderColor:      'rgba(194,58,45,0.7)',
+            backgroundColor:  'rgba(194,58,45,0.85)',
+            borderWidth:      0,
+            pointRadius:      5,
+            pointStyle:       'circle',
+            pointHoverRadius: 7,
+            showLine:         false,
+            spanGaps:         false,
+            yAxisID:          'yEvGluc',
+            order:            0,
+        });
+        const evMin  = Math.min(...evGlucValues.filter(v => v !== null));
+        const evMax  = Math.max(...evGlucValues.filter(v => v !== null));
+        const evPad  = Math.max((evMax - evMin) * 0.15, 10);
+        sleepScales.yEvGluc = {
+            type:     'linear',
+            position: 'right',
+            display:  false,
+            min:      Math.floor(evMin - evPad),
+            max:      Math.ceil(evMax + evPad),
+        };
+    }
+
+    new Chart(document.getElementById('sleepChart'), {
+        data:    { labels: sleepDates, datasets: sleepDatasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: true, position: 'bottom', labels: { boxWidth: 14, padding: 14 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            if (ctx.parsed.y === null) return null;
+                            if (ctx.dataset.yAxisID === 'yGap') {
+                                return L.tipGap.replace('@v@', ctx.parsed.y.toFixed(1));
+                            }
+                            if (ctx.dataset.yAxisID === 'yEvGluc') {
+                                return L.tipEveGlucose.replace('@v@', ctx.parsed.y);
+                            }
+                            return L.tipSleep.replace('@v@', ctx.parsed.y.toFixed(1));
+                        }
+                    }
+                }
+            },
+            scales: sleepScales,
+        }
+    });
+}
+
+// ── 4. Macro doughnut ─────────────────────────────────────────────────
+function initMacro() {
+    if (!(calorieData.length > 0 && document.getElementById('macroChart'))) return;
+    new Chart(document.getElementById('macroChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [L.protein, L.carbohydrates, L.fat],
+            datasets: [{
+                data: [
+                    Math.round((avgsData.protein || 0) * 4),
+                    Math.round((avgsData.carbohydrates || 0) * 4),
+                    Math.round((avgsData.fat || 0) * 9),
+                ],
+                backgroundColor: ['#C23A2D','#35628a','#17a2b8'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' kcal' } }
+            }
+        }
+    });
+}
+
+// ── Dashboard router: overview ⇄ one detail panel at a time ───────────
+// Charts build lazily, the first time their panel is opened — so only the
+// chart you're looking at is ever constructed (and it's visible when built,
+// which also gives Chart.js correct sizing). Adding a chart later = add a
+// tile + a panel + an init function entry here.
+const PANEL_INIT = {
+    inflammation: initInflammation,
+    sleep:        initSleep,
+    health:       initHealth,
+    calories:     initCalorie,
+    macros:       initMacro,
+};
+// Register one lazy builder per symptom panel (symptom-<id>) into PANEL_INIT.
+setupSymptomPanels();
+const built = {};
+
+function initPanel(key) {
+    if (built[key]) return;
+    const fn = PANEL_INIT[key];
+    if (fn) fn();
+    built[key] = true;
+}
+
+function showOverview() {
+    document.querySelectorAll('.insight-panel').forEach(p => p.classList.add('d-none'));
+    const overview = document.getElementById('insight-overview');
+    if (overview) overview.classList.remove('d-none');
+}
+
+function showPanel(key, metric) {
+    const panel = document.querySelector(`.insight-panel[data-panel="${key}"]`);
+    if (!panel) { showOverview(); return; }
+    const overview = document.getElementById('insight-overview');
+    if (overview) overview.classList.add('d-none');
+    document.querySelectorAll('.insight-panel').forEach(p => p.classList.add('d-none'));
+    panel.classList.remove('d-none');
+    initPanel(key);                       // build the chart now that it's visible
+    if (key === 'health' && metric)   focusHealthMetric(metric);
+    window.scrollTo(0, 0);
+}
+
+function applyHash() {
+    const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const panel  = params.get('panel');
+    if (panel) showPanel(panel, params.get('metric'));
+    else showOverview();
+}
+
+// Tiles set the hash; the hashchange handler does the actual switching, so the
+// device/browser Back button and a reload restore the right view for free.
+document.querySelectorAll('.insight-tile[data-panel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const key    = btn.dataset.panel;
+        const metric = btn.dataset.metric;
+        location.hash = 'panel=' + key + (metric ? '&metric=' + metric : '');
+    });
+});
+document.querySelectorAll('.insight-back').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); location.hash = ''; });
+});
+
+window.addEventListener('hashchange', applyHash);
+applyHash();   // honour a deep-linked #panel=… on initial load
+</script>
+{% endverbatim %}
+{% endif %}
+{% endblock %}

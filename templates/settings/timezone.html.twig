@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.timezone.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.timezone.title'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.timezone.lead'|trans }}</p>
+
+    <div class="card p-4 mt-3">
+        {{ form_start(form) }}
+
+        <div class="mb-3">
+            {{ form_label(form.timezone, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.timezone, {'attr': {'class': 'form-select' ~ (form.timezone.vars.errors|length ? ' is-invalid' : '')}}) }}
+            <div class="form-text">{{ form_help(form.timezone) }}</div>
+            {{ form_errors(form.timezone) }}
+        </div>
+
+        <p class="text-muted small">{{ 'settings.timezone.forward_note'|trans }}</p>
+
+        <button type="submit" class="btn btn-success fw-semibold mt-2">{{ 'settings.timezone.save'|trans }}</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

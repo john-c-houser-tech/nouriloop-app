@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'meal.reanalyze.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_meal_show', {id: entry.id}) }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'meal.reanalyze.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1"><i class="bi bi-cpu text-brick"></i> {{ 'meal.reanalyze.heading'|trans }}</h2>
+    <p class="text-muted">{{ 'meal.reanalyze.lead'|trans }}</p>
+
+    {# The plan gates these two edits on real Anthropic cost, so the cost is
+       stated up front rather than discovered from a shrinking counter. #}
+    <div class="alert alert-info d-flex gap-2" role="alert">
+        <i class="bi bi-info-circle-fill"></i>
+        <div class="small">{{ 'meal.reanalyze.cost_note'|trans }}</div>
+    </div>
+
+    {# A hand-corrected meal is the case the plan's §4 rule exists for: say so
+       before the call is spent, not only on the diff screen afterwards. #}
+    {% if entry.nutritionEditedAt %}
+    <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="small">
+            {{ 'meal.reanalyze.has_manual_edits'|trans({'date': entry.nutritionEditedAt|local_date('yMMMd')}) }}
+        </div>
+    </div>
+    {% endif %}
+
+    {{ form_start(form, {attr: {enctype: 'multipart/form-data', id: 'reanalyze-form'}}) }}
+
+    <div class="card p-4 mb-3">
+        <div class="mb-4">
+            {{ form_label(form.image, null, {label_attr: {class: 'form-label fw-semibold'}}) }}
+
+            {% if entry.imagePath %}
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <img src="{{ asset(entry.imagePath) }}" alt="{{ 'meal.photo_alt'|trans }}"
+                     class="rounded border" style="width: 72px; height: 72px; object-fit: cover;">
+                <small class="text-muted">{{ 'meal.reanalyze.current_photo'|trans }}</small>
+            </div>
+            {% endif %}
+
+            {{ form_widget(form.image, {attr: {class: 'form-control', accept: 'image/*,.heic,.heif'}}) }}
+            {{ form_errors(form.image) }}
+            {# Two different truths, so two strings: with a photo on the meal,
+               leaving this empty re-reads THAT photo alongside the description —
+               it is not a description-only run, and saying otherwise would
+               promise a flow the controller doesn't perform (Copilot catch). #}
+            <div class="form-text">
+                {{ (entry.imagePath ? 'meal.reanalyze.photo_help_reuse' : 'meal.reanalyze.photo_help')|trans }}
+            </div>
+
+            {# Offered only when there IS a photo to replace (see the form type) —
+               with none, an uploaded photo simply becomes the meal's. #}
+            {% if form.replace_photo is defined %}
+            <div class="form-check mt-2">
+                {{ form_widget(form.replace_photo, {attr: {class: 'form-check-input'}}) }}
+                {{ form_label(form.replace_photo, null, {label_attr: {class: 'form-check-label small'}}) }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-2">
+            {{ form_label(form.description, null, {label_attr: {class: 'form-label fw-semibold'}}) }}
+            {{ form_widget(form.description, {attr: {class: 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : '')}}) }}
+            {{ form_errors(form.description) }}
+            <div class="form-text">{{ 'meal.reanalyze.description_help'|trans }}</div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold" id="reanalyze-btn">
+        <i class="bi bi-cpu"></i> {{ 'meal.reanalyze.submit'|trans }}
+    </button>
+
+    {# Free-tier allowance — visible before it runs out, the log page's posture. #}
+    {% if freeRemaining is not null %}
+    <p class="text-center small mt-2 mb-0 {{ freeRemaining <= 3 ? 'text-warning-emphasis fw-semibold' : 'text-muted' }}">
+        {{ 'meal.log.allowance_left'|trans({'remaining': freeRemaining, 'limit': freeLimit}) }}
+        {% if freeRemaining <= 3 %}
+            · <a href="{{ path('app_pricing') }}">{{ 'meal.log.allowance_upgrade'|trans }}</a>
+        {% endif %}
+    </p>
+    {% endif %}
+
+    <div id="analyzing-msg" class="text-center mt-3 d-none">
+        <div class="spinner-border text-success" role="status"></div>
+        <p class="text-muted mt-2">{{ 'meal.log.analyzing'|trans }}</p>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    // The call takes a few seconds — show it's working and stop a double submit
+    // from buying a second analysis. Presentation only.
+    const form = document.getElementById('reanalyze-form');
+    const btn  = document.getElementById('reanalyze-btn');
+    const msg  = document.getElementById('analyzing-msg');
+    if (!form || !btn || !msg) return;
+    form.addEventListener('submit', () => {
+        btn.disabled = true;
+        btn.classList.add('disabled');
+        msg.classList.remove('d-none');
+    });
+})();
+</script>
+{% endblock %}

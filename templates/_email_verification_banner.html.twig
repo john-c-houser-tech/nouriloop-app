@@ -1,0 +1,13 @@
+{# Unverified-email nag: in-flow top bar (same placement rationale as the
+   deletion banner — can't stack with the floating onboarding/cookie UI). Shown
+   on every authenticated page until any inbox proof lands (welcome/confirm link,
+   magic-link sign-in, completed password reset); disappears on its own, no
+   dismiss state. The app stays fully usable — the only thing withheld while
+   unverified is scheduled email (digest, goal check-ins). #}
+<div class="alert alert-info mb-0 rounded-0 text-center" role="alert">
+    {{ 'chrome.verify_banner.text'|trans }}
+    <form method="post" action="{{ path('app_verify_email_resend') }}" class="d-inline">
+        <input type="hidden" name="_token" value="{{ csrf_token('verify-email-resend') }}">
+        <button type="submit" class="btn btn-sm btn-primary fw-semibold ms-2">{{ 'chrome.verify_banner.resend'|trans }}</button>
+    </form>
+</div>

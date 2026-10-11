@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# See also https://symfony.com/doc/current/service_container/import.html
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    anthropic_api_key: '%env(ANTHROPIC_API_KEY)%'
+    uploads_dir: '%kernel.project_dir%/public/uploads/meals'
+    supplements_dir: '%kernel.project_dir%/public/uploads/supplements'
+    favorites_dir: '%kernel.project_dir%/public/uploads/favorites'
+    goal_charts_dir: '%kernel.project_dir%/public/uploads/goal-charts'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        # Stripe scalar config (keys + price IDs) bound by argument name+type, so the
+        # subscription service/controllers receive them without per-service wiring.
+        bind:
+            # Recipient for team-facing notices (admin new-user/beta-request notices, feedback).
+            string $adminEmail: '%env(ADMIN_EMAIL)%'
+            string $stripePublishableKey: '%env(STRIPE_PUBLISHABLE_KEY)%'
+            string $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
+            string $loopMonthlyPriceId: '%env(STRIPE_LOOP_MONTHLY_PRICE_ID)%'
+            string $loopYearlyPriceId: '%env(STRIPE_LOOP_YEARLY_PRICE_ID)%'
+            string $loopPlusMonthlyPriceId: '%env(STRIPE_LOOP_PLUS_MONTHLY_PRICE_ID)%'
+            string $loopPlusYearlyPriceId: '%env(STRIPE_LOOP_PLUS_YEARLY_PRICE_ID)%'
+
+    # Every health-export JSON importer is tagged so the resolver can collect them.
+    _instanceof:
+        App\Service\HealthJsonImporter:
+            tags: ['app.health_json_importer']
+        # Every goal-check-in delivery transport (email / SMS / in-app stubs).
+        App\Service\Delivery\GoalDeliveryInterface:
+            tags: ['app.goal_delivery']
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+
+    App\Service\ClaudeClient:
+        arguments:
+            $anthropicApiKey: '%anthropic_api_key%'
+
+    # Stripe SDK client, configured with the secret key. One shared instance used by
+    # the subscription service for checkout/portal/sync.
+    Stripe\StripeClient:
+        arguments:
+            $config: '%env(STRIPE_SECRET_KEY)%'
+
+    # The AI "pattern coach" is a separate higher-cost tier; the deterministic
+    # rankings are always on. Gated off by default (see GLUCOSE_AI_INSIGHTS_ENABLED).
+    App\Service\GlucoseInsightsService:
+        arguments:
+            $aiDeepDiveEnabled: '%env(bool:GLUCOSE_AI_INSIGHTS_ENABLED)%'
+
+    App\Service\Chart\GdGoalChartRenderer:
+        arguments:
+            $chartsDir: '%goal_charts_dir%'
+
+    # Single implementation today (GD); swap here for Imagick without touching callers.
+    App\Service\Chart\GoalChartRenderer: '@App\Service\Chart\GdGoalChartRenderer'
+
+    App\Service\Delivery\EmailGoalDelivery:
+        arguments:
+            $chartsDir: '%goal_charts_dir%'
+
+    App\Controller\GoalController:
+        arguments:
+            $chartsDir: '%goal_charts_dir%'
+
+    App\Controller\MealController:
+        arguments:
+            $uploadsDir: '%uploads_dir%'
+
+    App\Service\MealDuplicateChecker:
+        arguments:
+            $uploadsDir: '%uploads_dir%'
+
+    App\Command\CleanupMealUploadsCommand:
+        arguments:
+            $uploadsDir: '%uploads_dir%'
+
+    App\Controller\SupplementsController:
+        arguments:
+            $supplementsDir: '%supplements_dir%'
+
+    App\Service\FavoriteManager:
+        arguments:
+            $favoritesDir: '%favorites_dir%'
+            $mealsDir: '%uploads_dir%'
+            $publicDir: '%kernel.project_dir%/public'
+
+    App\Service\PhotoStaging:
+        arguments:
+            $publicDir: '%kernel.project_dir%/public'
+
+    App\Service\AccountDeletionService:
+        arguments:
+            $publicDir: '%kernel.project_dir%/public'

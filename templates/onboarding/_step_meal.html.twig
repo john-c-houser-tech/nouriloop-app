@@ -1,0 +1,69 @@
+{# Step 1 (required) — log the first meal. Completion is marked server-side in
+   MealController::saveFromState once a meal is saved.
+
+   Device-aware, because "snap a photo" is a real barrier on a desktop or laptop:
+   the user would have to shoot the meal on their phone and then get the file onto
+   the computer. Both variants are server-rendered (touch visible, pointer hidden)
+   and the inline JS below only swaps which one shows, so the touch copy is the
+   fallback when JS or matchMedia is unavailable. `(pointer: coarse)` — a finger —
+   is the signal, deliberately NOT a camera probe or a viewport width: laptops have
+   webcams, and a webcam pointed at a plate is exactly the awkward case here.
+
+   The pointer variant leads with the photo-free path (typing a description is
+   genuinely easier at a keyboard) and offers the device hand-off second, rather
+   than making "go to your phone" the only way forward — a step whose sole CTA
+   sends the user elsewhere is a step they abandon. Inline vanilla JS only; this
+   app does not load Stimulus. #}
+<div class="mb-2">
+    <div class="fw-semibold mb-1"><span class="badge bg-light text-dark me-1">1</span> {{ 'onboarding.meal.heading'|trans }}</div>
+
+    <div data-meal-variant="touch">
+        <p class="text-muted small mb-3">{{ 'onboarding.meal.lead'|trans }}</p>
+        <a href="{{ path('app_meal_log') }}" class="btn btn-success w-100">
+            <i class="bi bi-camera me-1"></i> {{ 'onboarding.meal.cta'|trans }}
+        </a>
+    </div>
+
+    <div data-meal-variant="pointer" class="d-none">
+        <p class="text-muted small mb-3">{{ 'onboarding.meal.desktop_lead'|trans }}</p>
+        {# `describe=1` opens the log page's description box on arrival, so the
+           first thing the user sees is the field this CTA promised. #}
+        <a href="{{ path('app_meal_log', {describe: 1}) }}" class="btn btn-success w-100 mb-2">
+            <i class="bi bi-pencil me-1"></i> {{ 'onboarding.meal.desktop_cta'|trans }}
+        </a>
+        <form method="post" action="{{ path('app_login_link_to_phone') }}" class="m-0 text-center">
+            <input type="hidden" name="_token" value="{{ csrf_token('login-link-phone') }}">
+            <button type="submit" class="btn btn-link btn-sm p-0 small text-muted text-decoration-none">
+                <i class="bi bi-phone me-1"></i> {{ 'onboarding.meal.phone_cta'|trans }}
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+(function () {
+    // Both gates must agree before we show the pointer variant: a fine pointer AND a
+    // desktop-width viewport (768px — the same breakpoint as the log page's d-md-none
+    // camera button). Asymmetric on purpose: showing the photo CTA to a desktop user
+    // is a mild annoyance, but showing "describe it in words" to someone holding a
+    // camera hides the easy path behind the hard one. Anything ambiguous — a narrow
+    // window, a touch device reporting a mouse — falls back to the photo variant.
+    //
+    // ⚠️ Test `(pointer: fine)` POSITIVELY, not `!(pointer: coarse)`: the media
+    // feature has a third value, `none` (keyboard-only, TV-style devices), which
+    // makes BOTH queries false — so the negated form would hand the desktop variant
+    // to precisely the ambiguous devices this rule exists to protect.
+    if (!window.matchMedia || !window.matchMedia('(pointer: fine)').matches) {
+        return;
+    }
+    if (window.innerWidth < 768) {
+        return;
+    }
+    var touch = document.querySelector('[data-meal-variant="touch"]');
+    var pointer = document.querySelector('[data-meal-variant="pointer"]');
+    if (!touch || !pointer) {
+        return;
+    }
+    touch.classList.add('d-none');
+    pointer.classList.remove('d-none');
+})();
+</script>

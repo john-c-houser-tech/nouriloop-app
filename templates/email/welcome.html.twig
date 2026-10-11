@@ -1,0 +1,73 @@
+{# i18n: deliberately ENGLISH — the welcome letter is a personal note from John;
+   translating it is a parked per-language decision (see the i18n plan). #}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #212529; line-height: 1.5;">
+    <h2 style="margin-bottom: 4px;"><img src="{{ absolute_url(asset('icon-192x192.png')) }}" alt="" width="24" height="24" style="vertical-align: middle; border-radius: 5px;"> NouriLoop</h2>
+
+    <p>Welcome {{ user.displayName ?? user.email }},</p>
+
+    <p>Thank you for being a member!</p>
+
+    <p>I'm John, the creator of NouriLoop. Have you struggled to keep your weight
+    under control, manage your blood sugar, or eat healthy meals? I have. Do you
+    deal with joint pain or stiffness? So do I — and those issues led me to build
+    NouriLoop.</p>
+
+    <p>After being diagnosed with Type 2 Diabetes, I needed a way to see, clearly,
+    what I was eating and how it affected my body. I wanted a feedback loop — which
+    is where the name comes from: nourishment + loop = NouriLoop. So I built one. I
+    was NouriLoop's first customer, and I still use it every day.</p>
+
+    <p>NouriLoop starts simple: snap a photo of your meal, and the AI estimates your
+    nutrition — calories, macros, even vitamins and minerals. But the real value
+    shows up over time. NouriLoop calculates a daily inflammation score based on
+    established nutrition research, and lets you check in on symptoms like joint
+    pain, digestion, or energy — then shows you how your diet and how you feel
+    actually connect. If you use a continuous glucose monitor, it goes a step
+    further: our AI Pattern Coach reads your own glucose responses across meals and
+    writes a personal summary of what's actually driving your numbers, grounded
+    entirely in your data.</p>
+
+    <p>That kind of awareness — not guesswork or generic advice, just your own
+    patterns made visible — was the reason I built this.</p>
+
+    <p>NouriLoop is an educational wellness tool, not a medical device. Its scores
+    and insights are designed to help you understand patterns in your own data —
+    they are not medical advice or diagnosis.</p>
+
+    <p>If NouriLoop helps you the way it's helped me, I hope you'll tell others who
+    might benefit. And if you have ideas for making it better, I want to hear them.
+    Reach out any time.</p>
+
+    <p>Welcome to NouriLoop.</p>
+
+    <p><a href="mailto:john@nouriloop.com">john@nouriloop.com</a></p>
+
+    {# Verification CTA sits below the letter, visually separated, so it never
+       interrupts the founder's voice (John's call, 2026-07-05). Skimmers who miss
+       it are backstopped by the in-app banner + the other verification proofs. #}
+    {% if confirmUrl is defined and confirmUrl %}
+    <hr style="border: none; border-top: 1px solid #dee2e6; margin: 28px 0;">
+
+    <p style="font-weight: 600; margin-bottom: 4px;">P.S. One quick tap before you go —</p>
+    <p style="color: #6c757d; font-size: 14px;">
+        Confirming your email lets sign-in links and any reminders you turn on
+        reach you, and it signs you straight in.
+    </p>
+
+    <p style="margin: 20px 0;">
+        <a href="{{ confirmUrl }}"
+           style="background-color: #0f766e; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: 600; display: inline-block;">
+            Confirm your email &amp; sign in
+        </a>
+    </p>
+
+    <p style="color: #6c757d; font-size: 14px;">
+        The link expires in 24 hours — if it has, no problem: signing in by email
+        link any time confirms it too.
+    </p>
+    {% endif %}
+</body>
+</html>

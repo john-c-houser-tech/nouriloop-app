@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.tone.title'|trans }} — NouriLoop{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.tone.heading'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.tone.lead'|trans|raw }}</p>
+
+    <div class="card p-4 mt-3">
+        <form method="post" action="{{ path('app_settings_tone') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('settings-tone') }}">
+
+            {% set dials = [
+                { key: 'tone_humor', title: 'settings.tone.humor'|trans, value: app.user.toneHumor,
+                  low: 'settings.tone.humor_low'|trans, high: 'settings.tone.humor_high'|trans },
+                { key: 'tone_warmth', title: 'settings.tone.warmth'|trans, value: app.user.toneWarmth,
+                  low: 'settings.tone.warmth_low'|trans, high: 'settings.tone.warmth_high'|trans },
+                { key: 'tone_education', title: 'settings.tone.education'|trans, value: app.user.toneEducation,
+                  low: 'settings.tone.education_low'|trans, high: 'settings.tone.education_high'|trans }
+            ] %}
+
+            {% for dial in dials %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                    <label class="form-label fw-semibold mb-0" for="{{ dial.key }}">{{ dial.title }}</label>
+                    <span class="badge text-bg-light fst-italic" id="{{ dial.key }}-out"></span>
+                </div>
+                <input type="range" class="form-range" min="1" max="5" step="1"
+                       id="{{ dial.key }}" name="{{ dial.key }}" value="{{ dial.value }}"
+                       data-tone-slider
+                       oninput="updateToneLabel(this)">
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>“{{ dial.low }}”</span><span>“{{ dial.high }}”</span>
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success fw-semibold mt-1">{{ 'settings.tone.save'|trans }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    // Short, friendlier mid-point descriptors (1–5) shown live as the user slides.
+    var DESCRIPTORS = {{ {
+        'tone_humor': ['settings.tone.dh1'|trans, 'settings.tone.dh2'|trans, 'settings.tone.dh3'|trans,
+                       'settings.tone.dh4'|trans, 'settings.tone.dh5'|trans],
+        'tone_warmth': ['settings.tone.dw1'|trans, 'settings.tone.dw2'|trans, 'settings.tone.dw3'|trans,
+                        'settings.tone.dw4'|trans, 'settings.tone.dw5'|trans],
+        'tone_education': ['settings.tone.de1'|trans, 'settings.tone.de2'|trans, 'settings.tone.de3'|trans,
+                           'settings.tone.de4'|trans, 'settings.tone.de5'|trans],
+    }|json_encode|raw }};
+
+    window.updateToneLabel = function (slider) {
+        var out = document.getElementById(slider.id + '-out');
+        if (!out) { return; }
+        var idx = Math.max(1, Math.min(5, parseInt(slider.value, 10) || 3)) - 1;
+        out.textContent = DESCRIPTORS[slider.id][idx];
+    };
+
+    document.querySelectorAll('[data-tone-slider]').forEach(function (s) {
+        window.updateToneLabel(s);
+    });
+})();
+</script>
+{% endblock %}

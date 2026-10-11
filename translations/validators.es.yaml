@@ -1,0 +1,25 @@
+# Spanish translations for the app's custom constraint messages. The validators
+# domain uses the English message string itself as the key (Symfony's own
+# convention for constraint messages), and is deliberately NOT an intl-icu
+# domain — constraint placeholders use the validator's {{ limit }} syntax,
+# which ICU MessageFormat would fail to parse. Symfony ships translations for
+# its built-in default messages; only messages we override live here.
+'Please enter your name': 'Escribe tu nombre'
+'Please enter your email': 'Escribe tu correo electrónico'
+'Please enter your email.': 'Escribe tu correo electrónico.'
+'Please enter a valid email address.': 'Escribe una dirección de correo válida.'
+'Passwords must match.': 'Las contraseñas deben coincidir.'
+'Please enter a password': 'Escribe una contraseña'
+'Password must be at least {{ limit }} characters': 'La contraseña debe tener al menos {{ limit }} caracteres'
+'Your password should be at least {{ limit }} characters': 'Tu contraseña debe tener al menos {{ limit }} caracteres'
+'The password fields must match.': 'Los campos de contraseña deben coincidir.'
+'This password has appeared in a known data breach — please choose a different one.': 'Esta contraseña ha aparecido en una filtración de datos conocida; elige otra distinta.'
+'Enter a valid number in E.164 format, e.g. +15555550123.': 'Escribe un número válido en formato E.164, p. ej. +5215555550123.'
+'Please upload at least one photo.': 'Sube al menos una foto.'
+'Please upload valid images (JPEG, PNG, WebP, or HEIC).': 'Sube imágenes válidas (JPEG, PNG, WebP o HEIC).'
+'Please upload a valid image (JPEG, PNG, WebP, or HEIC).': 'Sube una imagen válida (JPEG, PNG, WebP o HEIC).'
+'Please enter your feedback.': 'Escribe tus comentarios.'
+'Please upload at most {{ limit }} photos of one meal.': 'Sube como máximo {{ limit }} fotos de una comida.'
+'Please upload at most {{ limit }} photos of one recipe.': 'Sube como máximo {{ limit }} fotos de una receta.'
+'Please upload at most {{ limit }} photos of one supplement label.': 'Sube como máximo {{ limit }} fotos de la etiqueta de un suplemento.'
+'There is already an account with this email': 'Ya existe una cuenta con este correo'

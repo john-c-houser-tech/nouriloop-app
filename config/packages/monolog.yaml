@@ -1,0 +1,81 @@
+monolog:
+    channels:
+        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                channels: ["!event"]
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!event"]
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+
+when@prod:
+    monolog:
+        handlers:
+            # Full debug context, flushed to the log file only when an error occurs.
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!deprecation"]
+                buffer_size: 50 # How many messages should be saved? Prevent memory leaks
+            # ⚠️ The error-context dump gets its OWN file, and must keep it.
+            # `main` and `warnings` are independent handlers: every record is
+            # offered to both. While they shared prod.log, an error flushed the
+            # buffer into the very file `warnings` had already written each
+            # warning to, so every warning-level entry appeared TWICE —
+            # byte-identical, microseconds included. Nothing fails and nothing is
+            # lost; the only symptom is `grep -c` quietly answering double.
+            # Neither handler could be dropped, so the destinations were split
+            # instead: prod.log stays the always-on warning+ stream,
+            # prod-debug.log holds the full debug trail leading up to an error.
+            # (Campaigner carries the twin of this split — its PR #86.)
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%-debug.log"
+                level: debug
+                formatter: monolog.formatter.json
+            # Always persist warning+ (e.g. the duplicate-meal warning) even when no
+            # error trips the fingers_crossed buffer above. Lives under the app's
+            # var/log, so it moves with the application directory.
+            warnings:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: warning
+                channels: ["!event", "!deprecation"]
+                formatter: monolog.formatter.json
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine"]
+            # Its own file too. The channel filters make it disjoint from the two
+            # above *today*, so it wasn't part of the duplication — but "no two
+            # handlers share a path" is the invariant that stays true when someone
+            # later edits a `channels` list, and MonologHandlerPathsTest enforces
+            # exactly that. Deprecations are also noise in the operational log.
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/%kernel.environment%-deprecation.log"
+                formatter: monolog.formatter.json

@@ -1,0 +1,41 @@
+{% extends 'help/_layout.html.twig' %}
+{% block help_title %}Logging a Meal{% endblock %}
+
+{% block help_body %}
+<figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
+    <img src="{{ asset('images/help/log-meal.png') }}" class="figure-img img-fluid mb-0 w-100"
+         alt="The Log a Meal screen — pick a meal type, add a photo, and add optional notes">
+</figure>
+<p>Logging a meal is the heart of NouriLoop: take a photo, let the AI estimate what's in it, then confirm and
+adjust before saving. You never type in calories by hand.</p>
+
+<h2 class="h5 fw-bold mt-4">Step by step</h2>
+<ol>
+    <li>Tap <strong>Log</strong> and choose or take a photo of your meal.</li>
+    <li>NouriLoop's AI analyzes the photo and estimates calories, macros, a full panel of vitamins and
+        minerals, and the ingredients it sees — along with how confident it is.</li>
+    <li>On the <strong>Confirm &amp; Refine</strong> screen, review the estimate. Set <strong>"how many servings
+        did you eat?"</strong> — the portion control scales the whole estimate up or down.</li>
+    <li>If the date isn't today (the app uses your photo's timestamp so you can log a few days of meals at
+        once), you'll see a clear notice — adjust the date/time if needed.</li>
+    <li>Tap <strong>Save to log</strong>. You can also <strong>Save &amp; add to favorites</strong> to reuse
+        the meal later.</li>
+</ol>
+
+<h2 class="h5 fw-bold mt-4">If the estimate looks off</h2>
+<p>While the AI is still unsure, you can <strong>re-analyze with corrections</strong> (fix an ingredient or
+answer its questions) or <strong>attach a second photo</strong> — for example, the nutrition-facts label.
+Adding a label usually sharpens the estimate a lot. What you review is exactly what gets saved.</p>
+
+<p class="text-muted small">NouriLoop flags a likely <strong>duplicate</strong> if the same photo is already
+logged at the same time, so you don't double-count a meal.</p>
+{% endblock %}
+
+{% block help_related %}
+<hr class="my-4">
+<p class="small text-muted mb-1">Related:</p>
+<ul class="small">
+    <li><a href="{{ path('app_help_show', {topic: 'favorites'}) }}">Favorite Meals</a></li>
+    <li><a href="{{ path('app_help_show', {topic: 'inflammation'}) }}">Inflammation Score</a></li>
+</ul>
+{% endblock %}

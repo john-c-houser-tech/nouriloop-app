@@ -1,0 +1,19 @@
+twig:
+    file_name_pattern: '*.twig'
+    globals:
+        # GA4 Measurement ID, available in every template. Empty string in dev/test/CI
+        # (see GOOGLE_ANALYTICS_ID in .env) → analytics and the cookie banner are
+        # suppressed; the real ID is set only in the server's .env.local.
+        google_analytics_id: '%env(GOOGLE_ANALYTICS_ID)%'
+        # Meta Pixel ID, available in every template. Empty string in dev/test/CI
+        # (see META_PIXEL_ID in .env) → the pixel is suppressed everywhere. Unlike
+        # google_analytics_id, base.html.twig also restricts *where* this loads
+        # (public pages + conversion redirects only) even when the id is set.
+        meta_pixel_id: '%env(META_PIXEL_ID)%'
+        # Release version in the footer. Empty in dev/test/CI (see APP_VERSION in
+        # .env) → no version shown; stamped per-deploy from `git describe`.
+        app_version: '%env(APP_VERSION)%'
+
+when@test:
+    twig:
+        strict_variables: true

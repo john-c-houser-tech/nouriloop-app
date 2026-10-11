@@ -1,0 +1,25 @@
+# French translations for the app's custom constraint messages. The validators
+# domain uses the English message string itself as the key (Symfony's own
+# convention for constraint messages), and is deliberately NOT an intl-icu
+# domain — constraint placeholders use the validator's {{ limit }} syntax,
+# which ICU MessageFormat would fail to parse. Symfony ships translations for
+# its built-in default messages; only messages we override live here.
+'Please enter your name': 'Veuillez saisir votre nom'
+'Please enter your email': 'Veuillez saisir votre adresse e-mail'
+'Please enter your email.': 'Veuillez saisir votre adresse e-mail.'
+'Please enter a valid email address.': 'Veuillez saisir une adresse e-mail valide.'
+'Passwords must match.': 'Les mots de passe doivent correspondre.'
+'Please enter a password': 'Veuillez saisir un mot de passe'
+'Password must be at least {{ limit }} characters': 'Le mot de passe doit contenir au moins {{ limit }} caractères'
+'Your password should be at least {{ limit }} characters': 'Votre mot de passe doit contenir au moins {{ limit }} caractères'
+'The password fields must match.': 'Les champs de mot de passe doivent correspondre.'
+'This password has appeared in a known data breach — please choose a different one.': 'Ce mot de passe est apparu dans une fuite de données connue — veuillez en choisir un autre.'
+'Enter a valid number in E.164 format, e.g. +15555550123.': 'Saisissez un numéro valide au format E.164, p. ex. +33612345678.'
+'Please upload at least one photo.': 'Veuillez téléverser au moins une photo.'
+'Please upload valid images (JPEG, PNG, WebP, or HEIC).': 'Veuillez téléverser des images valides (JPEG, PNG, WebP ou HEIC).'
+'Please upload a valid image (JPEG, PNG, WebP, or HEIC).': 'Veuillez téléverser une image valide (JPEG, PNG, WebP ou HEIC).'
+'Please enter your feedback.': 'Veuillez saisir votre commentaire.'
+'Please upload at most {{ limit }} photos of one meal.': 'Veuillez téléverser au plus {{ limit }} photos d''un repas.'
+'Please upload at most {{ limit }} photos of one recipe.': 'Veuillez téléverser au plus {{ limit }} photos d''une recette.'
+'Please upload at most {{ limit }} photos of one supplement label.': 'Veuillez téléverser au plus {{ limit }} photos de l''étiquette d''un complément.'
+'There is already an account with this email': 'Un compte existe déjà avec cette adresse e-mail'

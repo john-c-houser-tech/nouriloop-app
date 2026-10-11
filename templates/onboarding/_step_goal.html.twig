@@ -1,0 +1,12 @@
+{# Step 2 (required) — set a nutrition goal. One-tap starter goals lead (each
+   creates the goal immediately — the user's second-ever action shouldn't have to
+   be an open-ended AI chat); the chat/manual paths remain behind the link.
+   Completion is marked server-side in GoalFactory::create for every path. #}
+<div class="mb-2">
+    <div class="fw-semibold mb-1"><span class="badge bg-light text-dark me-1">2</span> {{ 'onboarding.goal.heading'|trans }}</div>
+    <p class="text-muted small mb-2">{{ 'onboarding.goal.lead'|trans }}</p>
+    {% include 'goals/_starter_goals.html.twig' %}
+    <a href="{{ path('app_goals_new') }}" class="btn btn-link btn-sm w-100 mt-1">
+        {{ 'onboarding.goal.custom'|trans }}
+    </a>
+</div>

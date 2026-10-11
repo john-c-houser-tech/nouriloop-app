@@ -1,0 +1,30 @@
+{# Step 4 — optional last step. Framed as a question ("Do you wear a glucose
+   sensor?") rather than leading with a device most users don't have: Yes → the
+   guided CGM setup, No → the file importer, and an equal-weight "Not now" button
+   (not fine print) finishes setup. Any of the three resolves the step, so the
+   overlay closes afterward. Never gates onboarding completion. #}
+<div class="mb-2">
+    <div class="fw-semibold mb-1">
+        <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis me-1">{{ 'onboarding.optional_tag'|trans }}</span>
+        {{ 'onboarding.health.question'|trans }}
+    </div>
+    <p class="text-muted small mb-3">{{ 'onboarding.health.lead'|trans }}</p>
+    <form method="post" action="{{ path('app_onboarding_step_health') }}" class="m-0">
+        <input type="hidden" name="_token" value="{{ csrf_token('onboarding-step') }}">
+        <input type="hidden" name="then" value="connect">
+        <button type="submit" class="btn btn-success w-100 mb-2">
+            <i class="bi bi-activity me-1"></i> {{ 'onboarding.health.yes_connect'|trans }}
+        </button>
+    </form>
+    <form method="post" action="{{ path('app_onboarding_step_health') }}" class="m-0">
+        <input type="hidden" name="_token" value="{{ csrf_token('onboarding-step') }}">
+        <input type="hidden" name="then" value="import">
+        <button type="submit" class="btn btn-outline-success w-100 mb-2">
+            <i class="bi bi-heart-pulse me-1"></i> {{ 'onboarding.health.no_import'|trans }}
+        </button>
+    </form>
+    <form method="post" action="{{ path('app_onboarding_step_health') }}" class="m-0">
+        <input type="hidden" name="_token" value="{{ csrf_token('onboarding-step') }}">
+        <button type="submit" class="btn btn-outline-secondary w-100">{{ 'onboarding.health.not_now'|trans }}</button>
+    </form>
+</div>

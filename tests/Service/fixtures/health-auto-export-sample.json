@@ -1,0 +1,72 @@
+{
+  "data": {
+    "workouts": [
+      { "name": "Walking", "start": "2026-05-18 07:00:00 -0700", "duration": 38.4 }
+    ],
+    "metrics": [
+      {
+        "name": "blood_glucose",
+        "units": "mg/dL",
+        "data": [
+          { "date": "2026-05-31 00:00:00 -0700", "source": "Lingo", "qty": 100.46666666666667 }
+        ]
+      },
+      {
+        "name": "heart_rate",
+        "units": "count/min",
+        "data": [
+          { "date": "2026-05-12 00:00:00 -0700", "source": "Zepp", "Min": 59, "Max": 104, "Avg": 72.28439603660846 }
+        ]
+      },
+      {
+        "name": "resting_heart_rate",
+        "units": "count/min",
+        "data": [
+          { "date": "2026-05-13 00:00:00 -0700", "source": "Zepp", "qty": 63 }
+        ]
+      },
+      {
+        "name": "weight_body_mass",
+        "units": "lb",
+        "data": [
+          { "date": "2026-06-10 00:00:00 -0700", "source": "Health", "qty": 213.5 }
+        ]
+      },
+      {
+        "name": "step_count",
+        "units": "count",
+        "data": [
+          { "date": "2026-05-12 00:00:00 -0700", "source": "iPhone|Zepp", "qty": 1558.5893155258764 }
+        ]
+      },
+      {
+        "name": "blood_oxygen_saturation",
+        "units": "%",
+        "data": [
+          { "date": "2026-05-12 00:00:00 -0700", "source": "Zepp", "qty": 96.05882352941177 }
+        ]
+      },
+      {
+        "name": "sleep_analysis",
+        "units": "hr",
+        "data": [
+          {
+            "date": "2026-05-12 00:00:00 -0700",
+            "source": "Zepp",
+            "inBedStart": "2026-05-11 21:28:00 -0700",
+            "sleepStart": "2026-05-11 22:11:00 -0700",
+            "sleepEnd": "2026-05-12 06:31:59 -0700",
+            "inBedEnd": "2026-05-12 06:31:59 -0700",
+            "asleep": 0,
+            "core": 4.0,
+            "deep": 1.0,
+            "rem": 1.2,
+            "awake": 1.43,
+            "totalSleep": 6.2,
+            "inBed": 9.0
+          }
+        ]
+      }
+    ]
+  }
+}
