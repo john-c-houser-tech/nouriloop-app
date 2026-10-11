@@ -63,9 +63,26 @@ final class SecurityTxtTest extends WebTestCase
     }
 
     /**
-     * The researcher who finds this file cannot read SECURITY.md — the repo is private.
-     * So the rules that keep a well-meaning report from becoming an incident have to
-     * travel in the file itself.
+     * Policy: links SECURITY.md in the public nouriloop-app mirror. A 404 there would be
+     * worse than no Policy: at all, so keep this URL in step with the mirror's location.
+     */
+    public function testPolicyPointsAtThePublicSecurityMd(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', self::PATH);
+
+        $body = (string) $client->getResponse()->getContent();
+
+        self::assertStringContainsString(
+            'Policy: https://github.com/john-c-houser-tech/nouriloop-app/blob/main/SECURITY.md',
+            $body,
+        );
+    }
+
+    /**
+     * The researcher who finds this file may read nothing else we've written, and the
+     * linked SECURITY.md is only as current as the mirror's last re-export. So the rules
+     * that keep a well-meaning report from becoming an incident travel in the file itself.
      */
     public function testCarriesTheTestingRulesInline(): void
     {

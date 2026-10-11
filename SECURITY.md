@@ -98,11 +98,13 @@ other users' data — is a different conversation.
 
 ## ⚠️ Note on where this file is reachable
 
-This repository is **private**, so GitHub renders this file only to people who
-already have access to it. Anyone outside cannot read it, and GitHub's private
-vulnerability reporting is not available on private repositories either.
+NouriLoop is developed in a private repository. Since 2026-10-11 this file is also
+published in the public source mirror,
+[john-c-houser-tech/nouriloop-app](https://github.com/john-c-houser-tech/nouriloop-app),
+which is refreshed occasionally. A researcher probing the site has no reason to go
+looking for either, though.
 
-This file therefore documents the process, but it is **not** by itself a way for an
+This file therefore documents the process, but it is **not** the main way for an
 outside researcher to find out how to reach us.
 
 **The published disclosure path is the RFC 9116 file at

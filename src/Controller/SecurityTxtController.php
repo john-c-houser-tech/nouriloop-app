@@ -13,22 +13,23 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Serves the RFC 9116 security.txt — the publicly discoverable way to report a
  * vulnerability in NouriLoop.
  *
- * ⚠️ This file exists because SECURITY.md CANNOT do this job. That repository is
- * private, so GitHub renders SECURITY.md only to people who already have access, and
- * private vulnerability reporting is unavailable on private repos. Until this route
- * shipped, an outside researcher looking at a service with open public registration and
- * live Stripe billing had no way to find a contact address at all. Deleting this route
- * puts that back — SECURITY.md is not a substitute, whatever it says.
+ * ⚠️ This file exists because SECURITY.md can't do this job. SECURITY.md lives in the
+ * source repo (private for development, mirrored publicly as nouriloop-app since
+ * 2026-10-11), and someone probing nouriloop.com has no reason to go looking for a
+ * GitHub repo. Until this route shipped, when the repo was still fully private, an
+ * outside researcher looking at a service with open public registration and live
+ * Stripe billing had no way to find a contact address at all. Deleting this route puts
+ * that back — SECURITY.md is not a substitute, whatever it says.
  *
  * A controller, not a static public/ file, for the same reasons as RobotsController:
  * it passes through the firewall's PUBLIC_ACCESS rule, it is testable in WebTestCase,
  * and Canonical stays in sync with the real host across environments.
  *
- * The same privacy of the repo is why the comment block in the body carries the
- * essential testing rules rather than just linking to them: a researcher who reaches
- * this file can read nothing else we've written. A contact address with no rules
- * attached invites exactly the "I dumped your user table to prove it" report that the
- * policy exists to prevent.
+ * The comment block in the body still carries the essential testing rules rather than
+ * relying on the Policy: link: a researcher may read this file and nothing else, and
+ * the linked mirror is only as current as its last re-export. A contact address with
+ * no rules attached invites exactly the "I dumped your user table to prove it" report
+ * that the policy exists to prevent.
  */
 class SecurityTxtController extends AbstractController
 {
@@ -51,16 +52,21 @@ class SecurityTxtController extends AbstractController
 
     private const CONTACT = 'info@nouriloop.com';
 
+    /**
+     * SECURITY.md in the public source mirror (the development repo is private). The
+     * mirror is refreshed by occasional re-exports, so this can trail the private copy;
+     * the inline rules in the body are what must stay current.
+     */
+    private const POLICY = 'https://github.com/john-c-houser-tech/nouriloop-app/blob/main/SECURITY.md';
+
     #[Route('/.well-known/security.txt', name: 'app_security_txt', methods: ['GET'])]
     public function index(): Response
     {
         $canonical = $this->generateUrl('app_security_txt', [], UrlGeneratorInterface::ABSOLUTE_URL);
         $contact = self::CONTACT;
         $expires = self::EXPIRES;
+        $policy = self::POLICY;
 
-        // Policy: is deliberately absent — it would have to point at SECURITY.md in a
-        // private repo, and a 404 in a security.txt is worse than an omitted optional
-        // field. If the policy is ever published at a public URL, add it here.
         $body = <<<SECURITYTXT
             # NouriLoop — security contact
             #
@@ -96,6 +102,7 @@ class SecurityTxtController extends AbstractController
 
             Contact: mailto:$contact
             Expires: $expires
+            Policy: $policy
             Preferred-Languages: en
             Canonical: $canonical
 

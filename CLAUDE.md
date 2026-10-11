@@ -3440,17 +3440,18 @@ subscribers. SDK: **`stripe/stripe-php`** (raw, no Symfony bundle), one shared
   reporting path with timelines a solo developer can actually honor, scope in/out, and
   testing rules written around the fact that **real users' health data is in the system**
   (own-account-only, stop-on-incidental-access, minimum-proof).
-  - ⚠️ **`SECURITY.md` is invisible to the researchers it addresses — this repo is
-    private.** GitHub renders it only to people who already have repo access, and private
-    vulnerability reporting isn't available on private repos at all. The file documents the
-    process; it is **not** a way for an outsider to find the contact address.
+  - ⚠️ **`SECURITY.md` isn't where the researchers it addresses will look.** This repo is
+    private; since 2026-10-11 the file is also published in the public `nouriloop-app`
+    mirror, but someone probing nouriloop.com has no reason to find either. The file
+    documents the process; it is **not** the main way for an outsider to find the contact
+    address.
 - **RFC 9116 `security.txt` (`SecurityTxtController`, added 2026-08-10)** — served at
   `/.well-known/security.txt`, `PUBLIC_ACCESS` in `security.yaml`, covered by
-  `tests/E2E/SecurityTxtTest`. ⚠️ **This route, not `SECURITY.md`, is NouriLoop's only
-  published disclosure path** (see above for why). A controller rather than a static
+  `tests/E2E/SecurityTxtTest`. ⚠️ **This route, not `SECURITY.md`, is NouriLoop's
+  primary disclosure path** (see above for why). A controller rather than a static
   `public/` file for RobotsController's reasons: firewall-covered, testable, and
   `Canonical` stays correct across environments. It carries the testing rules **inline**
-  in the comment block, because whoever reads it can read nothing else we've written —
+  in the comment block, because whoever reads it may read nothing else we've written —
   a contact address with no rules attached invites the "I dumped your user table to
   prove it" report.
   - ⚠️ **`Expires` is a fixed date, and `SecurityTxtTest::testExpiresIsNotAboutToLapse`
@@ -3462,9 +3463,11 @@ subscribers. SDK: **`stripe/stripe-php`** (raw, no Symfony bundle), one shared
     **That failing test is the entire annual review** — same principle as the daily
     digest sending on quiet days. Widening the window instead of bumping the date
     defeats the whole mechanism.
-  - ⚠️ **`Policy:` is deliberately omitted** — it would have to point at `SECURITY.md`
-    in a private repo, and a 404 inside a security.txt is worse than an absent optional
-    field. Add it only if the policy is ever published at a public URL.
+  - **`Policy:` links `SECURITY.md` in the public `nouriloop-app` mirror** (added
+    2026-10-11; omitted before because a 404 inside a security.txt is worse than an absent
+    optional field). The mirror trails the private repo between re-exports, which is why
+    the inline rules stay. If the mirror ever moves, update `POLICY` (pinned by
+    `SecurityTxtTest::testPolicyPointsAtThePublicSecurityMd`).
 
 ## Campaigner breadcrumb (`/about`)
 The `/about` page's company note ("NouriLoop LLC is also the developer of Campaigner.") is

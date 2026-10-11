@@ -83,7 +83,8 @@ security:
         - { path: '^/(robots\.txt|sitemap\.xml)$', roles: PUBLIC_ACCESS }
         # RFC 9116 security.txt — the vulnerability-reporting contact. MUST stay
         # anonymous: its entire purpose is being readable by someone outside, and this
-        # is the only published disclosure path (SECURITY.md is in a private repo).
+        # is the disclosure path a researcher finds from the site itself (SECURITY.md
+        # lives in the source repo, which they may never look at).
         # Bouncing it to /login would be indistinguishable from not having one.
         - { path: '^/\.well-known/security\.txt$', roles: PUBLIC_ACCESS }
         # Return target from a cancelled Stripe Checkout (no auth needed to bounce back).
