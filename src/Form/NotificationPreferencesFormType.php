@@ -6,6 +6,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use App\Enum\NotificationChannel;
+use App\Hosting\Brand;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
@@ -17,6 +18,11 @@ use Symfony\Component\Validator\Constraints\Regex;
 
 class NotificationPreferencesFormType extends AbstractType
 {
+    public function __construct(
+        private readonly Brand $brand,
+    ) {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -28,7 +34,7 @@ class NotificationPreferencesFormType extends AbstractType
             ]);
 
         // The SMS opt-in controls (phone + TCPA consent) render only for users whose
-        // tier includes SMS sends (sms_digest, Loop and up) — the template shows an
+        // tier includes SMS sends (`sms`, Loop+ only) — the template shows an
         // upsell hint instead. The fields are OMITTED (not hidden) so an unrendered,
         // unsubmitted phoneNumber can't null out a stored number on save. The channel
         // radios above deliberately stay: the stored preference is shared and never
@@ -56,7 +62,7 @@ class NotificationPreferencesFormType extends AbstractType
                     'required' => false,
                     'mapped'   => false,
                     'label'    => 'I agree to receive recurring automated text messages '
-                        . 'from NouriLoop at the number above. Consent is not a condition of '
+                        . 'from ' . $this->brand->name() . ' at the number above. Consent is not a condition of '
                         . 'use; message and data rates may apply; reply STOP to cancel or HELP '
                         . 'for help.',
                 ]);

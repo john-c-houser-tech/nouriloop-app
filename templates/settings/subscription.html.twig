@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'settings.subscription.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'settings.subscription.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container py-4" style="max-width: 640px;">
@@ -14,6 +14,12 @@
             <div>
                 <div class="text-muted small text-uppercase">{{ 'settings.subscription.current_plan'|trans }}</div>
                 <div class="fs-4 fw-bold">{{ tier.label }}</div>
+                {% if endsAt %}
+                    <div class="small text-muted" id="subscription-ends">{{ 'settings.subscription.ends_on'|trans({
+                        'plan': endingPlan.label,
+                        'date': endsAt|user_date('yMMMMd'),
+                    }) }}</div>
+                {% endif %}
             </div>
             {% if tier.value == 'free' %}
                 <a href="{{ path('app_pricing') }}" class="btn btn-success">
@@ -24,6 +30,16 @@
             {% endif %}
         </div>
     </div>
+
+    {# Loop+ on our key: the month's analyses and the top-up page (PR 7b). #}
+    {% if allowance %}
+    <div class="card p-4 mb-3" id="subscription-allowance">
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <span>{{ 'settings.subscription.allowance'|trans({'remaining': allowance.remaining, 'limit': allowance.limit}) }}</span>
+            <a href="{{ path('app_allowance') }}" class="btn btn-outline-success btn-sm">{{ 'settings.subscription.allowance_link'|trans }}</a>
+        </div>
+    </div>
+    {% endif %}
 
     {% if hasActiveStripe %}
     <div class="card p-4">

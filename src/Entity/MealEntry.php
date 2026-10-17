@@ -52,6 +52,14 @@ class MealEntry
     private ?Favorite $favorite = null;
 
     /**
+     * Logged from a favorite: a copy, no AI call, so AnalysisAllowance doesn't count
+     * it. Its own column because {@see $favorite} is SET NULL when the favorite is
+     * deleted, which would turn the meal back into a counted analysis.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $fromFavorite = false;
+
+    /**
      * @var array<array{name: string, amount: string, unit: string}>
      */
     #[ORM\Column(type: 'json', nullable: true)]
@@ -199,8 +207,16 @@ class MealEntry
     public function setFavorite(?Favorite $favorite): static
     {
         $this->favorite = $favorite;
+        if ($favorite !== null) {
+            $this->fromFavorite = true;
+        }
 
         return $this;
+    }
+
+    public function isFromFavorite(): bool
+    {
+        return $this->fromFavorite;
     }
 
     public function getEditedAt(): ?\DateTimeImmutable

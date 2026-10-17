@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% block help_title %}Help{% endblock %} — NouriLoop Help{% endblock %}
+{% block title %}{% block help_title %}Help{% endblock %} — {{ brand.name }} Help{% endblock %}
 
 {% block seo_jsonld %}
     {%- if topic is defined and topic -%}

@@ -101,13 +101,13 @@ class SupplementsController extends AbstractController
 
             try {
                 $result = $analyzer->analyzeImages($user, $paths);
-            } catch (PhotoLimitExceededException) {
-                // Free monthly allowance used up — same destination as the meal and
+            } catch (PhotoLimitExceededException $e) {
+                // Monthly allowance used up — same destination as the meal and
                 // recipe flows.
                 $this->staging->discard($staged);
-                $this->addFlash('warning', $translator->trans('meal.log.limit_reached'));
+                $this->addFlash('warning', $translator->trans($e->messageKey(), $e->messageParameters()));
 
-                return $this->redirectToRoute('app_pricing');
+                return $this->redirectToRoute($e->redirectRoute());
             } catch (\Throwable $e) {
                 $this->staging->discard($staged);
                 $this->logger->error('Supplement label analysis failed: {error}', ['error' => $e->getMessage()]);
@@ -131,8 +131,7 @@ class SupplementsController extends AbstractController
     {
         return $this->render('supplements/scan.html.twig', [
             'form'          => $form,
-            'freeRemaining' => $allowance->remaining($user),
-            'freeLimit'     => AnalysisAllowance::FREE_MONTHLY_LIMIT,
+            'allowance' => $allowance->status($user),
         ]);
     }
 

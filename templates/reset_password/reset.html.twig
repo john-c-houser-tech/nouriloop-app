@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'auth.reset.new_title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'auth.reset.new_title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="min-vh-hero d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);">
     <div class="card p-4" style="width: 100%; max-width: 420px;">
         <div class="text-center mb-4">
-            <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="88" height="88" class="mb-2">
+            {% include '_brand_mark.html.twig' with {variant: 'auth', size: 88, class: 'mb-2', alt: brand.name} %}
             <h1 class="h3 fw-bold mb-0">{{ 'auth.reset.new_title'|trans }}</h1>
             <p class="text-muted small">{{ 'auth.reset.new_subtitle'|trans }}</p>
         </div>

@@ -6,7 +6,7 @@
     <img src="{{ asset('images/help/goals.png') }}" class="figure-img img-fluid mb-0 w-100"
          alt="The Nutrition Goals page showing a goal and its scheduled check-in">
 </figure>
-<p>Set a measurable nutrition goal and NouriLoop checks your logged meals against it on a schedule, sending you
+<p>Set a measurable nutrition goal and {{ brand.name }} checks your logged meals against it on a schedule, sending you
 a progress note. It's wellness feedback, not medical advice.</p>
 
 <h2 class="h5 fw-bold mt-4">Setting up a goal</h2>
@@ -20,7 +20,7 @@ a progress note. It's wellness feedback, not medical advice.</p>
 </ol>
 
 <h2 class="h5 fw-bold mt-4">Check-ins</h2>
-<p>On schedule, NouriLoop measures your meals against the goal and sends a progress check-in — by email and/or
+<p>On schedule, {{ brand.name }} measures your meals against the goal and sends a progress check-in — by email and/or
 text, following your <a href="{{ path('app_help_show', {topic: 'settings'}) }}">notification settings</a>. Each
 goal's page keeps a history of its check-ins, status, and a trend chart.</p>
 {% endblock %}

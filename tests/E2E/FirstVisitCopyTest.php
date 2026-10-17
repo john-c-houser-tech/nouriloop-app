@@ -46,18 +46,25 @@ final class FirstVisitCopyTest extends WebTestCase
         self::assertSame(0, $strip->filter('.badge')->count());
     }
 
-    public function testTheAnnualBadgeStatesTheBestSavingFromTheTierPrices(): void
+    /** Monthly only since the tier rework; prices come from the tier enum. */
+    public function testThePaidPlansAreMonthlyWithTheirDescriptors(): void
     {
-        $best = max(array_map(
-            static fn (SubscriptionTier $t): int
-                => (int) round(100 - $t->yearlyPriceUsd() * 100 / ($t->monthlyPriceUsd() * 12)),
-            [SubscriptionTier::Loop, SubscriptionTier::LoopPlus],
-        ));
-
         $client = static::createClient();
         $crawler = $client->request('GET', '/pricing');
 
-        self::assertSame(sprintf('save up to %d%%', $best), trim($crawler->filter('#billing-annual .badge')->text()));
+        $loop = $crawler->filter('#plan-loop')->text();
+        self::assertStringContainsString('Bring your own AI key', $loop);
+        self::assertStringContainsString('$2 /mo', $loop);
+        self::assertStringContainsString('Until you add your key, Loop includes 10 AI analyses a month', $loop);
+
+        $plus = $crawler->filter('#plan-loop-plus')->text();
+        self::assertStringContainsString('AI included', $plus);
+        self::assertStringContainsString('$13.50 /mo', $plus);
+        self::assertStringContainsString('120 AI analyses a month included', $plus);
+        self::assertStringContainsString('by text (SMS)', $plus);
+        self::assertStringNotContainsString('by text', $loop, 'SMS is Loop+ only');
+
+        self::assertSame(0, $crawler->filter('#billing-annual')->count(), 'no annual toggle');
     }
 
     public function testAFreeUserSeesTheStripAsTheirCurrentPlan(): void

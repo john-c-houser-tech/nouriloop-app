@@ -1,25 +1,78 @@
+# Self-hosted stack. Set-up and operation: docs/self-hosting.md.
+#
+#   scripts/selfhost-init.sh your.domain.example   # once: writes selfhost.env
+#   docker compose up -d --build
+#
+# All settings live in selfhost.env (never committed). Nothing here needs editing.
+
+# Fixed project name: volume names (nouriloop_database, nouriloop_uploads…) stay the
+# same whatever the folder is called, e.g. after unpacking a versioned release.
+name: nouriloop
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+  app:
+    build: .
+    image: nouriloop-selfhost:local
+    restart: unless-stopped
+    env_file: selfhost.env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+      RUN_MIGRATIONS: "1"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - uploads:/app/public/uploads
+      - logs:/app/var/log
+      - caddy_data:/data/caddy
+      - caddy_config:/config/caddy
+    depends_on:
+      database:
+        condition: service_healthy
+
+  scheduler:
+    image: nouriloop-selfhost:local
+    restart: unless-stopped
+    env_file: selfhost.env
+    command: ["supercronic", "/app/docker/crontab"]
+    # The image's own health check probes the web server, which this container doesn't
+    # run. Healthy instead once the entrypoint (database reachable, cache warm) has
+    # handed over to supercronic as process 1. (`compose up --wait` errors on a
+    # container with no health check at all.)
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q supercronic /proc/1/cmdline"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+      start_interval: 2s
+    volumes:
+      # Goal-check-in charts are written here and emailed/shown from here.
+      - uploads:/app/public/uploads
+      - logs:/app/var/log
+    depends_on:
+      # Healthy = the web server is up, which the entrypoint only allows after
+      # migrations and cache warm-up: no job runs against a half-migrated schema.
+      app:
+        condition: service_healthy
+
+  database:
+    image: mariadb:11.4
+    restart: unless-stopped
+    env_file: selfhost.env
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - database:/var/lib/mysql
 
 volumes:
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
+  database:
+  uploads:
+  logs:
+  caddy_data:
+  caddy_config:

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Dto\PredictiveInsight;
 use App\Dto\ScenarioRequest;
 use App\Entity\Favorite;
@@ -43,7 +45,7 @@ final class PredictiveInsightService
         private readonly UserTime $userTime,
         private readonly TonePromptBuilder $tone,
         #[Autowire(lazy: true)]
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly \Symfony\Contracts\Translation\TranslatorInterface $translator,
         private readonly \App\Service\SymptomLabeler $symptomLabeler,
         private readonly UnitConverter $units,
@@ -533,7 +535,9 @@ final class PredictiveInsightService
 
         try {
             $system .= ' ' . $this->localePrompt->forUser($user) . $this->tone->forUser($user);
-            $result = $this->claude->complete(
+            $result = $this->ai->complete(
+                AiFeature::Predict,
+                $user,
                 $system,
                 [['role' => 'user', 'content' => $userMessage]],
                 $this->localePrompt->maxTokens($user->getLocale(), self::NARRATIVE_MAX_TOKENS),
@@ -574,7 +578,9 @@ final class PredictiveInsightService
 
         try {
             $system .= ' ' . $this->localePrompt->forUser($user) . $this->tone->forUser($user);
-            $result = $this->claude->complete(
+            $result = $this->ai->complete(
+                AiFeature::Predict,
+                $user,
                 $system,
                 [['role' => 'user', 'content' => $userMessage]],
                 $this->localePrompt->maxTokens($user->getLocale(), self::NARRATIVE_MAX_TOKENS),

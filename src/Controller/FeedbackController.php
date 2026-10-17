@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\FeedbackFormType;
+use App\Hosting\Brand;
 use App\Service\TurnstileValidator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -23,6 +24,11 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class FeedbackController extends AbstractController
 {
+    public function __construct(
+        private readonly Brand $brand,
+    ) {
+    }
+
     #[Route('/feedback', name: 'app_feedback', methods: ['GET', 'POST'])]
     public function feedback(
         Request $request,
@@ -100,7 +106,7 @@ class FeedbackController extends AbstractController
         try {
             $email = (new TemplatedEmail())
                 ->to($adminEmail)
-                ->subject('NouriLoop feedback')
+                ->subject(sprintf('%s feedback', $this->brand->name()))
                 ->htmlTemplate('email/feedback.html.twig')
                 ->context([
                     'name' => trim((string) ($data['name'] ?? '')),

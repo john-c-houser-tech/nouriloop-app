@@ -80,7 +80,7 @@ security:
         # Public "Send us feedback" form (linked from the footer on every page).
         - { path: ^/feedback, roles: PUBLIC_ACCESS }
         # SEO crawl files (served by controllers, so they pass through the firewall).
-        - { path: '^/(robots\.txt|sitemap\.xml)$', roles: PUBLIC_ACCESS }
+        - { path: '^/(robots\.txt|sitemap\.xml|app\.webmanifest)$', roles: PUBLIC_ACCESS }
         # RFC 9116 security.txt — the vulnerability-reporting contact. MUST stay
         # anonymous: its entire purpose is being readable by someone outside, and this
         # is the disclosure path a researcher finds from the site itself (SECURITY.md

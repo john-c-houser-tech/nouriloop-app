@@ -6,7 +6,7 @@
     <img src="{{ asset('images/help/settings.png') }}" class="figure-img img-fluid mb-0 w-100"
          alt="The Settings hub — cards grouped into Preferences, Notifications, Security & API, Billing, and Account">
 </figure>
-<p>Settings is where you control how NouriLoop reaches you, how it displays your data, and how it sounds.
+<p>Settings is where you control how {{ brand.name }} reaches you, how it displays your data, and how it sounds.
 Open it from the account menu (your name, top right) — everything lives on one hub page, grouped into a few
 cards.</p>
 
@@ -14,28 +14,27 @@ cards.</p>
 <ul>
     <li><strong>Timezone</strong> — sets what counts as "today" for your dashboard and when your evening
     digest goes out. If your device's local time ever disagrees with this setting (say, after a move),
-    NouriLoop shows a one-click banner offering to fix it.</li>
+    {{ brand.name }} shows a one-click banner offering to fix it.</li>
     <li><strong>Units</strong> — metric or imperial: weight in kilograms or pounds, and blood glucose in
     mmol/L or mg/dL.</li>
-    <li><strong>Language</strong> — NouriLoop speaks six languages — English, Spanish, German, French,
+    <li><strong>Language</strong> — {{ brand.name }} speaks six languages — English, Spanish, German, French,
     Russian, and Hindi — with regional options for English and Spanish. Your choice also applies to the
-    reminder and check-in emails NouriLoop sends you.</li>
+    reminder and check-in emails {{ brand.name }} sends you.</li>
     <li><strong>GLP-1 mode</strong> — an optional mode for people taking a GLP-1 medication: extra focus on
     protein, gentler portion guidance, and insights into possible nausea triggers.</li>
-    <li><strong>Voice &amp; tone</strong> — three sliders that tune how NouriLoop's AI coaching notes sound,
+    <li><strong>Voice &amp; tone</strong> — three sliders that tune how {{ brand.name }}'s AI coaching notes sound,
     from strictly businesslike to warm and playful. Style only — the numbers and advice never change.</li>
 </ul>
 
 <h2 class="h5 fw-bold mt-4">Notifications</h2>
-<p>NouriLoop can send you a daily digest covering things worth a glance — no meals logged, health data going
+<p>{{ brand.name }} can send you a daily digest covering things worth a glance — no meals logged, health data going
 stale, calories out of your usual range, or nutrient gaps. To receive them:</p>
 <ol>
     <li>Turn on the notice types you want (they're all off by default).</li>
     <li>Choose a delivery channel: <strong>Email</strong>, <strong>SMS</strong>, or <strong>Both</strong>.</li>
     <li>For text messages, add your phone number (in <code>+1…</code> format) and tick the SMS consent
-    box. Text-message delivery is part of the paid plans — the daily digest by text starts with
-    <strong>Loop</strong>, and goal check-ins delivered by email or text come with
-    <strong>Loop+</strong>.</li>
+    box. Text-message delivery — the daily digest and goal check-ins by text — is part of
+    <strong>Loop+</strong>. Goal check-ins by email come with either paid plan.</li>
 </ol>
 <p class="text-muted small">Everything also appears in the in-app notification bell, on every plan. This page
 is also where you can bring back the "Get set up" checklist if you dismissed it before finishing.</p>

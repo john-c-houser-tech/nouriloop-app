@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\E2E;
 
+use App\Ai\AnthropicClient;
 use App\Service\HelpAssistantService;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -33,6 +35,29 @@ final class HelpAssistantTest extends WebTestCase
         self::assertStringNotContainsString('**', $data['answerHtml']);
         // Returned page links are validated against real help routes.
         self::assertSame('/help/log-meal', $data['pages'][0]['url']);
+    }
+
+    public function testAnAnsweredQuestionIsRecordedAsAnAnonymousAiCall(): void
+    {
+        $client = static::createClient();
+        $this->resetAnonLimiter();
+        $conn = static::getContainer()->get(Connection::class);
+        $conn->executeStatement('DELETE FROM ai_call');
+
+        $client->request('POST', '/help/ask', ['question' => 'How do I log a meal?'], [], self::XHR);
+        self::assertResponseIsSuccessful();
+
+        // The whole seam: factory -> MeteredAiClient -> DBAL insert. FakeAnthropicResponder
+        // reports 1200 in / 300 out; Haiku lists at $1 / $5 per million tokens.
+        $rows = $conn->fetchAllAssociative('SELECT * FROM ai_call');
+        self::assertCount(1, $rows);
+        self::assertSame('help_assistant', $rows[0]['feature']);
+        self::assertNull($rows[0]['user_id']);
+        self::assertSame('anthropic', $rows[0]['provider']);
+        self::assertSame(AnthropicClient::LIGHT_MODEL, $rows[0]['model']);
+        self::assertSame(1200, (int) $rows[0]['input_tokens']);
+        self::assertSame(300, (int) $rows[0]['output_tokens']);
+        self::assertSame(2700, (int) $rows[0]['cost_micros']);
     }
 
     public function testRejectsCrossSiteRequestWithoutXhrHeader(): void

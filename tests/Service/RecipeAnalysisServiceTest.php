@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Ai\AnthropicClient;
 use App\Dto\RecipeAnalysis;
 use App\Entity\User;
 use App\Enum\SupportedLocale;
-use App\Service\ClaudeClient;
 use App\Service\LocalePromptBuilder;
 use App\Service\RecipeAnalysisService;
 use PHPUnit\Framework\TestCase;
@@ -134,7 +134,7 @@ final class RecipeAnalysisServiceTest extends TestCase
     private function service(MockHttpClient $client): RecipeAnalysisService
     {
         return new RecipeAnalysisService(
-            new ClaudeClient($client, 'test-key'),
+            new AnthropicClient($client, 'test-key'),
             $this->allowance(),
             new LocalePromptBuilder(new LocaleSwitcher('en', [])),
         );

@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Health Data Privacy Notice — NouriLoop{% endblock %}
+{% block title %}Health Data Privacy Notice — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container py-4" style="max-width: 760px;">
     <h1 class="fw-bold mb-1">NouriLoop Health Data Privacy Notice</h1>
-    <p class="text-muted">Effective date: June 9, 2026 · Last updated: October 8, 2026</p>
+    <p class="text-muted">Effective date: June 9, 2026 · Last updated: October 12, 2026</p>
 
     <p>This notice explains how NouriLoop LLC (“NouriLoop,” “we”) handles the
     health and wellness information you provide. Please read it before uploading
@@ -50,7 +50,7 @@
                 notes, your answers to the AI’s follow-up questions, and ingredient
                 corrections — for nutrition analysis;</li>
                 <li>your <strong>blood glucose readings</strong> and the meals
-                around them, if you use AI Pattern Coach (Loop+);</li>
+                around them, if you use AI Pattern Coach (paid plans);</li>
                 <li>your nutrition averages, dietary inflammation score, nutrient
                 gaps, and goal progress, plus what you type into the goal-setup
                 chat or a “What if?” scenario and the favorite meal or supplement
@@ -58,6 +58,11 @@
                 predictions;</li>
                 <li>the questions you ask the help assistant.</li>
             </ul>
+            If you connect <strong>your own AI provider</strong> under Settings ▸ AI
+            provider, the same information goes to the service you choose (Anthropic,
+            OpenRouter, or another service you name), under that service’s terms, instead
+            of to Anthropic on our account. Your API key is stored encrypted and is used
+            only to make those requests for you.
         </li>
         <li><strong>Twilio</strong> — your mobile number and message text, only if you
         enable SMS.</li>

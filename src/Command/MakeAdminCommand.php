@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Repository\UserRepository;
+use App\Service\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,11 +19,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:make-admin',
     description: 'Grant (or revoke with --revoke) ROLE_ADMIN for a user by email',
 )]
+/**
+ * Granting admin also marks the email as verified: whoever can run this on the server
+ * vouches for the account, and a self-hosted copy without email (MAILER_DSN=null://null)
+ * has no other way to clear the verification banner or receive emailed check-ins.
+ */
 class MakeAdminCommand extends Command
 {
     public function __construct(
         private readonly UserRepository $users,
         private readonly EntityManagerInterface $em,
+        private readonly EmailVerifier $emailVerifier,
     ) {
         parent::__construct();
     }
@@ -58,6 +65,11 @@ class MakeAdminCommand extends Command
         $this->em->flush();
 
         $io->success(sprintf('%s is %s an admin.', $email, $revoke ? 'no longer' : 'now'));
+
+        if (!$revoke && !$user->isEmailVerified()) {
+            $this->emailVerifier->markVerified($user);
+            $io->text('Their email address is now marked as verified.');
+        }
 
         return Command::SUCCESS;
     }

@@ -26,6 +26,19 @@ framework:
             policy: 'sliding_window'
             limit: 20
             interval: '1 hour'
+        # Settings > AI provider "Test connection" (POST /settings/ai/test), keyed per
+        # user. Each test is a real call on the user's own key, and the button is the one
+        # way to make our server contact an endpoint the user typed, so it is capped.
+        ai_connection_test:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 hour'
+        # Vision benchmark photos (POST /settings/ai/benchmark[/{index}]), keyed per user:
+        # one token per photo, so 20 is four full five-photo runs an hour on their key.
+        ai_benchmark:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 hour'
         # "Email me a sign-in link" requests (POST /login/link): an unauthenticated,
         # mail-triggering POST, so it gets the same three-layer posture as the
         # beta-request form (honeypot + Turnstile + this per-IP cap). Client IPs are

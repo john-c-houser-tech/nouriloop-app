@@ -14,10 +14,12 @@
         <a href="{{ localized_path('app_register') }}" class="btn btn-success fw-semibold">{{ 'about.create_account'|trans }}</a>
         <a href="{{ localized_path('app_login') }}" class="btn btn-outline-success fw-semibold">{{ 'about.sign_in'|trans }}</a>
         <p class="small text-muted mt-2 mb-0">{{ 'about.any_phone'|trans }}</p>
+        {% if hosting.hosted %}{# a self-hosted copy has no plans or pricing page #}
         <p class="small text-muted mt-3 mb-0">{{ 'about.plans'|trans({
             'plans_link': '<a href="' ~ localized_path('app_pricing') ~ '">',
             'link_end': '</a>',
         })|raw }}</p>
+        {% endif %}
     </div>
 
     <div class="alert alert-light border small text-muted">
@@ -77,10 +79,12 @@
         </p>
         <a href="{{ localized_path('app_register') }}" class="btn btn-success fw-semibold">{{ 'about.create_account'|trans }}</a>
         <a href="{{ localized_path('app_login') }}" class="btn btn-outline-success fw-semibold">{{ 'about.sign_in'|trans }}</a>
+        {% if hosting.hosted %}{# a self-hosted copy has no plans or pricing page #}
         <p class="small text-muted mt-3 mb-0">{{ 'about.plans'|trans({
             'plans_link': '<a href="' ~ localized_path('app_pricing') ~ '">',
             'link_end': '</a>',
         })|raw }}</p>
+        {% endif %}
     </div>
 
     {# Company note — the public breadcrumb for the Google Ads API review: their

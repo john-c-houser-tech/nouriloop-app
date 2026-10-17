@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Controller\HelpController;
 use App\Dto\HelpAnswer;
 use App\Entity\Favorite;
@@ -11,6 +13,7 @@ use App\Entity\MealEntry;
 use App\Entity\NutritionGoal;
 use App\Entity\User;
 use App\Enum\SupportedLocale;
+use App\Hosting\Brand;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -28,15 +31,14 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * still pulls the right grounding page even though the help pages themselves stay
  * English (parked decision).
  *
- * Uses a cheap, fast model (haiku) via the shared {@see ClaudeClient}; a Claude failure
- * degrades to a deterministic fallback that just points at the matched pages, so the
- * widget always shows something useful. Claude is injected lazily, so a page that never
- * asks a question doesn't resolve the API key.
+ * Runs as a light feature ({@see AiFeature::HelpAssistant}), so the shared
+ * {@see AiClient} answers it with the instance's cheaper model (Haiku on Anthropic). A
+ * failure degrades to a deterministic fallback that just points at the matched pages,
+ * so the widget always shows something useful. The client is injected lazily, so a
+ * page that never asks a question doesn't resolve the API key.
  */
 class HelpAssistantService
 {
-    /** Fast + cheap for a help assistant; bump to Sonnet if answer quality is short. */
-    private const MODEL = 'claude-haiku-4-5-20251001';
     private const MAX_TOKENS = 700;
     private const MAX_GROUNDING_PAGES = 3;
     /** Chars of each grounding page sent to Claude — enough for our short pages. */
@@ -77,13 +79,14 @@ class HelpAssistantService
 
     public function __construct(
         #[Autowire(lazy: true)]
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly HelpContentExtractor $content,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
         private readonly LocalePromptBuilder $localePrompt,
         private readonly \Symfony\Contracts\Translation\TranslatorInterface $translator,
+        private readonly Brand $brand,
     ) {
     }
 
@@ -92,11 +95,12 @@ class HelpAssistantService
         $slugs = $this->getRelevantPages($question);
 
         try {
-            $result = $this->claude->complete(
+            $result = $this->ai->complete(
+                AiFeature::HelpAssistant,
+                $user,
                 $this->buildPrompt($question, $slugs, $user),
                 [['role' => 'user', 'content' => $question]],
                 $this->localePrompt->maxTokens($this->localePrompt->currentLocale(), self::MAX_TOKENS),
-                self::MODEL,
             );
 
             return $this->parseAnswer($result->text, $slugs);
@@ -151,7 +155,7 @@ class HelpAssistantService
     private function buildPrompt(string $question, array $slugs, ?User $user): string
     {
         $manifest = '';
-        foreach (HelpController::TOPICS as $slug => $meta) {
+        foreach (HelpController::topicsFor($this->brand->name()) as $slug => $meta) {
             $manifest .= sprintf("- %s (%s): %s\n", $meta['title'], $this->helpUrl($slug), $meta['summary']);
         }
 
@@ -171,8 +175,12 @@ class HelpAssistantService
 
         $context = $user instanceof User ? $this->userContext($user) : '';
 
+        // The instance's name, not always "NouriLoop": the answer is shown to the user, and
+        // a self-hosted copy carries its operator's name (configurable branding, PR 6b).
+        $name = $this->brand->name();
+
         return <<<PROMPT
-            You are the NouriLoop help assistant. NouriLoop is a nutrition-tracking app:
+            You are the {$name} help assistant. {$name} is a nutrition-tracking app:
             photo-based meal logging with AI nutrition estimates, daily inflammation scoring,
             health-metric imports, supplements, symptom tracking, glucose insights, and
             scheduled nutrition-goal check-ins.
@@ -288,7 +296,7 @@ class HelpAssistantService
             $pages[] = [
                 'title' => HelpController::TOPICS[$slug]['title'],
                 'url' => $this->helpUrl($slug),
-                'reason' => HelpController::TOPICS[$slug]['summary'],
+                'reason' => HelpController::topicsFor($this->brand->name())[$slug]['summary'],
             ];
         }
 

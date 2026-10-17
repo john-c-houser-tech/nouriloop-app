@@ -9,45 +9,33 @@ use PHPUnit\Framework\TestCase;
 
 final class SubscriptionTierTest extends TestCase
 {
+    private const SHARED_PAID_FEATURES = [
+        'paid_plan', 'unlimited_checkins', 'daily_checkins', 'checkin_delivery',
+        'cgm_correlation', 'ai_pattern_coach', 'predictive_help',
+    ];
+
     public function testFreeHasNoPaidFeatures(): void
     {
-        $free = SubscriptionTier::Free;
-
-        self::assertFalse($free->hasFeature('unlimited_photos'));
-        self::assertFalse($free->hasFeature('unlimited_checkins'));
-        self::assertFalse($free->hasFeature('sms_digest'));
-        self::assertFalse($free->hasFeature('daily_checkins'));
-        self::assertFalse($free->hasFeature('checkin_delivery'));
-        self::assertFalse($free->hasFeature('cgm_correlation'));
-        self::assertFalse($free->hasFeature('ai_pattern_coach'));
+        foreach ([...self::SHARED_PAID_FEATURES, 'sms'] as $feature) {
+            self::assertFalse(SubscriptionTier::Free->hasFeature($feature), $feature);
+        }
     }
 
-    public function testLoopHasCoreFeaturesButNotPlusFeatures(): void
+    /** Both paid plans are full-featured since PR 7 (ADR 0003)… */
+    public function testBothPaidPlansHaveEveryFeature(): void
     {
-        $loop = SubscriptionTier::Loop;
-
-        self::assertTrue($loop->hasFeature('unlimited_photos'));
-        self::assertTrue($loop->hasFeature('unlimited_checkins'));
-        self::assertTrue($loop->hasFeature('sms_digest'));
-
-        // Loop+ exclusives stay locked on Loop.
-        self::assertFalse($loop->hasFeature('daily_checkins'));
-        self::assertFalse($loop->hasFeature('checkin_delivery'));
-        self::assertFalse($loop->hasFeature('cgm_correlation'));
-        self::assertFalse($loop->hasFeature('ai_pattern_coach'));
+        foreach ([SubscriptionTier::Loop, SubscriptionTier::LoopPlus] as $tier) {
+            foreach (self::SHARED_PAID_FEATURES as $feature) {
+                self::assertTrue($tier->hasFeature($feature), $tier->value . ' ' . $feature);
+            }
+        }
     }
 
-    public function testLoopPlusHasEveryFeature(): void
+    /** …except SMS, whose Twilio fees the bring-your-own-key price doesn't cover. */
+    public function testSmsIsLoopPlusOnly(): void
     {
-        $plus = SubscriptionTier::LoopPlus;
-
-        self::assertTrue($plus->hasFeature('unlimited_photos'));
-        self::assertTrue($plus->hasFeature('unlimited_checkins'));
-        self::assertTrue($plus->hasFeature('sms_digest'));
-        self::assertTrue($plus->hasFeature('daily_checkins'));
-        self::assertTrue($plus->hasFeature('checkin_delivery'));
-        self::assertTrue($plus->hasFeature('cgm_correlation'));
-        self::assertTrue($plus->hasFeature('ai_pattern_coach'));
+        self::assertFalse(SubscriptionTier::Loop->hasFeature('sms'));
+        self::assertTrue(SubscriptionTier::LoopPlus->hasFeature('sms'));
     }
 
     public function testUnknownFeatureDeniedByDefault(): void
@@ -65,6 +53,11 @@ final class SubscriptionTierTest extends TestCase
         // enforced anywhere, favorites are free on every tier (the recipe photo
         // import depends on that), and the paid lever is the AnalysisAllowance.
         self::assertFalse(SubscriptionTier::LoopPlus->hasFeature('favorites'));
+
+        // Retired by the tier rework: analyses are AnalysisAllowance's business,
+        // and SMS is one 'sms' key for both the digest and check-ins.
+        self::assertFalse(SubscriptionTier::LoopPlus->hasFeature('unlimited_photos'));
+        self::assertFalse(SubscriptionTier::LoopPlus->hasFeature('sms_digest'));
     }
 
     public function testLabels(): void
@@ -82,11 +75,12 @@ final class SubscriptionTierTest extends TestCase
 
     public function testDisplayPrices(): void
     {
-        self::assertSame(0, SubscriptionTier::Free->monthlyPriceUsd());
-        self::assertSame(0, SubscriptionTier::Free->yearlyPriceUsd());
-        self::assertSame(5, SubscriptionTier::Loop->monthlyPriceUsd());
-        self::assertSame(48, SubscriptionTier::Loop->yearlyPriceUsd());
-        self::assertSame(9, SubscriptionTier::LoopPlus->monthlyPriceUsd());
-        self::assertSame(79, SubscriptionTier::LoopPlus->yearlyPriceUsd());
+        self::assertSame(0, SubscriptionTier::Free->monthlyPriceCents());
+        self::assertSame(200, SubscriptionTier::Loop->monthlyPriceCents());
+        self::assertSame(1350, SubscriptionTier::LoopPlus->monthlyPriceCents());
+
+        self::assertSame('0', SubscriptionTier::Free->monthlyPriceUsd());
+        self::assertSame('2', SubscriptionTier::Loop->monthlyPriceUsd());
+        self::assertSame('13.50', SubscriptionTier::LoopPlus->monthlyPriceUsd());
     }
 }

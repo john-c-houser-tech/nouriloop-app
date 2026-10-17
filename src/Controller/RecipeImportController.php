@@ -80,11 +80,11 @@ class RecipeImportController extends AbstractController
 
             try {
                 $result = $analyzer->analyzeImages($this->user(), $paths);
-            } catch (PhotoLimitExceededException) {
+            } catch (PhotoLimitExceededException $e) {
                 $this->staging->discard($staged);
-                $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+                $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-                return $this->redirectToRoute('app_pricing');
+                return $this->redirectToRoute($e->redirectRoute());
             } catch (\Throwable $e) {
                 $this->staging->discard($staged);
                 $this->logger->error('Recipe photo analysis failed: {error}', ['error' => $e->getMessage()]);
@@ -210,10 +210,10 @@ class RecipeImportController extends AbstractController
 
         try {
             $result = $analyzer->analyzeImages($this->user(), $draft->imagePaths, $context);
-        } catch (PhotoLimitExceededException) {
-            $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+        } catch (PhotoLimitExceededException $e) {
+            $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-            return $this->redirectToRoute('app_pricing');
+            return $this->redirectToRoute($e->redirectRoute());
         } catch (\Throwable $e) {
             $this->logger->error('Recipe re-analysis failed: {error}', ['error' => $e->getMessage()]);
             $this->addFlash('error', $this->translator->trans('recipe.scan.failed'));
@@ -230,8 +230,7 @@ class RecipeImportController extends AbstractController
     {
         return $this->render('recipe/scan.html.twig', [
             'form'          => $form,
-            'freeRemaining' => $allowance->remaining($this->user()),
-            'freeLimit'     => AnalysisAllowance::FREE_MONTHLY_LIMIT,
+            'allowance' => $allowance->status($this->user()),
             'maxPhotos'     => RecipePhotoFormType::MAX_PHOTOS,
         ]);
     }

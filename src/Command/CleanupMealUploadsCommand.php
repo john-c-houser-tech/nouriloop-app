@@ -25,7 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * row-referenced files (AccountDeletionService) — this command sweeps exactly
  * the ownerless remainder.
  *
- * Run daily from cron (see docs/ops/production.md).
+ * Run daily from cron (docker/crontab; production's cron is in nouriloop-ops docs/ops/production.md).
  */
 #[AsCommand(
     name: 'app:cleanup-meal-uploads',
@@ -108,7 +108,7 @@ final class CleanupMealUploadsCommand extends Command
         if ($failed > 0) {
             $io->warning(sprintf(
                 'Deleted %d abandoned photo(s), but %d could not be removed — check permissions/ACLs '
-                . '(see the Writable var/ + uploads notes in docs/ops/production.md).',
+                . '(the web server user needs write access to public/uploads/).',
                 $deleted,
                 $failed,
             ));

@@ -18,18 +18,14 @@ use Symfony\Component\Clock\MockClock;
 final class SubscriptionServiceStripeTest extends TestCase
 {
     private const LOOP_M = 'price_loop_monthly';
-    private const LOOP_Y = 'price_loop_yearly';
     private const LOOPP_M = 'price_loop_plus_monthly';
-    private const LOOPP_Y = 'price_loop_plus_yearly';
 
     public function testTierForPriceIdMapsKnownPrices(): void
     {
         $service = $this->service();
 
         self::assertSame(SubscriptionTier::Loop, $service->tierForPriceId(self::LOOP_M));
-        self::assertSame(SubscriptionTier::Loop, $service->tierForPriceId(self::LOOP_Y));
         self::assertSame(SubscriptionTier::LoopPlus, $service->tierForPriceId(self::LOOPP_M));
-        self::assertSame(SubscriptionTier::LoopPlus, $service->tierForPriceId(self::LOOPP_Y));
     }
 
     public function testUnknownAndEmptyPriceIdsAreNotResolved(): void
@@ -39,7 +35,9 @@ final class SubscriptionServiceStripeTest extends TestCase
         self::assertNull($service->tierForPriceId('price_unknown'));
         self::assertNull($service->tierForPriceId(''));
         self::assertFalse($service->isKnownPriceId('price_unknown'));
-        self::assertTrue($service->isKnownPriceId(self::LOOPP_Y));
+        self::assertTrue($service->isKnownPriceId(self::LOOPP_M));
+        // The retired yearly prices (monthly only since PR 7) are unknown.
+        self::assertNull($service->tierForPriceId('price_loop_plus_yearly'));
     }
 
     public function testSyncFromStripeMirrorsSubscriptionOntoUser(): void
@@ -79,6 +77,44 @@ final class SubscriptionServiceStripeTest extends TestCase
         self::assertSame('past_due', $user->getSubscriptionStatus());
     }
 
+    /** A cancellation scheduled in the portal: cancel_at on recent API versions. */
+    public function testSyncStoresAScheduledCancellation(): void
+    {
+        $service = $this->service();
+        $user = new User();
+
+        $service->syncFromStripe($user, Subscription::constructFrom([
+            'id' => 'sub_1', 'status' => 'active', 'current_period_end' => 1_750_000_000,
+            'cancel_at' => 1_750_000_000, 'cancel_at_period_end' => false,
+            'items' => ['data' => [['price' => ['id' => self::LOOPP_M]]]],
+        ]));
+        self::assertSame(1_750_000_000, $user->getSubscriptionCancelAt()?->getTimestamp());
+
+        // Older API versions: cancel_at_period_end means the period end.
+        $user = new User();
+        $service->syncFromStripe($user, Subscription::constructFrom([
+            'id' => 'sub_1', 'status' => 'active', 'current_period_end' => 1_750_000_000,
+            'cancel_at_period_end' => true,
+            'items' => ['data' => [['price' => ['id' => self::LOOPP_M]]]],
+        ]));
+        self::assertSame(1_750_000_000, $user->getSubscriptionCancelAt()?->getTimestamp());
+    }
+
+    /** Renewing in the portal clears the cancellation. */
+    public function testSyncClearsAResumedCancellation(): void
+    {
+        $service = $this->service();
+        $user = (new User())->setSubscriptionCancelAt(new \DateTimeImmutable('2026-07-01'));
+
+        $service->syncFromStripe($user, Subscription::constructFrom([
+            'id' => 'sub_1', 'status' => 'active', 'current_period_end' => 1_750_000_000,
+            'cancel_at' => null, 'cancel_at_period_end' => false,
+            'items' => ['data' => [['price' => ['id' => self::LOOPP_M]]]],
+        ]));
+
+        self::assertNull($user->getSubscriptionCancelAt());
+    }
+
     private function service(): SubscriptionService
     {
         return new SubscriptionService(
@@ -87,9 +123,7 @@ final class SubscriptionServiceStripeTest extends TestCase
             null,
             null,
             self::LOOP_M,
-            self::LOOP_Y,
             self::LOOPP_M,
-            self::LOOPP_Y,
         );
     }
 }

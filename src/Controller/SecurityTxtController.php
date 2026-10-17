@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Hosting\Brand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -60,9 +61,12 @@ class SecurityTxtController extends AbstractController
     private const POLICY = 'https://github.com/john-c-houser-tech/nouriloop-app/blob/main/SECURITY.md';
 
     #[Route('/.well-known/security.txt', name: 'app_security_txt', methods: ['GET'])]
-    public function index(): Response
+    public function index(Brand $brand): Response
     {
         $canonical = $this->generateUrl('app_security_txt', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        if (!$brand->isNouriLoop()) {
+            return $this->selfHosted($brand, $canonical);
+        }
         $contact = self::CONTACT;
         $expires = self::EXPIRES;
         $policy = self::POLICY;
@@ -99,6 +103,40 @@ class SecurityTxtController extends AbstractController
             #
             # There is no bug bounty and no monetary reward. Credit in the release
             # notes on request. Declined reports get a reason, not silence.
+
+            Contact: mailto:$contact
+            Expires: $expires
+            Policy: $policy
+            Preferred-Languages: en
+            Canonical: $canonical
+
+            SECURITYTXT;
+
+        return new Response($body, Response::HTTP_OK, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+
+    /**
+     * A self-hosted copy: its operator, not NouriLoop LLC, answers for the site
+     * (configurable branding, Plan Q11c). Without OPERATOR_EMAIL there is nobody to name,
+     * so no file at all — a security contact that reaches no one is worse than none.
+     * Policy still points at the software's SECURITY.md, for flaws in NouriLoop itself.
+     */
+    private function selfHosted(Brand $brand, string $canonical): Response
+    {
+        $contact = $brand->operatorEmail();
+        if ($contact === '') {
+            throw $this->createNotFoundException('No security contact configured (OPERATOR_EMAIL).');
+        }
+        $name = $brand->name();
+        $expires = self::EXPIRES;
+        $policy = self::POLICY;
+
+        $body = <<<SECURITYTXT
+            # $name — security contact
+            #
+            # This site is a self-hosted copy of NouriLoop, open-source software, run by
+            # its operator (the Contact below). Report problems with this site to them.
+            # A flaw in the NouriLoop software itself: see Policy.
 
             Contact: mailto:$contact
             Expires: $expires

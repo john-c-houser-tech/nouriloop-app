@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Enum\SupportedLocale;
 use App\Entity\User;
 use App\Service\AccountDeletionService;
+use App\Service\AnalysisAllowance;
 use App\Service\SubscriptionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,20 +28,20 @@ class SubscriptionController extends AbstractController
     public function __construct(
         private readonly SubscriptionService $subscriptions,
         private readonly AccountDeletionService $accountDeletion,
+        private readonly AnalysisAllowance $allowance,
         private readonly string $stripePublishableKey,
         private readonly string $loopMonthlyPriceId,
-        private readonly string $loopYearlyPriceId,
         private readonly string $loopPlusMonthlyPriceId,
-        private readonly string $loopPlusYearlyPriceId,
     ) {
     }
 
-    #[Route('/pricing', name: 'app_pricing', methods: ['GET'])]
+    #[Route('/pricing', name: 'app_pricing', methods: ['GET'], condition: "service('hosting').isHosted()")]
     #[Route(
         '/{_locale}/pricing',
         name: 'app_pricing_i18n',
         requirements: ['_locale' => SupportedLocale::URL_PREFIX_REQUIREMENT],
         methods: ['GET'],
+        condition: "service('hosting').isHosted()",
     )]
     public function pricing(TranslatorInterface $translator): Response
     {
@@ -49,16 +50,25 @@ class SubscriptionController extends AbstractController
         return $this->render('subscription/pricing.html.twig', [
             'publishableKey'        => $this->stripePublishableKey,
             'loopMonthlyPriceId'    => $this->loopMonthlyPriceId,
-            'loopYearlyPriceId'     => $this->loopYearlyPriceId,
             'loopPlusMonthlyPriceId' => $this->loopPlusMonthlyPriceId,
-            'loopPlusYearlyPriceId'  => $this->loopPlusYearlyPriceId,
-            'currentTier'           => $user instanceof User ? $this->subscriptions->effectiveTier($user) : null,
+            // A subscriber's cards follow the plan Stripe bills (a comp can lift the
+            // effective tier above it); their plan buttons say "Switch" and lead to the
+            // portal (checkout()).
+            'currentTier'           => $user instanceof User
+                ? ($this->subscriptions->billedTier($user) ?? $this->subscriptions->effectiveTier($user))
+                : null,
+            'switchInPortal'        => $user instanceof User && $this->subscriptions->hasLiveSubscription($user),
             // Translated at render time — the request locale is already set.
             'seo_description'       => $translator->trans('pricing_page.seo_description'),
         ]);
     }
 
-    #[Route('/subscription/checkout', name: 'app_subscription_checkout', methods: ['POST'])]
+    #[Route(
+        '/subscription/checkout',
+        name: 'app_subscription_checkout',
+        methods: ['POST'],
+        condition: "service('hosting').isHosted()",
+    )]
     #[IsGranted('ROLE_USER')]
     public function checkout(Request $request): Response
     {
@@ -69,13 +79,19 @@ class SubscriptionController extends AbstractController
         }
 
         $priceId = (string) $request->request->get('price_id', '');
-        // Never pass an arbitrary price id to Stripe — only our four known plan prices.
+        // Never pass an arbitrary price id to Stripe — only our two known plan prices.
         if (!$this->subscriptions->isKnownPriceId($priceId)) {
             return new Response('Unknown plan.', Response::HTTP_BAD_REQUEST);
         }
 
         $user = $this->getUser();
         \assert($user instanceof User);
+
+        // A subscriber changes plan in the portal. A second Checkout would add a second
+        // subscription to the same customer and bill both (PR 8 test-mode run, 2026-10-13).
+        if ($this->subscriptions->hasLiveSubscription($user)) {
+            return $this->redirectToPortal($user, switchPlan: true);
+        }
 
         // Resubscribing is an unambiguous "I changed my mind" — don't also make them
         // separately click "Cancel deletion" first.
@@ -100,7 +116,12 @@ class SubscriptionController extends AbstractController
         return $this->redirect($url);
     }
 
-    #[Route('/subscription/success', name: 'app_subscription_success', methods: ['GET'])]
+    #[Route(
+        '/subscription/success',
+        name: 'app_subscription_success',
+        methods: ['GET'],
+        condition: "service('hosting').isHosted()",
+    )]
     #[IsGranted('ROLE_USER')]
     public function success(Request $request): Response
     {
@@ -125,13 +146,23 @@ class SubscriptionController extends AbstractController
         ]);
     }
 
-    #[Route('/subscription/cancel-checkout', name: 'app_subscription_cancel_checkout', methods: ['GET'])]
+    #[Route(
+        '/subscription/cancel-checkout',
+        name: 'app_subscription_cancel_checkout',
+        methods: ['GET'],
+        condition: "service('hosting').isHosted()",
+    )]
     public function cancelCheckout(): Response
     {
         return $this->redirectToRoute('app_pricing');
     }
 
-    #[Route('/subscription/portal', name: 'app_subscription_portal', methods: ['POST'])]
+    #[Route(
+        '/subscription/portal',
+        name: 'app_subscription_portal',
+        methods: ['POST'],
+        condition: "service('hosting').isHosted()",
+    )]
     #[IsGranted('ROLE_USER')]
     public function portal(Request $request): Response
     {
@@ -144,10 +175,15 @@ class SubscriptionController extends AbstractController
         $user = $this->getUser();
         \assert($user instanceof User);
 
+        return $this->redirectToPortal($user);
+    }
+
+    private function redirectToPortal(User $user, bool $switchPlan = false): Response
+    {
         $returnUrl = $this->generateUrl('app_settings_subscription', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         try {
-            $url = $this->subscriptions->createPortalSession($user, $returnUrl);
+            $url = $this->subscriptions->createPortalSession($user, $returnUrl, $switchPlan);
         } catch (\Throwable $e) {
             $this->addFlash('error', "We couldn't open the billing portal. Please try again in a moment.");
 
@@ -161,7 +197,12 @@ class SubscriptionController extends AbstractController
      * Per-user subscription settings: current plan/status, a link to upgrade, and the
      * "Manage subscription" portal button for existing subscribers.
      */
-    #[Route('/settings/subscription', name: 'app_settings_subscription', methods: ['GET'])]
+    #[Route(
+        '/settings/subscription',
+        name: 'app_settings_subscription',
+        methods: ['GET'],
+        condition: "service('hosting').isHosted()",
+    )]
     #[IsGranted('ROLE_USER')]
     public function settings(): Response
     {
@@ -171,6 +212,11 @@ class SubscriptionController extends AbstractController
         return $this->render('settings/subscription.html.twig', [
             'tier'           => $this->subscriptions->effectiveTier($user),
             'hasActiveStripe' => $user->getStripeCustomerId() !== null,
+            'allowance'      => $this->allowance->canTopUp($user) ? $this->allowance->status($user) : null,
+            // A canceled plan's last day, so the user can see the cancellation took. The
+            // plan named is the one Stripe is ending, not a comp above it (Copilot on #250).
+            'endsAt'         => $this->subscriptions->scheduledEnd($user),
+            'endingPlan'     => $user->getSubscriptionTier(),
         ]);
     }
 }

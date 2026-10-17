@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Entity\AnalysisEvent;
+use App\Entity\UserAiSettings;
+use App\Enum\SubscriptionTier;
+use App\Hosting\HostingMode;
+use App\Repository\AllowanceTopUpRepository;
 use App\Repository\AnalysisEventRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\MealEntryRepository;
+use App\Repository\UserAiSettingsRepository;
 use App\Service\AnalysisAllowance;
 use App\Service\SubscriptionService;
 use App\Service\UserTime;
@@ -23,12 +28,29 @@ trait BuildsAllowance
     private array $booked = [];
 
     /**
-     * @param int $used analyses already spent this month (only matters for a Free user)
+     * @param bool $unlimited shorthand: true = a paid user with their own key, false = Free
+     * @param int $used analyses already spent this month (only matters with an allowance)
+     * @param SubscriptionTier|null $tier overrides $unlimited's tier
+     * @param bool|null $ownKey overrides $unlimited's key
      */
-    private function allowance(bool $unlimited = true, int $used = 0): AnalysisAllowance
-    {
+    private function allowance(
+        bool $unlimited = true,
+        int $used = 0,
+        ?SubscriptionTier $tier = null,
+        ?bool $ownKey = null,
+        string $hosting = 'hosted',
+        int $toppedUp = 0,
+    ): AnalysisAllowance {
         $subscriptions = $this->createStub(SubscriptionService::class);
-        $subscriptions->method('hasFeature')->willReturn($unlimited);
+        $subscriptions->method('effectiveTier')
+            ->willReturn($tier ?? ($unlimited ? SubscriptionTier::LoopPlus : SubscriptionTier::Free));
+
+        $aiSettings = $this->createStub(UserAiSettingsRepository::class);
+        $aiSettings->method('findForUser')
+            ->willReturn(($ownKey ?? $unlimited) ? $this->createStub(UserAiSettings::class) : null);
+
+        $topUps = $this->createStub(AllowanceTopUpRepository::class);
+        $topUps->method('analysesForUserThisMonth')->willReturn($toppedUp);
 
         $meals = $this->createStub(MealEntryRepository::class);
         $meals->method('countForUserThisMonth')->willReturn($used);
@@ -42,6 +64,9 @@ trait BuildsAllowance
 
         return new AnalysisAllowance(
             $subscriptions,
+            new HostingMode($hosting),
+            $aiSettings,
+            $topUps,
             $meals,
             $this->createStub(FavoriteRepository::class),
             $this->createStub(AnalysisEventRepository::class),

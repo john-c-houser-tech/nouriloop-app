@@ -96,7 +96,7 @@ class NotificationService
         }
 
         // Email and SMS follow the reachability rules (verified address; phone,
-        // consent and the sms_digest entitlement); in-app always receives.
+        // consent and the `sms` entitlement); in-app always receives.
         $sendEmail = $this->reachability->canReach($user, OutboundChannel::Email, MessagePurpose::Digest);
         $sendSms = $this->reachability->canReach($user, OutboundChannel::Sms, MessagePurpose::Digest);
 

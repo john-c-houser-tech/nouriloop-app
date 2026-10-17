@@ -1,0 +1,272 @@
+---
+description: "The /about Campaigner breadcrumb, ad landing pages, robots and sitemap, social meta, JSON-LD, GA4 with consent mode, and the Meta Pixel's scope."
+paths:
+  - "src/Controller/AboutController.php"
+  - "src/Controller/LandingPageController.php"
+  - "src/Controller/RobotsController.php"
+  - "src/Controller/SitemapController.php"
+  - "src/Twig/StructuredDataExtension.php"
+  - "templates/about/**"
+  - "templates/lp/**"
+  - "templates/sitemap/**"
+  - "templates/_cookie_consent.html.twig"
+  - "templates/base.html.twig"
+  - "public/images/lp/**"
+  - "public/images/og-card.*"
+  - "config/packages/twig.yaml"
+---
+
+# Public pages, SEO and analytics — behavioral notes
+
+Moved verbatim out of the root `CLAUDE.md` on 2026-10-12 so it loads when you touch
+the files above. The root file's rule applies here unchanged: update this file in the
+same PR as any change to the behavior it describes.
+
+## Campaigner breadcrumb (`/about`)
+The `/about` page's company note ("NouriLoop LLC is also the developer of Campaigner.") is
+the public breadcrumb for Campaigner's Google Ads API review: their compliance team checks
+the company website for content related to the application. It deliberately says only that
+we're its developer, with no description of what Campaigner is for (John's call 2026-07-13).
+Covered by
+`tests/E2E/AboutPageTest`. The token-gated `/campaigner/{token}` description page that
+accompanied it was **removed 2026-10-10** ahead of open-sourcing the repo (it carried the
+Google Ads customer IDs and real ad-account screenshots).
+
+## Ad landing pages (`/lp/{slug}`, public + noindex)
+
+> **Hosted only** (2026-10-12, PR 6b): `/lp/*` and `/about` 404 on a self-hosted copy, and
+> the GA4 / Meta Pixel IDs reach templates only on NouriLoop's own service
+> (`App\Twig\AnalyticsGlobalsExtension`, which replaced the `twig.yaml` globals). See
+> `branding.md`.
+Audience-specific landing pages for the paid campaigns (Marketing Plan §8 in
+the private business folder's `NouriLoop-Marketing-Plan.md`) — until these existed,
+all four Google campaigns landed on the generic `/about`. Four pages, slugs matching the
+campaigns' internal names: **`diabetes`** (Campaign A + Meta 1 — CGM correlation lead, the
+Loop+ `$79/yr` vs `$200+/yr` comparison, "works with your Lingo or Stelo" CTA), **`inflammation`**
+(Campaign D + Meta 2 — inflammation-score lead, symptom-correlation section, the true founder
+story per §8), **`fiber`** (Campaign C — photo→micronutrients lead, 7-day gap analysis, "doctor
+said eat more fiber" framing), and **`weight-loss`** (added 2026-07-19 for the Campaign B
+rebuild — see `Campaigner/CAMPAIGN-B-REBUILD-PLAN.md`; honest-uncertainty lead per B's ad
+Variant 1, dashboard/trends section, and a goal-check-in section whose copy **names Loop and
+Loop+ with prices** — the Comprehensive Review §9 "don't imply gated features are free" rule,
+pinned by `LandingPagesTest::testWeightLossPageLabelsPaidFeaturesHonestly`; reuses the
+committed `lp/nutrition-summary.png` + `help/dashboard.png` + `help/goals.png` shots; the
+`lp.weight_loss.*` keys shipped in en + all five full catalogs in the same change, avoiding
+the word "favorites" so no en_GB override is needed).
+
+- **`LandingPageController`** (`GET /lp/{slug}`, `app_landing_page`): `PAGES` const is the
+  slug→seo_description registry (mirrors `HelpController::TOPICS`); unknown slug 404s.
+  `^/lp` is `PUBLIC_ACCESS` in `security.yaml`.
+- **Templates:** `templates/lp/_layout.html.twig` (brand mark deliberately **not a link** —
+  no navigation, the register CTA is the only path forward; gold `btn-warning` CTA top and
+  bottom via `lp_*` blocks; educational-wellness disclaimer above the base footer) + one
+  template per slug. **`base.html.twig` has a `chrome_suppressed` flag** (keyed on the
+  `app_landing_page` route, same idiom as `tracking_suppressed`) that hides every navigation
+  surface on these pages — the signed-in navbar, the deletion/verification banners, the
+  floating help button, the onboarding overlay, and the footer's "Send us feedback" link —
+  so even a logged-in visitor arriving from an ad sees a CTA-only page. Unlike
+  `tracking_suppressed`, trackers stay **on** (the ads need conversion measurement).
+  Screenshots mostly reuse the committed `public/images/help/*.png`; prices come from
+  `subscription_price()` (the `SubscriptionTier` single source), never hardcoded.
+- **Dedicated screenshots in `public/images/lp/`** (committed, like the help shots):
+  `meal-glucose-curve.png` (the per-meal Glucose Response card) and `glucose-insights.png`
+  (the rankings page) for the `diabetes` page — added when the committed help `glucose.png`
+  still showed the Free-tier locked upsell (wrong lead image for an ad; since 2026-07-22
+  the demo user carries a permanent Loop+ comp and `glucose.png` shows the real page) —
+  plus `nutrition-summary.png` (a meal's nutrient panel incl. fiber + micros) for the
+  `fiber` lead. Regenerated by a one-off script (the Campaigner-screenshots pattern, not a
+  committed command): same recipe as `app:capture-help-screenshots` (test env, seed demo,
+  Panther — the comp is now baked into the seeder), then cropping to the relevant card.
+- **Noindex, out of the sitemap, no robots.txt rule:** the layout's `meta` block appends
+  `robots: noindex` (paid-traffic pages that duplicate `/about`'s story — kept out of the
+  organic index so they can't compete with the canonical marketing page). Deliberately **not**
+  Disallow'd in robots.txt — crawlers must be able to fetch them to see the noindex, and
+  Google Ads' AdsBot needs them for Quality Score. GA4/Meta-Pixel behave as on any public
+  page (they're anonymous marketing pages; §12 retargeting wants `/lp/*` visitors in the
+  Pixel audience).
+- ⚠️ **Platform messaging (2026-07-26, Marketing Plan §7.7).** The pages previously
+  said neither "iPhone" nor "Android" — the only platform signal was the diabetes
+  page's oblique *"from Apple Health"*, which a non-technical visitor won't read as
+  "iPhone required". Since **everything except health-data import runs in any phone's
+  browser**, three of the four pages were sitting under an implied iOS requirement they
+  never had. Two things now:
+  - **`lp.layout.any_phone`** renders under the hero CTA on **every** landing page (and
+    `about.any_phone` on `/about`): works on the phone you already have, iPhone or
+    Android, nothing to install.
+  - **`lp.diabetes.sensor_note`** states the sensor × platform matrix *before* the
+    visitor can click through — rendered in the layout's **`lp_precta`** block,
+    which exists for exactly this. ⚠️ `lp_body` renders AFTER the hero CTA, so a
+    caveat placed there is one a visitor can click straight past; that is where
+    this first shipped (Copilot catch on PR #185) and it made the note
+    worthless. `LandingPagesTest` now asserts the caveat's offset precedes the
+    first `/register` link, and fails with that reason if it moves. ⚠️ **The load-bearing fact: on Android only Dexcom Stelo
+    writes glucose to Health Connect first-party — Abbott Lingo does not share readings
+    with other apps at all.** So the page's "works with your Lingo or Stelo" promise
+    silently failed for Android+Lingo, on paid traffic. Losing those clicks is the
+    point; they could never convert.
+  - The CGM bullet and `/about`'s "Automatic syncing" bullet now say **automatic on
+    iPhone, file import on Android today**. Android users *do* have a working path via
+    the existing CSV/JSON importer — that is not a promise, it is current behaviour.
+  - ⚠️ **Not claimed anywhere, deliberately:** automatic Android sync. `Health Connect
+    Webhook` POSTs per-reading JSON with custom headers, which is exactly the shape
+    `/api/health-metrics/health-export` wants (one new `HealthJsonImporter` away), but
+    it is a small open-source project that needs a reliability trial before it goes in
+    front of a 45–70 audience. Research lives in
+    `NouriLoop Business/Android_support_chat.txt`.
+- **Copy rules baked in (Marketing Plan §2/§9):** the `diabetes` page never says the
+  condition word — "blood sugar"/"glucose" only (the slug is an internal campaign name;
+  a test pins this); paid-tier features are framed honestly (Loop+ correlation + trial on
+  `diabetes`, the 10-photo free cap + Loop price on `fiber`); the founder story is the only
+  social proof (no invented user counts).
+- Covered by `tests/E2E/LandingPagesTest` (in-process `WebTestCase`: all pages render
+  anonymously with noindex and **`/register` as the only link target on the page**, a
+  signed-in visitor gets no navbar/chrome and the same only-link guarantee, the diabetes
+  page contains no "diabet…" string, unknown slug 404s, sitemap excludes `/lp/`).
+
+## SEO & social meta (public pages)
+First sprint of the SEO plan (`NouriLoop-SEO-Fundability-Plan.md`, "Engineering
+Implementation Notes"). Goal: make the public marketing/help/legal surface
+(`/about`, `/pricing`, `/help/*`, `/privacy/*`) discoverable; everything behind login
+stays out of the index.
+
+- **`RobotsController`** (`GET /robots.txt`, `text/plain`) and **`SitemapController`**
+  (`GET /sitemap.xml`, `application/xml` + `templates/sitemap/index.xml.twig`) are
+  **controllers, not static files** — so they pass the firewall, are testable in
+  `WebTestCase`, and the robots `Sitemap:` line is generated from the real route. Both
+  are `PUBLIC_ACCESS` via one rule `^/(robots\.txt|sitemap\.xml)$` (the catch-all `^/`
+  needs `ROLE_USER`). **The dashboard is `/`, not `/dashboard`** — robots can't
+  `Disallow: /` (blocks the site), so there's no dashboard rule; anonymous crawlers hit
+  `/` → 302 to `/login`, so authenticated content is never indexable.
+- **Sitemap URLs are derived from `HelpController::TOPICS`** (single source of truth) +
+  a static-page list with per-route priority/changefreq. `<lastmod>` comes from the
+  **`DEPLOY_DATE`** env var (`.env` placeholder empty → falls back to today in dev/test;
+  set per-deploy in the server `.env.local`).
+- **SEO/social meta** lives in a **`{% block meta %}`** in `base.html.twig` (right after
+  the existing `{% block title %}`, which is **kept** — `og:title`/`twitter:title` reuse
+  it via `{{ block('title') }}`, no duplicate `<title>`). It emits description + canonical
+  + OpenGraph + Twitter-card tags. **Canonical is route-derived** (`url(_route, params)`)
+  so it's clean (no query string) and host-correct, not `app.request.uri`. Public
+  controllers pass **`seo_description`** (help pages reuse the topic `summary`; others a
+  per-page blurb); everything else inherits the marketing default. **Authenticated pages
+  get `<meta name="robots" content="noindex">`** (emitted when `app.user` is set) as a
+  backstop to robots.txt — no private/health page is ever indexed.
+- **OG card:** `public/images/og-card.png` (1200×630, brand teal→slate + the real
+  `auth-logo.png` mark), referenced via `absolute_url(asset(...))`. Committed to git (like
+  the help screenshots, **not** under gitignored `public/uploads/`). The **source is
+  `public/images/og-card.svg`** (self-contained — the logo is embedded as a base64 data
+  URI), so a tweak is a one-line regenerate:
+  `rsvg-convert -w 1200 -h 630 public/images/og-card.svg -o public/images/og-card.png`
+  (needs `librsvg`/`rsvg-convert` — `brew install librsvg`; ImageMagick's built-in SVG
+  renderer drops `url()` gradients and can't resolve fonts, so use rsvg).
+- Covered by `tests/E2E/SeoTest` (robots public + no `/dashboard` rule; sitemap is valid
+  XML listing every help topic; `/about` carries title/description/canonical/OG; public
+  page indexable, authenticated page noindex).
+- **Google Search Console verification:** `public/googledc3af3f9ec545c4c.html` (a static
+  53-byte token file). Served directly by the web server (nginx `try_files` / `symfony
+  serve`), so it bypasses the firewall and returns 200 to Google's fetch — **don't delete
+  it** or verification breaks. (HTML-file method; the DNS-TXT alternative in the SEO plan
+  was not used.)
+
+### Structured data / JSON-LD (Phase 2)
+`App\Twig\StructuredDataExtension` builds JSON-LD, emitted inside `<script type="application/ld+json">`
+via a **`{% block seo_jsonld %}`** in `base.html.twig` (empty default; public templates override it).
+Three `jsonld_*` Twig functions, each returning a ready-to-print JSON string (slashes unescaped for
+clean URLs, `<`/`>` hex-escaped so it can't break out of the `<script>`; all data is app constants/
+routes, never user input):
+- **`/about` → `WebApplication`** (`jsonld_web_application`): `HealthApplication`, `operatingSystem: Web`,
+  and a per-tier **`offers`** array. Offer prices come from **`SubscriptionTier::monthlyPriceUsd()`**
+  (a decimal string, "13.50", since PR 7 priced Loop+ off the whole dollar)
+  (the single price source — same one the pricing page now reads via the `subscription_price` Twig fn,
+  so the schema can't drift from the page). Paid tiers use a `priceSpecification` →
+  `UnitPriceSpecification` (`unitCode: MON`), the schema.org-correct recurring shape.
+- **`/help` → `ItemList`** (`jsonld_help_list`): the 10 help topics from `HelpController::TOPICS`.
+  **Chosen over the plan's `FAQPage`** — the topics are feature articles, not Q&A, so `FAQPage` would
+  be inaccurate (and Google now restricts FAQ rich results anyway).
+- **`/help/{topic}` → `TechArticle`** (`jsonld_help_article`, from the help `_layout`): headline +
+  description from `TOPICS[slug]`, `image` = the topic's committed screenshot, publisher logo = og-card.
+- Covered by `tests/E2E/SeoJsonLdTest` (valid JSON of the right `@type` on each page; `/about` offers
+  match the `SubscriptionTier` price source; every topic emits a valid `TechArticle`) +
+  `tests/Enum/SubscriptionTierTest` (the price methods).
+
+### Analytics (GA4 + cookie consent)
+Google Analytics 4 with **Consent Mode v2**, on the whole app but **off by a kill-switch**
+unless configured.
+
+- **`GOOGLE_ANALYTICS_ID`** env (`.env` placeholder empty → dev/test/CI emit **no**
+  analytics script and **no** cookie banner; real `G-…` id only in the server `.env.local`).
+  Exposed app-wide as the `google_analytics_id` Twig **global** (`config/packages/twig.yaml`).
+- **`base.html.twig`** loads gtag.js + sets **Consent Mode v2 defaults to `denied`** (no
+  analytics/ad cookies) until the visitor accepts; a returning visitor's choice (the
+  `cookieConsent` first-party cookie, read server-side) seeds **all four** signals
+  (`analytics_storage`, `ad_storage`, `ad_user_data`, `ad_personalization`) so they aren't
+  re-prompted. **`templates/_cookie_consent.html.twig`** is the slim banner (vanilla JS —
+  no Stimulus); Accept → `gtag('consent','update', {...all four signals: 'granted'})` + cookie;
+  Decline → cookie only. Banner shows only when analytics is on **and** no choice is stored.
+  ⚠️ **Fixed 2026-07-06** (caught via Google Ads flagging a 0% consent rate): the default
+  block and the Accept handler previously only ever set/granted `analytics_storage` — the
+  three `ad_*` signals were hardcoded `denied` with no code path that ever granted them, for
+  *any* visitor including ones who clicked Accept. This silently blocked Google Ads
+  click-to-conversion attribution account-wide (consistent with the near-zero conversions
+  seen on the first live campaigns) without affecting GA4's own analytics reporting, which is
+  why it went unnoticed at launch. All four signals now move together.
+- **Health guardrail:** only `page_view` + **named conversion events** are sent, never any
+  health value. Events: **`sign_up`** and **`purchase`** fire **exactly once** via a
+  server-side one-shot **`track_event`** flash that base.html.twig emits on the next render
+  (RegistrationController → auto-login redirect to the dashboard, since Wave 3;
+  `SubscriptionController::success()` sets it
+  then **Post/Redirect/Gets** to a clean URL so a refresh/bookmark of the `?session_id=` URL
+  can't re-fire the conversion or re-run the Stripe sync). **`begin_checkout`** is the one
+  client-side event (pricing form submit), `typeof gtag`-guarded so it no-ops when analytics
+  is off. base.html.twig **always consumes** the `track_event` flash (only emitting it when
+  analytics is on) so events never pile up in the session.
+- ToS **§9 "Analytics and cookies"** (`#analytics`, linked from the banner) discloses it.
+- Covered by `tests/E2E/AnalyticsTest` (kill-switch: empty id → no script/banner; ToS
+  discloses analytics). The id-set path (snippet + banner + granted-cookie default) is
+  verified manually — the compiled env var can't be flipped per-test.
+
+### Meta Pixel (public pages only)
+Same **`META_PIXEL_ID`**-driven kill-switch as GA4 (`.env` placeholder empty → suppressed
+in dev/test/CI; real id only in the server `.env.local`; `meta_pixel_id` Twig global,
+`config/packages/twig.yaml`) — but with a **stricter scope than GA4**, decided deliberately:
+Meta Pixel builds ad-targeting audiences from page visits, not just analytics, and there's
+real FTC/litigation precedent (BetterHelp, GoodRx, several hospital systems) for exactly
+this pattern — a pixel firing on health-adjacent pages. So unlike GA4 (which loads on every
+page including `/health-metrics`/`/symptoms`/`/trends`/`/insights/*`), the Pixel in
+`base.html.twig` only loads when **`app.user is null` OR there's a pending `track_event`
+flash** — i.e. public/marketing pages (`/about`, `/pricing`, `/help/*`, `/login`,
+`/register`, `/privacy/*`) plus the one-shot conversion redirects. It **never** loads on any
+authenticated page during normal browsing — dashboard, meals, symptoms, health metrics,
+trends, insights, settings are all excluded even when the id is configured.
+- **Conversions** reuse the same **`track_event`** flash as GA4 (`RegistrationController`
+  → `sign_up`, `SubscriptionController::success` → `purchase`) — no new server-side
+  mechanism. `base.html.twig` maps flash values to Meta **standard events** via a small
+  inline dict (`sign_up`→`CompleteRegistration`, `purchase`→`Purchase`), fired bare with no
+  value/currency params (same no-PII posture as the GA4 events). The pending flash is
+  what forces the Pixel to load on an otherwise-excluded, authenticated page — the
+  `track_events is not empty` clause covers both such cases: `purchase` on
+  `/subscription/success`, and (since Wave 3's auto-login) `sign_up` on the dashboard
+  render right after registration. Each is a genuine one-shot (flash consumed on that
+  single render).
+  On that authenticated page **only the conversion event fires — the `PageView` (both the
+  JS `fbq('track','PageView')` and the `<noscript>` beacon) is gated on `app.user is null`**,
+  so a page view is never sent on a logged-in page, matching the ToS ("only page views on
+  public pages"). Public pages (where `app.user is null`) send both the PageView and any
+  conversion.
+- **Consent** uses Meta's own `fbq('consent', 'grant'|'revoke')` API, same denied-by-default
+  posture as GA4's Consent Mode: `revoke` is sent **before** `init` (Meta's documented order,
+  so nothing acts pre-consent), then `grant` only if the shared `cookieConsent` cookie already
+  reads `granted`. The `<noscript>` pixel fallback can't consult the JS consent API, so it's
+  **gated server-side on `cookieConsent == 'granted'`** — a no-JS visitor can't have opted in
+  (the banner needs JS), so it stays off by default. The **cookie banner is shared** with GA4
+  (`_cookie_consent.html.twig` — triggers on `google_analytics_id OR meta_pixel_id`, Accept
+  grants both, Decline denies both).
+- ToS **§9 "Analytics and cookies"** has a dedicated Meta Pixel paragraph disclosing the
+  public-pages-only scope. Covered by `tests/E2E/AnalyticsTest`
+  (`testMetaPixelSuppressedWhenIdIsEmpty` — kill-switch; ToS disclosure assertions). The
+  id-set + scope-restriction path is verified manually, same reason as GA4.
+- **Deliberately not implemented:** `begin_checkout`/`InitiateCheckout` parity — GA4 fires
+  `begin_checkout` client-side on the pricing page's checkout form submit, but the pricing
+  page is reachable while logged in (nav "Upgrade" link) and the Pixel's exclusion rule is
+  `app.user is null`, so mirroring it would either violate the never-on-authenticated-pages
+  rule or need a separate carve-out. Skipped for now; revisit only with an explicit decision
+  to loosen the scope.

@@ -1,0 +1,12 @@
+{# The monthly AI-analysis allowance, visible before it runs out rather than a surprise
+   redirect. `allowance` is AnalysisAllowance::status() — null (no counter) for anyone
+   without one. The wording and the link follow the allowance kind (AllowanceKind); it
+   turns amber with its link once 80% is used. #}
+{% if allowance is defined and allowance is not null %}
+<p class="text-center small mt-2 mb-0 {{ allowance.low ? 'text-warning-emphasis fw-semibold' : 'text-muted' }}" id="allowance-counter">
+    {{ allowance.kind.counterKey|trans({'remaining': allowance.remaining, 'limit': allowance.limit}) }}
+    {% if allowance.low %}
+        · <a href="{{ path(allowance.kind.route) }}">{{ allowance.kind.linkKey|trans }}</a>
+    {% endif %}
+</p>
+{% endif %}

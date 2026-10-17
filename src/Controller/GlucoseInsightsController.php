@@ -33,8 +33,8 @@ class GlucoseInsightsController extends AbstractController
         $days = (int) $request->query->get('days', 30);
         $days = in_array($days, [7, 14, 30, 90], true) ? $days : 30;
 
-        // CGM↔meal correlation is a Loop+ feature. Free/Loop users get an upgrade
-        // prompt instead of the rankings, so we skip the per-meal computation too.
+        // CGM↔meal correlation is a paid-plan feature (Loop and Loop+). Free users get
+        // an upgrade prompt instead of the rankings, so we skip the per-meal computation too.
         $cgmEnabled = $subscriptions->hasFeature($user, 'cgm_correlation');
 
         $from = $userTime->startOfDaysAgo($user, $days);

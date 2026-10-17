@@ -125,12 +125,13 @@ class MealController extends AbstractController
                     )
                     : $analyzer->analyzeDescription($this->getUser(), $describe, [], $notes);
             } catch (PhotoLimitExceededException $e) {
-                // Free-tier monthly allowance reached — clean up the uploads and steer
-                // the user to upgrade rather than showing a generic error.
+                // Monthly allowance reached — clean up the uploads and send the user
+                // where more comes from (pricing, or their own key) rather than
+                // showing a generic error.
                 $this->staging->discard($staged);
-                $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+                $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-                return $this->redirectToRoute('app_pricing');
+                return $this->redirectToRoute($e->redirectRoute());
             } catch (\Throwable $e) {
                 // Log the detail (could be a transport error or raw model output);
                 // show the user a generic message rather than leaking internals.
@@ -215,9 +216,9 @@ class MealController extends AbstractController
             );
         } catch (PhotoLimitExceededException $e) {
             $this->drafts->clear($session, RetryParking::class);
-            $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+            $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-            return $this->redirectToRoute('app_pricing');
+            return $this->redirectToRoute($e->redirectRoute());
         } catch (\Throwable $e) {
             // Still failing — keep the photos parked for another attempt.
             $this->logger->error('Meal photo analysis failed: {error}', ['error' => $e->getMessage()]);
@@ -259,8 +260,7 @@ class MealController extends AbstractController
         return $this->render('meal/log.html.twig', [
             'form'          => $form,
             'retry'         => $this->drafts->load($session, RetryParking::class),
-            'freeRemaining' => $allowance->remaining($user),
-            'freeLimit'     => AnalysisAllowance::FREE_MONTHLY_LIMIT,
+            'allowance' => $allowance->status($user),
         ]);
     }
 
@@ -374,11 +374,11 @@ class MealController extends AbstractController
                     : $analyzer->analyzeDescription($this->getUser(), $draft->describe, $context, $draft->notes);
             } catch (PhotoLimitExceededException $e) {
                 // Allowance reached mid-refine — drop a just-stored extra photo and
-                // send the user to upgrade.
+                // send the user where more comes from.
                 $this->staging->discard([$newExtraPath]);
-                $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+                $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-                return $this->redirectToRoute('app_pricing');
+                return $this->redirectToRoute($e->redirectRoute());
             } catch (\Throwable $e) {
                 // Don't orphan a just-stored extra photo when re-analysis fails —
                 // the session isn't updated on this path, so nothing else tracks it.
@@ -724,9 +724,9 @@ class MealController extends AbstractController
                     : $analyzer->analyzeDescription($user, $description, reanalysisOf: $entry);
             } catch (PhotoLimitExceededException $e) {
                 $this->staging->discard($newPaths);
-                $this->addFlash('warning', $this->translator->trans('meal.log.limit_reached'));
+                $this->addFlash('warning', $this->translator->trans($e->messageKey(), $e->messageParameters()));
 
-                return $this->redirectToRoute('app_pricing');
+                return $this->redirectToRoute($e->redirectRoute());
             } catch (\Throwable $e) {
                 $this->staging->discard($newPaths);
                 $this->logger->error('Meal re-analysis failed: {error}', ['error' => $e->getMessage()]);
@@ -958,8 +958,7 @@ class MealController extends AbstractController
         return $this->render('meal/reanalyze.html.twig', [
             'entry'         => $entry,
             'form'          => $form,
-            'freeRemaining' => $allowance->remaining($user),
-            'freeLimit'     => AnalysisAllowance::FREE_MONTHLY_LIMIT,
+            'allowance' => $allowance->status($user),
         ], new Response(status: $form->isSubmitted() && !$form->isValid()
             ? Response::HTTP_UNPROCESSABLE_ENTITY
             : Response::HTTP_OK));
@@ -991,7 +990,7 @@ class MealController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        // The CGM↔meal glucose card is a Loop+ feature. Compute the response once; if
+        // The CGM↔meal glucose card is a paid-plan feature. Compute the response once; if
         // the user isn't entitled but there *is* glucose data near this meal, show an
         // upgrade prompt in place of the card instead of the data.
         $response   = $glucose->forMeal($entry);

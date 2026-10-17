@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Terms of Service — NouriLoop{% endblock %}
+{% block title %}Terms of Service — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container py-4" style="max-width: 760px;">
     <h1 class="fw-bold mb-1">NouriLoop Terms of Service</h1>
-    <p class="text-muted">Effective date: June 12, 2026. Last updated: June 24, 2026.</p>
+    <p class="text-muted">Effective date: June 12, 2026. Last updated: October 12, 2026.</p>
 
     <p>These Terms of Service (“Terms”) are a binding agreement between you and John C.
     Houser (“NouriLoop,” “we,” “us”) governing your use of the NouriLoop application and
@@ -139,15 +139,24 @@
     use after changes means you accept them.</p>
 
     <h2 class="h5 fw-bold mt-4">16. Subscription and billing</h2>
-    <p>NouriLoop offers a free tier plus two paid subscription tiers, billed through our
-    payment processor, Stripe:</p>
+    <p>NouriLoop offers a free tier plus two paid subscription tiers, billed monthly through
+    our payment processor, Stripe:</p>
     <ul>
-        <li><strong>Free</strong> — core logging with a monthly limit on photo analyses.</li>
-        <li><strong>Loop</strong> — $5/month or $48/year.</li>
-        <li><strong>Loop+</strong> — $9/month or $79/year.</li>
+        <li><strong>Free</strong> — core logging with a monthly limit on AI analyses.</li>
+        <li><strong>Loop</strong> — ${{ subscription_price('loop') }}/month. AI features run on
+        an API key you supply from an AI provider of your choice; that provider bills you
+        directly for your use, under its own terms. Until you add a key, a monthly limit on
+        AI analyses applies.</li>
+        <li><strong>Loop+</strong> — ${{ subscription_price('loop_plus') }}/month, including
+        AI features on our provider up to a monthly limit on AI analyses, and text (SMS)
+        messages. If you reach the limit, you may buy a one-time top-up of additional
+        analyses (${{ usd_amount(constant('App\\Service\\AnalysisAllowance::TOP_UP_PRICE_CENTS')) }}
+        for {{ constant('App\\Service\\AnalysisAllowance::TOP_UP_ANALYSES') }}) that applies to
+        the current calendar month only; unused top-up analyses expire at the end of that
+        month and are non-refundable.</li>
     </ul>
     <p><strong>Auto-renewal.</strong> Paid subscriptions renew automatically at the end of
-    each billing period (monthly or annual) at the then-current price for your plan,
+    each monthly billing period at the then-current price for your plan,
     using your saved payment method, until you cancel.</p>
     <p><strong>Free trial.</strong> New subscribers receive a 7-day free trial, which
     requires a valid payment method and grants full access to the subscribed tier during
@@ -157,9 +166,7 @@
     (which opens our payment processor's billing portal). Your access continues through
     the end of the period you have already paid for, and then your account returns to the
     Free tier.</p>
-    <p><strong>Refunds.</strong> Payments are non-refundable for partial billing periods.
-    Annual subscribers may request a full refund within 30 days of the initial annual
-    purchase by contacting us at the address below.</p>
+    <p><strong>Refunds.</strong> Payments are non-refundable for partial billing periods.</p>
     <p><strong>Price changes.</strong> We may change subscription prices. For active
     subscriptions, we will provide at least 30 days' notice before a price change takes
     effect, and the new price applies on your next renewal.</p>

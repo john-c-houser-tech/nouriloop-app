@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * through Health Auto Export installation, token creation, the REST-automation
  * config, and a live verification ladder (see CgmSetupStatusService). Available
  * to all tiers: importing glucose is free; the correlation features stay
- * Loop+-gated where they already are.
+ * gated to the paid plans where they already are.
  */
 #[Route('/connect-cgm')]
 class ConnectCgmController extends AbstractController

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Entity\GoalCheckin;
 use App\Entity\NutritionGoal;
 use App\Entity\User;
@@ -34,7 +36,7 @@ class GoalEvaluationService
 
     public function __construct(
         private readonly GoalMetricCalculator $calculator,
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly GoalChartRenderer $charts,
         private readonly LoggerInterface $logger,
         private readonly UserTime $userTime,
@@ -231,7 +233,9 @@ class GoalEvaluationService
         try {
             $user = $goal->getUser();
             \assert($user instanceof User);
-            $result = $this->claude->complete(
+            $result = $this->ai->complete(
+                AiFeature::GoalCheckin,
+                $user,
                 'You are a supportive nutrition coach. Follow the instructions in the message exactly. '
                 // Status glossary: without it, Claude reads "On track" with its everyday
                 // meaning ("target met"), sees a current value short of the target, and

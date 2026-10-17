@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Dto\AdminUserFilters;
 use App\Entity\User;
 use App\Enum\SubscriptionTier;
+use App\Hosting\HostingMode;
 use App\Repository\InvitationCodeRepository;
 use App\Repository\MealEntryRepository;
 use App\Repository\UserRepository;
@@ -34,6 +35,7 @@ class AdminUserController extends AbstractController
         MealEntryRepository $meals,
         AccountDeletionService $accountDeletion,
         SubscriptionService $subscriptions,
+        HostingMode $hosting,
     ): Response {
         $now = new \DateTimeImmutable();
         // "Active user" = logged in AND logged a meal within the last 7 days.
@@ -87,6 +89,10 @@ class AdminUserController extends AbstractController
                     : null,
                 'downBlocked' => $effective !== SubscriptionTier::Free && $effective->rank() <= $floor->rank(),
             ];
+            if ($hosting->isSelfHosted()) {
+                // A self-hosted copy has no tiers (everyone has every feature): no plan menu.
+                $tierActions[$user->getId()] = ['up' => null, 'down' => null, 'downBlocked' => false];
+            }
         }
 
         return $this->render('admin/users/index.html.twig', [

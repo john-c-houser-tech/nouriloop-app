@@ -1,0 +1,26 @@
+{#
+  This instance's logo (configurable branding, PR 6b). Pass `variant`: 'auth' (sign-in
+  pages), 'navbar' or 'email'; `size` in px; `class`; `absolute` for email.
+  - The operator's APP_LOGO_URL wins when set.
+  - Otherwise NouriLoop's own asset on the hosted service — never on a self-hosted copy
+    (NouriLoop's logo is NouriLoop LLC's trademark).
+  - Otherwise a neutral icon on web pages, and nothing in email (icon fonts don't load there).
+#}
+{% set size = size|default(32) %}
+{% set nouriloop_assets = {auth: 'auth-logo.png', navbar: 'navbar-logo.png', email: 'icon-192x192.png'} %}
+{% if brand.logoUrl %}
+    {% set src = brand.logoUrl %}
+{% elseif brand.isNouriLoop %}
+    {% set src = absolute|default(false)
+        ? absolute_url(asset(nouriloop_assets[variant]))
+        : asset(nouriloop_assets[variant]) %}
+{% else %}
+    {% set src = null %}
+{% endif %}
+{% if src %}
+    <img src="{{ src }}" alt="{{ alt|default('') }}" width="{{ size }}" height="{{ size }}"
+         class="{{ class|default('') }}"{% if variant == 'email' %} style="vertical-align: middle; border-radius: 5px;"{% endif %}>
+{% elseif variant != 'email' %}
+    <i class="bi bi-egg-fried text-success {{ class|default('') }}" style="font-size: {{ size }}px; line-height: 1;"
+       role="img" aria-label="{{ alt|default('') }}"></i>
+{% endif %}

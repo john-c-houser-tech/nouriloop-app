@@ -2,7 +2,7 @@
 <html lang="en">
 <head><meta charset="UTF-8"></head>
 <body style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #212529; line-height: 1.5;">
-    <h2 style="margin-bottom: 4px;"><img src="{{ absolute_url(asset('icon-192x192.png')) }}" alt="" width="24" height="24" style="vertical-align: middle; border-radius: 5px;"> NouriLoop</h2>
+    <h2 style="margin-bottom: 4px;">{% include '_brand_mark.html.twig' with {variant: 'email', size: 24, absolute: true} %} {{ brand.name }}</h2>
 
     <p>{{ 'delivery.email.hi'|trans({'name': user.displayName ?? user.email}) }}</p>
 

@@ -3,7 +3,7 @@
 {# Campaign B (Weight Loss / Calorie Tracking) rebuild landing page — B was the
    last campaign still landing on /about. Copy rule (Comprehensive Review §9,
    both directions): goal setup is free with the first 6 check-ins included;
-   unlimited weekly check-ins are Loop, daily + email/SMS delivery are Loop+ —
+   unlimited daily or weekly check-ins by email are both paid plans, SMS is Loop+ —
    labeled truthfully wherever mentioned. Pinned by LandingPagesTest. #}
 
 {% block lp_title %}{{ 'lp.weight_loss.title'|trans }} — NouriLoop{% endblock %}
@@ -41,8 +41,8 @@
     <p>{{ 'lp.weight_loss.goal_body'|trans }}</p>
     <p class="small text-muted mb-0">
         {{ 'lp.weight_loss.goal_tier_note'|trans({
-            'loop_price': subscription_price('loop', 'annual'),
-            'plus_price': subscription_price('loop_plus', 'annual'),
+            'loop_price': subscription_price('loop'),
+            'plus_price': subscription_price('loop_plus'),
             'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
         }) }}
     </p>
@@ -58,7 +58,7 @@
 
 {% block lp_footnote %}
     {{ 'lp.weight_loss.footnote'|trans({
-        'price': subscription_price('loop', 'annual'),
+        'price': subscription_price('loop'),
         'limit': constant('App\\Service\\CheckinAllowance::FREE_ALLOWANCE'),
     }) }}
 {% endblock %}

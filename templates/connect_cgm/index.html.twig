@@ -7,7 +7,7 @@
    if you change one, change both). The public help topic (templates/help/connect-cgm
    .html.twig) repeats this content in prose on purpose; see its header note. #}
 
-{% block title %}{{ 'cgm.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'cgm.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% macro rungIcon(state) %}
     {%- if state == 'done' -%}
@@ -106,12 +106,13 @@
                         <th class="text-nowrap" style="width: 9rem;">{{ 'cgm.row_url'|trans }}</th>
                         <td>
                             <div class="input-group input-group-sm">
-                                {# Hardcoded production URL, NOT url()-derived: this is the one
-                                   address a user should ever paste into HAE, and url() would
-                                   burn the dev/test host into local renders + the committed
-                                   help screenshot. #}
+                                {# This instance's configured address (DEFAULT_URI), NOT url()-derived:
+                                   it's the one address a user should ever paste into HAE, and url()
+                                   would echo whatever host the request came in on. The test env pins
+                                   DEFAULT_URI to the production address, so the committed help
+                                   screenshot shows https://nouriloop.com. #}
                                 <input type="text" class="form-control font-monospace" readonly
-                                       id="cfg-url" value="https://nouriloop.com/api/health-metrics/health-export"
+                                       id="cfg-url" value="{{ public_base_url|trim('/', 'right') }}/api/health-metrics/health-export"
                                        onclick="this.select()">
                                 <button type="button" class="btn btn-outline-secondary" data-copy="#cfg-url">
                                     <i class="bi bi-clipboard"></i> {{ 'cgm.copy'|trans }}

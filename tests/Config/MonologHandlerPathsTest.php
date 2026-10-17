@@ -86,7 +86,7 @@ final class MonologHandlerPathsTest extends TestCase
     }
 
     /**
-     * The load-bearing half (docs/ops/production.md, "Logging (prod)"): warning+ must reach
+     * The load-bearing half (nouriloop-ops docs/ops/production.md, "Logging (prod)"): warning+ must reach
      * prod.log on a run that never errors — that is where the duplicate-meal
      * warning and every other degraded-but-not-broken signal lands. Splitting
      * the destinations to kill the duplication must not move the warning stream

@@ -12,6 +12,7 @@ use App\Enum\AnalysisKind;
 use App\Enum\MealType;
 use App\Enum\SubscriptionTier;
 use App\Form\SupplementPhotoFormType;
+use App\Service\AnalysisAllowance;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -44,6 +45,40 @@ final class SupplementScanAllowanceTest extends WebTestCase
         self::assertCount(0, $em->getRepository(AnalysisEvent::class)->findAll());
     }
 
+    public function testAnExhaustedLoopUserIsSentToAddTheirKey(): void
+    {
+        // Loop is the bring-your-own-key plan: more analyses come from a key, not pricing.
+        [$client, $em, $user] = $this->signedIn();
+        $user->setCompTier(SubscriptionTier::Loop);
+        for ($i = 0; $i < 10; $i++) {
+            $this->seedMeal($em, $user, $i);
+        }
+
+        $this->submitScan($client, [$this->makeJpeg(120)]);
+
+        self::assertResponseRedirects('/settings/ai');
+        self::assertSame(0, $this->anthropic()->getRequestsCount());
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', 'Add your key to keep going.');
+    }
+
+    public function testAnExhaustedLoopPlusUserIsOfferedATopUp(): void
+    {
+        [$client, $em, $user] = $this->signedIn();
+        $user->setCompTier(SubscriptionTier::LoopPlus);
+        for ($i = 0; $i < AnalysisAllowance::INCLUDED_MONTHLY_LIMIT; $i++) {
+            $this->seedMeal($em, $user, $i);
+        }
+
+        $this->submitScan($client, [$this->makeJpeg(120)]);
+
+        self::assertResponseRedirects('/allowance');
+        self::assertSame(0, $this->anthropic()->getRequestsCount());
+        $client->followRedirect();
+        self::assertSelectorTextContains('#allowance-status', 'paused until the 1st');
+        self::assertSelectorExists('#allowance-top-up form');
+    }
+
     public function testAScanIsLedgeredEvenIfNeverSavedAndSpendsTheLastSlot(): void
     {
         [$client, $em, $user] = $this->signedIn();
@@ -69,10 +104,11 @@ final class SupplementScanAllowanceTest extends WebTestCase
         self::assertResponseRedirects('/pricing');
     }
 
-    public function testPaidUserIsUnlimitedButStillLedgered(): void
+    public function testLoopPlusIsPastTheFreeLimitAndStillLedgered(): void
     {
+        // Loop+ includes AnalysisAllowance::INCLUDED_MONTHLY_LIMIT, well past Free's 10.
         [$client, $em, $user] = $this->signedIn();
-        $user->setCompTier(SubscriptionTier::Loop);
+        $user->setCompTier(SubscriptionTier::LoopPlus);
         for ($i = 0; $i < 10; $i++) {
             $this->seedMeal($em, $user, $i);
         }

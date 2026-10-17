@@ -22,8 +22,8 @@ final class SubscriptionPagesTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Loop');
         self::assertSelectorTextContains('body', 'Loop+');
-        self::assertSelectorTextContains('body', '$5');
-        self::assertSelectorTextContains('body', '$9');
+        self::assertSelectorTextContains('body', '$2');
+        self::assertSelectorTextContains('body', '$13.50');
     }
 
     public function testWebhookRejectsBadSignature(): void

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Ai\AnthropicClient;
 use App\Entity\User;
-use App\Service\ClaudeClient;
 use App\Service\FoodAnalysisService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -174,7 +174,7 @@ final class FoodAnalysisServiceTest extends TestCase
     public function testBlankDescriptionThrows(): void
     {
         $service = new FoodAnalysisService(
-            new ClaudeClient(new MockHttpClient(), 'test-key'),
+            new AnthropicClient(new MockHttpClient(), 'test-key'),
             $this->allowance(),
             new \App\Service\LocalePromptBuilder(new \Symfony\Component\Translation\LocaleSwitcher('en', [])),
         );
@@ -202,7 +202,7 @@ final class FoodAnalysisServiceTest extends TestCase
         });
 
         $service = new FoodAnalysisService(
-            new ClaudeClient($client, 'test-key'),
+            new AnthropicClient($client, 'test-key'),
             $this->allowance(),
             new \App\Service\LocalePromptBuilder(new \Symfony\Component\Translation\LocaleSwitcher('en', [])),
         );
@@ -226,7 +226,7 @@ final class FoodAnalysisServiceTest extends TestCase
         $client = new MockHttpClient(new MockResponse(json_encode($responseBody)));
 
         $service = new FoodAnalysisService(
-            new ClaudeClient($client, 'test-key'),
+            new AnthropicClient($client, 'test-key'),
             $this->allowance(),
             new \App\Service\LocalePromptBuilder(new \Symfony\Component\Translation\LocaleSwitcher('en', [])),
         );

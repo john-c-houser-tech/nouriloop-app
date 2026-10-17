@@ -6,6 +6,7 @@ namespace App\Twig;
 
 use App\Controller\HelpController;
 use App\Enum\SubscriptionTier;
+use App\Hosting\Brand;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
@@ -25,6 +26,7 @@ class StructuredDataExtension extends AbstractExtension
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TranslatorInterface $translator,
+        private readonly Brand $brand,
     ) {
     }
 
@@ -46,10 +48,10 @@ class StructuredDataExtension extends AbstractExtension
             $offer = [
                 '@type'         => 'Offer',
                 'name'          => $tier->label(),
-                'price'         => (string) $monthly,
+                'price'         => $monthly,
                 'priceCurrency' => 'USD',
             ];
-            if ($monthly > 0) {
+            if ($tier->monthlyPriceCents() > 0) {
                 // A recurring monthly price ($N per 1 month) — the schema.org-correct
                 // shape, unlike a bare non-standard "billingIncrement" on the Offer.
                 $offer['priceSpecification'] = [
@@ -93,7 +95,7 @@ class StructuredDataExtension extends AbstractExtension
         return $this->encode([
             '@context'        => 'https://schema.org',
             '@type'           => 'ItemList',
-            'name'            => 'NouriLoop Help Center',
+            'name'            => $this->brand->name() . ' Help Center',
             'itemListElement' => $items,
         ]);
     }
@@ -110,18 +112,14 @@ class StructuredDataExtension extends AbstractExtension
             '@context'    => 'https://schema.org',
             '@type'       => 'TechArticle',
             'headline'    => $meta['title'],
-            'description' => $meta['summary'],
+            'description' => HelpController::topicsFor($this->brand->name())[$slug]['summary'],
             'url'         => $this->topicUrl($slug),
             'image'       => $this->base() . '/images/help/' . $slug . '.png',
             'inLanguage'  => 'en',
-            'publisher'   => [
-                '@type' => 'Organization',
-                'name'  => 'NouriLoop',
-                'logo'  => [
-                    '@type' => 'ImageObject',
-                    'url'   => $this->base() . '/images/og-card.png',
-                ],
-            ],
+            // NouriLoop's og-card is its trademark: only the hosted service names it as publisher logo.
+            'publisher'   => ['@type' => 'Organization', 'name' => $this->brand->name()] + ($this->brand->isNouriLoop()
+                ? ['logo' => ['@type' => 'ImageObject', 'url' => $this->base() . '/images/og-card.png']]
+                : []),
         ]);
     }
 

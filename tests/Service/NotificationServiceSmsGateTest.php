@@ -31,7 +31,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * The digest's send-time SMS gate (goal/notification tiering): the SMS channel
- * requires the `sms_digest` entitlement (Loop and up) because SMS carries real
+ * requires the `sms` entitlement (Loop+ only) because SMS carries real
  * per-message cost — a Free user's digest stays in-app + email only, and the
  * stored channel preference is never mutated. Unit-level with a mocked texter
  * because SMS sends aren't observable through the test profiler the way mail is.
@@ -68,6 +68,17 @@ final class NotificationServiceSmsGateTest extends TestCase
         self::assertNotSame([], $notices);
     }
 
+    public function testLoopUserWithSmsChannelGetsNoDigestSms(): void
+    {
+        // Loop is the bring-your-own-key plan: its price doesn't cover Twilio.
+        $texter = $this->createMock(TexterInterface::class);
+        $texter->expects(self::never())->method('send');
+
+        $user = $this->smsUser(entitled: false);
+        $user->setCompTier(SubscriptionTier::Loop);
+        $this->service($texter)->sendDueNotifications($user, new \DateTimeImmutable(self::NOW));
+    }
+
     public function testEntitledUserWithoutTcpaConsentGetsNoDigestSms(): void
     {
         // Since tiering, a Free user can store the SMS channel without ever seeing
@@ -96,7 +107,7 @@ final class NotificationServiceSmsGateTest extends TestCase
             $user->setSmsConsentAt(new \DateTimeImmutable('2026-07-01 00:00:00'));
         }
         if ($entitled) {
-            $user->setCompTier(SubscriptionTier::Loop); // permanent Loop comp
+            $user->setCompTier(SubscriptionTier::LoopPlus); // permanent Loop+ comp
         }
 
         return $user;

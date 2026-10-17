@@ -43,7 +43,7 @@ class EmailGoalDelivery implements GoalDeliveryInterface
             return;
         }
 
-        // A verified address and the Loop+ checkin_delivery entitlement; otherwise
+        // A verified address and the checkin_delivery entitlement (paid plans); otherwise
         // the in-app delivery still records the check-in.
         if (!$this->reachability->canReach($user, OutboundChannel::Email, MessagePurpose::CheckIn)) {
             return;

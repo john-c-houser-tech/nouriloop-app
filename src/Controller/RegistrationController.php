@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\SupportedLocale;
 use App\Enum\UnitSystem;
 use App\Form\RegistrationFormType;
+use App\Hosting\Brand;
 use App\Repository\InvitationCodeRepository;
 use App\Service\AttributionCapture;
 use App\Service\EmailDeliverabilityChecker;
@@ -27,6 +28,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\LoginLink\LoginLinkHandlerInterface;
+use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationController extends AbstractController
@@ -39,6 +41,13 @@ class RegistrationController extends AbstractController
      * owner — same power as a password-reset email, which is fine.
      */
     private const WELCOME_LINK_LIFETIME = 86400;
+
+    public function __construct(
+        private readonly Brand $brand,
+        private readonly LocaleSwitcher $localeSwitcher,
+        private readonly TranslatorInterface $translations,
+    ) {
+    }
 
     #[Route('/register', name: 'app_register')]
     #[Route(
@@ -209,6 +218,25 @@ class RegistrationController extends AbstractController
                 ->createLoginLink($user, lifetime: self::WELCOME_LINK_LIFETIME)
                 ->getUrl();
 
+            // The welcome letter is a personal note from John and can't come from someone
+            // else's server: a self-hosted copy sends the plain verification email instead,
+            // which carries the same confirm link and is translated (Plan Q11b).
+            if (!$this->brand->isNouriLoop()) {
+                $this->localeSwitcher->runWithLocale($user->getLocale()->value, function () use (
+                    $user,
+                    $confirmUrl,
+                    $mailer,
+                ): void {
+                    $mailer->send((new TemplatedEmail())
+                        ->to((string) $user->getEmail())
+                        ->subject($this->translations->trans('delivery.transactional.verify_subject'))
+                        ->htmlTemplate('email/verify_email.html.twig')
+                        ->context(['user' => $user, 'confirmUrl' => $confirmUrl]));
+                });
+
+                return;
+            }
+
             $email = (new TemplatedEmail())
                 ->to((string) $user->getEmail())
                 ->subject('Welcome to NouriLoop')
@@ -243,7 +271,7 @@ class RegistrationController extends AbstractController
         try {
             $email = (new TemplatedEmail())
                 ->to($adminEmail)
-                ->subject('New NouriLoop user registered')
+                ->subject(sprintf('New %s user registered', $this->brand->name()))
                 ->htmlTemplate('email/new_user.html.twig')
                 ->context(['newUser' => $user]);
 

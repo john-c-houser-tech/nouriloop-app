@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Enum\SupportedLocale;
+use App\Hosting\HostingMode;
 use App\Twig\LocalizedRoutesExtension;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -45,6 +46,7 @@ class SitemapController extends AbstractController
     public function __construct(
         #[Autowire('%env(DEPLOY_DATE)%')]
         private readonly string $deployDate,
+        private readonly HostingMode $hosting,
     ) {
     }
 
@@ -55,6 +57,10 @@ class SitemapController extends AbstractController
 
         $urls = [];
         foreach (self::STATIC_PAGES as $route => [$priority, $changefreq]) {
+            // A self-hosted copy has no pricing or about page (both 404), so don't advertise them.
+            if (\in_array($route, ['app_pricing', 'app_about'], true) && $this->hosting->isSelfHosted()) {
+                continue;
+            }
             $urls[] = [
                 'loc'        => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL),
                 'priority'   => number_format($priority, 1),

@@ -82,8 +82,14 @@ meal:
         favorite_pitch: ¿Comes esto a menudo? Registra un favorito
         analyzing: Analizando tu comida con IA… esto tarda unos segundos.
         limit_reached: >-
-            Ya has usado tus 10 análisis gratis de este mes. Mejora a Loop
-            para fotos ilimitadas.
+            Ya has usado tus {limit} análisis de IA gratis de este mes. Un
+            plan de pago te da más.
+        limit_reached_key_pending: >-
+            Ya has usado los {limit} análisis de IA que Loop incluye antes de
+            que añadas tu propia clave de IA. Añade tu clave para seguir.
+        limit_reached_included: >-
+            Ya has usado todos los {limit} análisis de IA de este mes. Añade
+            más ahora, espera al próximo mes o usa tu propia clave de IA.
         session_expired: Tu sesión ha caducado — revisa y envía de nuevo.
 inflammation:
     keyword:
@@ -101,7 +107,7 @@ inflammation:
 onboarding:
     meal:
         lead: >-
-            Haz una foto de una comida — NouriLoop lee la nutrición por ti,
+            Haz una foto de una comida — {app_name} lee la nutrición por ti,
             sin captura manual. Es la base de todo lo demás aquí.
         cta: Hacer una foto
 settings:
@@ -111,6 +117,9 @@ settings:
         phone: Número de móvil (para mensajes de texto)
         phone_help: Usa el formato E.164, p. ej. +34 seguido de tu número de 9 dígitos.
         phone_required: Añade un número de móvil para recibir mensajes de texto.
+allowance_page:
+    flash:
+        session_expired: Tu sesión ha caducado — inténtalo de nuevo.
 about:
     hero_lead: >-
         NouriLoop convierte fotos cotidianas de tu comida en una imagen
@@ -163,7 +172,7 @@ about:
             las estadísticas y muestra solo las relaciones estadísticamente
             significativas en tus propios datos — del mismo día y del día
             siguiente, porque algunos efectos tardan.</li>
-            <li><strong>Predicciones «¿Y si…?»</strong> <em>(Loop+)</em> — ¿Te
+            <li><strong>Predicciones «¿Y si…?»</strong> <em>(planes de pago)</em> — ¿Te
             preguntas qué pasaría si comieras tu comida favorita todos los
             días durante dos semanas? NouriLoop proyecta cómo evolucionarían
             probablemente tu índice de inflamación, tu nutrición, tu peso y
@@ -173,7 +182,7 @@ about:
             glucosa, NouriLoop traza la respuesta de azúcar en sangre de cada
             comida, la compara con lo que su nutrición predecía y clasifica
             qué comidas te la subieron más y menos.</li> <li><strong>AI
-            Pattern Coach</strong> <em>(Loop+)</em> — Va un paso más allá: una
+            Pattern Coach</strong> <em>(planes de pago)</em> — Va un paso más allá: una
             IA analiza a fondo tus propias respuestas de glucosa entre comidas
             — los alimentos, los horarios y las combinaciones detrás de ellas
             — y escribe un resumen de coaching personalizado, señalando los
@@ -204,10 +213,6 @@ about:
             incluidos los servicios que participan en procesarlos. Consulta
             nuestro {health_link}Aviso de privacidad de datos de
             salud{link_end}.</li>
-pricing_page:
-    loop_tagline: >-
-        Todo lo que necesitas para hacer un seguimiento de tu nutrición y
-        mejorarla.
 lp:
     diabetes:
         one_place_items: >-

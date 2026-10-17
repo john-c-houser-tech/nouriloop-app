@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Dto\SupplementAnalysis;
 use App\Entity\NutritionData;
 use App\Entity\User;
@@ -67,7 +69,7 @@ Return ONLY valid JSON with this exact structure:
 PROMPT;
 
     public function __construct(
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly AnalysisAllowance $allowance,
     ) {
     }
@@ -88,8 +90,14 @@ PROMPT;
             $user,
             AnalysisKind::SupplementScan,
             null,
-            function () use ($imagePaths): SupplementAnalysis {
-                $reply = $this->claude->completeWithImages(self::PROMPT, $imagePaths, self::MAX_TOKENS);
+            function () use ($user, $imagePaths): SupplementAnalysis {
+                $reply = $this->ai->completeWithImages(
+                    AiFeature::SupplementScan,
+                    $user,
+                    self::PROMPT,
+                    $imagePaths,
+                    self::MAX_TOKENS,
+                );
                 $data = $reply->json();
 
                 return new SupplementAnalysis(

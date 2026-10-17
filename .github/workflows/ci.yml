@@ -137,3 +137,25 @@ jobs:
           name: panther-error-screenshots
           path: var/error-screenshots/
           if-no-files-found: ignore
+
+  selfhost:
+    name: Self-host stack builds and boots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create settings for a localhost trial
+        run: scripts/selfhost-init.sh localhost
+
+      - name: Build and start (waits for health checks)
+        run: docker compose up -d --build --wait --wait-timeout 300
+
+      - name: Site answers over HTTPS; migrations applied; scheduler can run a job
+        run: |
+          curl -fsSk -o /dev/null -w 'login %{http_code}\n' https://localhost/login
+          docker compose exec -T app bin/console doctrine:migrations:up-to-date
+          docker compose exec -T scheduler bin/console app:cleanup-meal-uploads --dry-run
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color

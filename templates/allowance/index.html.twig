@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{# Loop+'s monthly AI analyses (PR 7b, decision Q3): what's left, a one-off top-up for
+   this month, or their own key. Only analyses pause when it runs out; the other AI
+   features keep working. #}
+{% set topUpCount = constant('App\\Service\\AnalysisAllowance::TOP_UP_ANALYSES') %}
+{% set topUpPrice = usd_amount(constant('App\\Service\\AnalysisAllowance::TOP_UP_PRICE_CENTS')) %}
+
+{% block title %}{{ 'allowance_page.title'|trans }} — {{ brand.name }}{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 640px;">
+    <a href="{{ path('app_settings_subscription') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.subscription.title'|trans }}
+    </a>
+    <h2 class="fw-bold mb-4"><i class="bi bi-camera text-success"></i> {{ 'allowance_page.heading'|trans }}</h2>
+
+    <div class="card p-4 mb-3" id="allowance-status">
+        <div class="fs-4 fw-bold {{ allowance.low ? 'text-warning-emphasis' }}">
+            {{ 'allowance_page.left'|trans({'remaining': allowance.remaining, 'limit': allowance.limit}) }}
+        </div>
+        <div class="progress my-2" role="progressbar" aria-label="{{ 'allowance_page.heading'|trans }}"
+             aria-valuenow="{{ allowance.limit - allowance.remaining }}" aria-valuemin="0" aria-valuemax="{{ allowance.limit }}">
+            <div class="progress-bar {{ allowance.low ? 'bg-warning' : 'bg-success' }}"
+                 style="width: {{ ((allowance.limit - allowance.remaining) * 100 / allowance.limit)|round }}%"></div>
+        </div>
+        <p class="text-muted small mb-0">
+            {{ (allowance.remaining == 0 ? 'allowance_page.paused' : 'allowance_page.renews')|trans }}
+        </p>
+    </div>
+
+    <div class="card p-4 mb-3" id="allowance-top-up">
+        <h5 class="fw-bold">{{ 'allowance_page.top_up_heading'|trans }}</h5>
+        <p class="text-muted small">{{ 'allowance_page.top_up_body'|trans({'count': topUpCount, 'price': topUpPrice}) }}</p>
+        <form method="post" action="{{ path('app_allowance_top_up') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('allowance-top-up') }}">
+            <button type="submit" class="btn btn-success">
+                {{ 'allowance_page.top_up_button'|trans({'count': topUpCount, 'price': topUpPrice}) }}
+            </button>
+        </form>
+    </div>
+
+    <div class="card p-4" id="allowance-own-key">
+        <h5 class="fw-bold">{{ 'allowance_page.own_key_heading'|trans }}</h5>
+        <p class="text-muted small">{{ 'allowance_page.own_key_body'|trans }}</p>
+        <a href="{{ path('app_settings_ai') }}" class="btn btn-outline-secondary">{{ 'allowance_page.own_key_link'|trans }}</a>
+    </div>
+</div>
+{% endblock %}

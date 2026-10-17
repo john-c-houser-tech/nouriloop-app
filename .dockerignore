@@ -1,0 +1,34 @@
+# Keep the image to what the app needs, and never bake in local secrets or data.
+.git
+.github
+.claude
+.env.local
+.env.*.local
+.env.local.php
+selfhost.env
+# Backups made in the checkout (docs/self-hosting.md): users' records and photos must
+# never end up in an image layer or the build cache.
+*.sql
+*.sql.gz
+*.tar.gz
+backups/
+var/
+vendor/
+drivers/
+tests/
+docs/
+public/uploads/*
+public/assets/
+assets/vendor/
+node_modules/
+*.md
+!README.md
+!LICENSE
+compose*.yaml
+Dockerfile
+.dockerignore
+phpunit*.xml*
+phpcs.xml.dist
+.phpunit.cache
+.php-cs-fixer*
+scripts/deploy.sh

@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ 'meal.clarify.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'meal.clarify.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container" style="max-width: 820px;">
@@ -41,6 +41,16 @@
     {% endfor %}
     {% set backdated = state.loggedAt|date('Y-m-d', false) != nowLocal|date('Y-m-d', false) %}
 
+    {% if photo_model_failed_benchmark() %}
+    {# Plan Q10: a user's own photo model that failed the benchmark warns, never blocks. #}
+    <div class="alert alert-warning small py-2" id="photo-model-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ 'meal.clarify.photo_model_failed'|trans({
+            link: '<a href="' ~ path('app_settings_ai') ~ '">',
+            link_end: '</a>',
+        })|raw }}
+    </div>
+    {% endif %}
     <div class="card border-0 bg-{{ conf_color }} bg-opacity-10 mb-4">
         <div class="card-body py-3">
             <div class="d-flex justify-content-between align-items-center mb-2">

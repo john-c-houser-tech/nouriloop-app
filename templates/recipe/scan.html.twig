@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ 'recipe.scan.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'recipe.scan.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container" style="max-width: 560px;">
@@ -23,15 +23,7 @@
             <i class="bi bi-magic"></i> {{ 'recipe.scan.submit'|trans }}
         </button>
 
-        {# Shared Free-tier allowance — an import spends one monthly analysis. #}
-        {% if freeRemaining is not null %}
-        <p class="text-center small mt-2 mb-0 {{ freeRemaining <= 3 ? 'text-warning-emphasis fw-semibold' : 'text-muted' }}">
-            {{ 'meal.log.allowance_left'|trans({'remaining': freeRemaining, 'limit': freeLimit}) }}
-            {% if freeRemaining <= 3 %}
-                · <a href="{{ path('app_pricing') }}">{{ 'meal.log.allowance_upgrade'|trans }}</a>
-            {% endif %}
-        </p>
-        {% endif %}
+        {{ include('_allowance_counter.html.twig') }}
         {{ form_end(form) }}
     </div>
 </div>

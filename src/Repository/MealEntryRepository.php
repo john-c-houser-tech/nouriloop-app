@@ -23,8 +23,9 @@ class MealEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Number of meals the user has logged in their current local calendar month —
-     * the count behind the Free-tier photo-analysis allowance. The month boundary is
+     * Number of AI-analysed meals the user has logged in their current local calendar
+     * month — the count behind the monthly analysis allowance. Meals logged from a
+     * favorite are a copy with no AI call, so they don't count (MealEntry::$fromFavorite). The month boundary is
      * built in the user's timezone (their stored loggedAt is wall-clock), matching
      * how "today"/ranges are bucketed elsewhere.
      */
@@ -39,6 +40,7 @@ class MealEntryRepository extends ServiceEntityRepository
             ->andWhere('m.user = :user')
             ->andWhere('m.loggedAt >= :start')
             ->andWhere('m.loggedAt < :end')
+            ->andWhere('m.fromFavorite = false')
             ->setParameter('user', $user)
             ->setParameter('start', $monthStart)
             ->setParameter('end', $nextMonth)

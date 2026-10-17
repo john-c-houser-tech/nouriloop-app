@@ -4,22 +4,39 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\AllowanceStatus;
 use App\Dto\TokenUsage;
 use App\Entity\AnalysisEvent;
 use App\Entity\MealEntry;
 use App\Entity\User;
+use App\Enum\AllowanceKind;
 use App\Enum\AnalysisKind;
+use App\Enum\SubscriptionTier;
 use App\Exception\PhotoLimitExceededException;
+use App\Hosting\HostingMode;
+use App\Repository\AllowanceTopUpRepository;
 use App\Repository\AnalysisEventRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\MealEntryRepository;
+use App\Repository\UserAiSettingsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * The Free-tier monthly AI-analysis allowance — ONE bucket shared by every
- * billable analysis path: meal photos, described meals, recipe photo imports,
- * meal re-analyses, and supplement label scans. Paid tiers have `unlimited_photos` and are never
- * counted.
+ * The monthly AI-analysis allowance — ONE bucket shared by every billable
+ * analysis path: meal photos, described meals, recipe photo imports, meal
+ * re-analyses, and supplement label scans.
+ *
+ * Who has one ({@see limit()}, App Development Plan PR 7, ADR 0003): a Free user
+ * gets the starter allowance; Loop (bring your own key) gets the same until a key
+ * is saved in Settings ▸ AI provider; Loop+ gets the analyses its price includes.
+ * A paid user with their own key, and everyone on a self-hosted copy, is never
+ * counted. A Free user's own key does NOT lift the limit — the allowance is what
+ * Free is, and their calls still run on their key.
+ *
+ * Loop+ can buy a one-off top-up for the current month (PR 7b, decision Q3):
+ * {@see TOP_UP_ANALYSES} more, added to the limit through {@see \App\Entity\AllowanceTopUp}
+ * rows. Only analyses pause when it runs out; the other AI features keep working
+ * (John, 2026-10-12).
  *
  * Extracted from FoodAnalysisService when the recipe import shipped, so the
  * Claude entry points can't drift on gating. Every analysis runs through
@@ -47,11 +64,26 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class AnalysisAllowance
 {
-    /** Free-tier allowance: AI analyses per calendar month (user-local). */
+    /** Free (and key-less Loop) allowance: AI analyses per calendar month (user-local). */
     public const FREE_MONTHLY_LIMIT = 10;
+
+    /**
+     * Loop+ allowance: about John's own monthly use, which its price was set from to
+     * cover cost (ADR 0003).
+     */
+    public const INCLUDED_MONTHLY_LIMIT = 120;
+
+    /** One Loop+ top-up: this many more analyses for the current month… */
+    public const TOP_UP_ANALYSES = 60;
+
+    /** …for this price in US cents ($1.75: the AI they buy plus Stripe's fee, no margin). */
+    public const TOP_UP_PRICE_CENTS = 175;
 
     public function __construct(
         private readonly SubscriptionService $subscriptionService,
+        private readonly HostingMode $hosting,
+        private readonly UserAiSettingsRepository $aiSettings,
+        private readonly AllowanceTopUpRepository $topUps,
         private readonly MealEntryRepository $meals,
         private readonly FavoriteRepository $favorites,
         private readonly AnalysisEventRepository $events,
@@ -61,25 +93,68 @@ final class AnalysisAllowance
     }
 
     /**
-     * Analyses left this month, or null for unlimited (paid tiers). Drives the
-     * allowance counters shown before the limit is hit.
+     * Which allowance the user is on, or null for none (unlimited).
+     */
+    public function kind(User $user): ?AllowanceKind
+    {
+        if ($this->hosting->isSelfHosted()) {
+            return null;
+        }
+
+        $tier = $this->subscriptionService->effectiveTier($user);
+        if ($tier === SubscriptionTier::Free) {
+            return AllowanceKind::Free;
+        }
+        if ($this->hasOwnKey($user)) {
+            return null;
+        }
+
+        return $tier === SubscriptionTier::LoopPlus ? AllowanceKind::Included : AllowanceKind::KeyPending;
+    }
+
+    /** Analyses per month on the user's allowance, or null for unlimited. */
+    public function limit(User $user): ?int
+    {
+        return $this->status($user)?->limit;
+    }
+
+    /** Whether the user can buy a top-up: Loop+ on our key. */
+    public function canTopUp(User $user): bool
+    {
+        return $this->kind($user) === AllowanceKind::Included;
+    }
+
+    /**
+     * Analyses left this month, or null for unlimited.
      */
     public function remaining(User $user): ?int
     {
-        if ($this->subscriptionService->hasFeature($user, 'unlimited_photos')) {
+        return $this->status($user)?->remaining;
+    }
+
+    /**
+     * The allowance counters' view of the user, or null for unlimited (no counter).
+     */
+    public function status(User $user): ?AllowanceStatus
+    {
+        $kind = $this->kind($user);
+        if ($kind === null) {
             return null;
         }
+        $limit = $kind === AllowanceKind::Included
+            ? self::INCLUDED_MONTHLY_LIMIT + $this->topUps->analysesForUserThisMonth($user)
+            : self::FREE_MONTHLY_LIMIT;
 
         $used = $this->meals->countForUserThisMonth($user)
             + $this->favorites->countRecipeImportsForUserThisMonth($user)
             + $this->events->countForUserThisMonth($user);
 
-        return max(0, self::FREE_MONTHLY_LIMIT - $used);
+        return new AllowanceStatus($kind, $limit, max(0, $limit - $used));
     }
 
     /**
-     * Runs one analysis against the allowance: refuses before any work when a
-     * Free user has none left, runs $analysis, then — only when $ledgerAs is
+     * Runs one analysis against the allowance: refuses before any work when the
+     * user has none left, runs $analysis, then — only when $ledgerAs is
      * given — books a ledger row with the result's token cost. Nothing is booked
      * if $analysis throws (a failed analysis isn't charged, the log flow's retry
      * posture). Which kinds are ledgered is a policy decision recorded in
@@ -92,7 +167,7 @@ final class AnalysisAllowance
      *
      * @return T
      *
-     * @throws PhotoLimitExceededException when a Free user's allowance is exhausted
+     * @throws PhotoLimitExceededException when the user's allowance is exhausted
      */
     public function meter(User $user, ?AnalysisKind $ledgerAs, ?MealEntry $meal, callable $analysis): TokenUsage
     {
@@ -108,23 +183,27 @@ final class AnalysisAllowance
     }
 
     /**
-     * @throws PhotoLimitExceededException when a Free user's allowance is exhausted
+     * @throws PhotoLimitExceededException when the user's allowance is exhausted
      */
     private function assertAvailable(User $user): void
     {
-        if ($this->remaining($user) === 0) {
-            throw new PhotoLimitExceededException(sprintf(
-                'Free tier limit of %d photo analyses per month reached.',
-                self::FREE_MONTHLY_LIMIT,
-            ));
+        $status = $this->status($user);
+        if ($status !== null && $status->remaining === 0) {
+            throw new PhotoLimitExceededException($status->kind, $status->limit);
         }
+    }
+
+    /** The same test ResolvingAiClient uses to send a call to the user's own key. */
+    private function hasOwnKey(User $user): bool
+    {
+        return $user->getId() !== null && $this->aiSettings->findForUser($user) !== null;
     }
 
     /**
      * Books a billable analysis that leaves no countable row of its own, so the
      * allowance can see it.
      *
-     * Written for every tier, not just Free: the row is also the cost-reporting
+     * Written for every user, counted or not: the row is also the cost-reporting
      * record, and a comped user who later drops to Free must not carry an
      * invisible history.
      */

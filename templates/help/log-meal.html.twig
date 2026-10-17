@@ -6,13 +6,13 @@
     <img src="{{ asset('images/help/log-meal.png') }}" class="figure-img img-fluid mb-0 w-100"
          alt="The Log a Meal screen — pick a meal type, add a photo, and add optional notes">
 </figure>
-<p>Logging a meal is the heart of NouriLoop: take a photo, let the AI estimate what's in it, then confirm and
+<p>Logging a meal is the heart of {{ brand.name }}: take a photo, let the AI estimate what's in it, then confirm and
 adjust before saving. You never type in calories by hand.</p>
 
 <h2 class="h5 fw-bold mt-4">Step by step</h2>
 <ol>
     <li>Tap <strong>Log</strong> and choose or take a photo of your meal.</li>
-    <li>NouriLoop's AI analyzes the photo and estimates calories, macros, a full panel of vitamins and
+    <li>{{ brand.name }}'s AI analyzes the photo and estimates calories, macros, a full panel of vitamins and
         minerals, and the ingredients it sees — along with how confident it is.</li>
     <li>On the <strong>Confirm &amp; Refine</strong> screen, review the estimate. Set <strong>"how many servings
         did you eat?"</strong> — the portion control scales the whole estimate up or down.</li>
@@ -27,7 +27,7 @@ adjust before saving. You never type in calories by hand.</p>
 answer its questions) or <strong>attach a second photo</strong> — for example, the nutrition-facts label.
 Adding a label usually sharpens the estimate a lot. What you review is exactly what gets saved.</p>
 
-<p class="text-muted small">NouriLoop flags a likely <strong>duplicate</strong> if the same photo is already
+<p class="text-muted small">{{ brand.name }} flags a likely <strong>duplicate</strong> if the same photo is already
 logged at the same time, so you don't double-count a meal.</p>
 {% endblock %}
 

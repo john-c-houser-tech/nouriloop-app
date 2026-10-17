@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Neutral icon for a self-hosted copy without its own logo (NouriLoop's mark is its trademark). -->
+  <rect width="64" height="64" rx="14" fill="#1f2937"/>
+  <path d="M14 30h36a18 18 0 0 1-36 0z" fill="#10b981"/>
+  <circle cx="26" cy="22" r="5" fill="#f59e0b"/>
+  <circle cx="38" cy="20" r="4" fill="#e5e7eb"/>
+</svg>

@@ -1,0 +1,12 @@
+# Scheduled jobs for a self-hosted copy, run by supercronic in the `scheduler`
+# container. Times are UTC (the container's zone). Each job decides per user
+# whether it's that user's local time, so the hourly ones must stay hourly.
+
+# Evening digest emails/SMS (each user at their local 8 PM).
+0 * * * * php /app/bin/console app:send-notifications --no-interaction
+# Goal check-ins that have come due.
+0 * * * * php /app/bin/console app:run-goal-checkins --no-interaction
+# Delete accounts whose 30-day grace period has ended.
+30 3 * * * php /app/bin/console app:purge-deleted-accounts --no-interaction
+# Delete abandoned meal-photo uploads older than 48 hours.
+45 3 * * * php /app/bin/console app:cleanup-meal-uploads --no-interaction

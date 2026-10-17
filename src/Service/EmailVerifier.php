@@ -17,6 +17,9 @@ use Doctrine\ORM\EntityManagerInterface;
  *  - a completed password reset (ResetPasswordController — the emailed token
  *    proves the same thing).
  *
+ * One stamp point is not an inbox proof: granting admin from the CLI
+ * (MakeAdminCommand), where server access vouches for the account.
+ *
  * Because verification is stamped opportunistically, users verify themselves as
  * they naturally use email flows — no dedicated ceremony required.
  */

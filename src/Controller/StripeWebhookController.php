@@ -6,9 +6,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\AllowanceTopUpService;
 use App\Service\SubscriptionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Stripe\Checkout\Session;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Invoice;
 use Stripe\StripeClient;
@@ -33,6 +35,7 @@ class StripeWebhookController extends AbstractController
 {
     public function __construct(
         private readonly SubscriptionService $subscriptions,
+        private readonly AllowanceTopUpService $topUps,
         private readonly UserRepository $users,
         private readonly EntityManagerInterface $em,
         private readonly StripeClient $stripe,
@@ -41,7 +44,12 @@ class StripeWebhookController extends AbstractController
     ) {
     }
 
-    #[Route('/webhook/stripe', name: 'app_stripe_webhook', methods: ['POST'])]
+    #[Route(
+        '/webhook/stripe',
+        name: 'app_stripe_webhook',
+        methods: ['POST'],
+        condition: "service('hosting').isHosted()",
+    )]
     public function handle(Request $request): Response
     {
         $payload   = $request->getContent();
@@ -57,6 +65,15 @@ class StripeWebhookController extends AbstractController
 
         try {
             $object = $event->data->object;
+
+            // A paid top-up has no other way to reach the user if crediting fails here
+            // (the success page's fast path is best-effort), so unlike the subscription
+            // events below a failure is NOT acknowledged: a 500 makes Stripe retry, and
+            // credit() is idempotent. Copilot catch on #248.
+            $topUpEvents = ['checkout.session.completed', 'checkout.session.async_payment_succeeded'];
+            if (\in_array($event->type, $topUpEvents, true) && $object instanceof Session) {
+                return $this->creditTopUp($object);
+            }
 
             switch ($event->type) {
                 case 'customer.subscription.created':
@@ -107,10 +124,37 @@ class StripeWebhookController extends AbstractController
         return new Response('', Response::HTTP_OK);
     }
 
+    /**
+     * A Loop+ allowance top-up (a one-off payment, PR 7b). Subscription checkouts also
+     * complete with this event; credit() ignores anything that isn't a paid top-up.
+     */
+    private function creditTopUp(Session $session): Response
+    {
+        try {
+            $this->topUps->credit($session);
+        } catch (\Throwable $e) {
+            $this->logger->error('Stripe top-up credit failed for {session}; asking Stripe to retry: {error}', [
+                'session' => $session->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new Response('', Response::HTTP_OK);
+    }
+
     private function syncSubscription(Subscription $sub): void
     {
         $user = $this->userForCustomer(is_string($sub->customer) ? $sub->customer : ($sub->customer->id ?? null));
         if ($user === null) {
+            return;
+        }
+
+        // A late event for a subscription the user has since replaced must not overwrite
+        // the current one. A new subscription after the stored one ended still syncs
+        // (Copilot catch on #250).
+        if ($this->isReplaced($user, (string) $sub->id)) {
             return;
         }
 
@@ -122,6 +166,14 @@ class StripeWebhookController extends AbstractController
     {
         $user = $this->userForCustomer(is_string($sub->customer) ? $sub->customer : ($sub->customer->id ?? null));
         if ($user === null) {
+            return;
+        }
+
+        // A late event for a subscription the user has since replaced must not cancel the
+        // current one (PR 8, 2026-10-13).
+        if ($user->getStripeSubscriptionId() !== null && $user->getStripeSubscriptionId() !== $sub->id) {
+            $this->logIgnored($user, (string) $sub->id);
+
             return;
         }
 
@@ -150,8 +202,37 @@ class StripeWebhookController extends AbstractController
             return;
         }
 
+        $subId = $this->subscriptionIdFromInvoice($invoice);
+        if ($subId !== null && $this->isReplaced($user, $subId)) {
+            return;
+        }
+
         $user->setSubscriptionStatus('past_due');
         $this->em->flush();
+    }
+
+    /**
+     * Whether an event about $subscriptionId concerns a subscription the user has since
+     * replaced: they have a different one that is still live. Logs when it does.
+     */
+    private function isReplaced(User $user, string $subscriptionId): bool
+    {
+        $replaced = $user->getStripeSubscriptionId() !== null
+            && $user->getStripeSubscriptionId() !== $subscriptionId
+            && $this->subscriptions->hasLiveSubscription($user);
+        if ($replaced) {
+            $this->logIgnored($user, $subscriptionId);
+        }
+
+        return $replaced;
+    }
+
+    private function logIgnored(User $user, string $subscriptionId): void
+    {
+        $this->logger->info('Stripe event for {sub}, not the current subscription of user {user}; ignored.', [
+            'sub'  => $subscriptionId,
+            'user' => $user->getId(),
+        ]);
     }
 
     private function userForCustomer(?string $customerId): ?User

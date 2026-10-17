@@ -26,9 +26,8 @@ services:
             string $stripePublishableKey: '%env(STRIPE_PUBLISHABLE_KEY)%'
             string $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
             string $loopMonthlyPriceId: '%env(STRIPE_LOOP_MONTHLY_PRICE_ID)%'
-            string $loopYearlyPriceId: '%env(STRIPE_LOOP_YEARLY_PRICE_ID)%'
             string $loopPlusMonthlyPriceId: '%env(STRIPE_LOOP_PLUS_MONTHLY_PRICE_ID)%'
-            string $loopPlusYearlyPriceId: '%env(STRIPE_LOOP_PLUS_YEARLY_PRICE_ID)%'
+            string $topUpPriceId: '%env(STRIPE_TOP_UP_PRICE_ID)%'
 
     # Every health-export JSON importer is tagged so the resolver can collect them.
     _instanceof:
@@ -43,9 +42,63 @@ services:
     App\:
         resource: '../src/'
 
-    App\Service\ClaudeClient:
+    App\Ai\AnthropicClient:
         arguments:
             $anthropicApiKey: '%anthropic_api_key%'
+            $model: '%env(AI_MODEL)%'
+            $lightModel: '%env(AI_MODEL_LIGHT)%'
+
+    # Every AI call depends on this interface, never on a provider class (ADR 0003).
+    # AI_PROVIDER picks the implementation; see the AI provider block in .env.
+    App\Ai\AiClient:
+        factory: ['App\Ai\AiClientFactory', 'create']
+        arguments:
+            $provider: '%env(AI_PROVIDER)%'
+            $anthropic: !service_closure '@App\Ai\AnthropicClient'
+            $baseUrl: '%env(AI_BASE_URL)%'
+            $apiKey: '%env(AI_API_KEY)%'
+            $model: '%env(AI_MODEL)%'
+            $lightModel: '%env(AI_MODEL_LIGHT)%'
+
+    # Sends a user's calls to their own provider and key when they have set one
+    # (Settings > AI provider). Priority 10 puts it inside MeteredAiClient, so the cost
+    # record sees the user's provider and that their key paid.
+    App\Ai\ResolvingAiClient:
+        decorates: App\Ai\AiClient
+        decoration_priority: 10
+        arguments:
+            $instance: '@.inner'
+
+    # Records every AI call (feature, user, model, tokens, estimated cost) in ai_call.
+    # A decorator, so no caller can skip it; see .claude/rules/ai-client.md.
+    App\Ai\MeteredAiClient:
+        decorates: App\Ai\AiClient
+        arguments:
+            $inner: '@.inner'
+
+    App\Hosting\HostingMode:
+        arguments:
+            $hostingMode: '%env(APP_HOSTING_MODE)%'
+
+    # This instance's name, logo, legal pages and source link (configurable branding).
+    App\Hosting\Brand:
+        arguments:
+            $appName: '%env(APP_NAME)%'
+            $defaultUri: '%env(DEFAULT_URI)%'
+            $logoUrl: '%env(APP_LOGO_URL)%'
+            $sourceUrl: '%env(SOURCE_URL)%'
+            $operatorEmail: '%env(OPERATOR_EMAIL)%'
+            $privacyUrl: '%env(PRIVACY_URL)%'
+            $termsUrl: '%env(TERMS_URL)%'
+
+    App\Ai\VisionBenchmark:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # Encrypts the AI keys users store with us (USER_SECRETS_KEY in .env.local).
+    App\Security\UserSecretBox:
+        arguments:
+            $userSecretsKey: '%env(USER_SECRETS_KEY)%'
 
     # Stripe SDK client, configured with the secret key. One shared instance used by
     # the subscription service for checkout/portal/sync.

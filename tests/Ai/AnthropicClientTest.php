@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Ai;
 
-use App\Dto\ClaudeResult;
-use App\Service\ClaudeClient;
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
+use App\Ai\AiResult;
+use App\Ai\AnthropicClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-final class ClaudeClientTest extends TestCase
+final class AnthropicClientTest extends TestCase
 {
+    private const TURN = [['role' => 'user', 'content' => 'q']];
+
     /** @var list<string> */
     private array $tempFiles = [];
 
@@ -28,7 +32,8 @@ final class ClaudeClientTest extends TestCase
         $second = $this->tempImage('second-bytes');
 
         [$result, $request] = $this->call(
-            fn(ClaudeClient $c) => $c->completeWithImages('the prompt', [$first, $second], 2048),
+            fn(AiClient $c)
+                => $c->completeWithImages(AiFeature::MealAnalysis, null, 'the prompt', [$first, $second], 2048),
             [
                 'content' => [['type' => 'text', 'text' => 'reply']],
                 'usage' => ['input_tokens' => 7, 'output_tokens' => 3],
@@ -40,7 +45,7 @@ final class ClaudeClientTest extends TestCase
         self::assertContains('anthropic-version: 2023-06-01', $request['headers']);
 
         $body = $request['body'];
-        self::assertSame(ClaudeClient::MODEL, $body['model']);
+        self::assertSame(AnthropicClient::MODEL, $body['model']);
         self::assertSame(2048, $body['max_tokens']);
         self::assertArrayNotHasKey('system', $body);
         self::assertCount(1, $body['messages']);
@@ -61,7 +66,13 @@ final class ClaudeClientTest extends TestCase
         $real = $this->tempImage('real-bytes');
 
         [, $request] = $this->call(
-            fn(ClaudeClient $c) => $c->completeWithImages('p', ['/no/such/file.jpg', '', $real], 1024),
+            fn(AiClient $c) => $c->completeWithImages(
+                AiFeature::MealAnalysis,
+                null,
+                'p',
+                ['/no/such/file.jpg', '', $real],
+                1024,
+            ),
         );
 
         $content = $request['body']['messages'][0]['content'];
@@ -76,12 +87,15 @@ final class ClaudeClientTest extends TestCase
         });
 
         $this->expectException(\RuntimeException::class);
-        (new ClaudeClient($http, 'test-key'))->completeWithImages('p', ['/no/such/file.jpg'], 1024);
+        (new AnthropicClient($http, 'test-key'))
+            ->completeWithImages(AiFeature::MealAnalysis, null, 'p', ['/no/such/file.jpg'], 1024);
     }
 
     public function testNoImagesIsATextOnlyCallInBlockShape(): void
     {
-        [, $request] = $this->call(fn(ClaudeClient $c) => $c->completeWithImages('just text', [], 2048));
+        [, $request] = $this->call(
+            fn(AiClient $c) => $c->completeWithImages(AiFeature::MealAnalysis, null, 'just text', [], 2048),
+        );
 
         self::assertSame(
             [['type' => 'text', 'text' => 'just text']],
@@ -92,7 +106,7 @@ final class ClaudeClientTest extends TestCase
     public function testMissingUsageDefaultsToZeroTokens(): void
     {
         [$result] = $this->call(
-            fn(ClaudeClient $c) => $c->completeWithImages('p', [], 1024),
+            fn(AiClient $c) => $c->completeWithImages(AiFeature::MealAnalysis, null, 'p', [], 1024),
             ['content' => [['type' => 'text', 'text' => 'reply']]],
         );
 
@@ -127,7 +141,9 @@ final class ClaudeClientTest extends TestCase
         $originalSize = filesize($bigPath);
         self::assertGreaterThan(4_000_000, $originalSize, 'fixture must exceed the downscale threshold');
 
-        [, $request] = $this->call(fn(ClaudeClient $c) => $c->completeWithImages('p', [$bigPath], 2048));
+        [, $request] = $this->call(
+            fn(AiClient $c) => $c->completeWithImages(AiFeature::MealAnalysis, null, 'p', [$bigPath], 2048),
+        );
 
         $source = $request['body']['messages'][0]['content'][0]['source'];
         self::assertSame('image/jpeg', $source['media_type']);
@@ -140,30 +156,66 @@ final class ClaudeClientTest extends TestCase
 
     public function testJsonToleratesFencesAndSurroundingProse(): void
     {
-        $plain = new ClaudeResult('  {"a": 1}  ', 0, 0);
-        $fenced = new ClaudeResult("Here you go:\n```json\n{\"a\": 1}\n```\nEnjoy.", 0, 0);
+        $plain = new AiResult('  {"a": 1}  ', 0, 0);
+        $fenced = new AiResult("Here you go:\n```json\n{\"a\": 1}\n```\nEnjoy.", 0, 0);
 
         self::assertSame(['a' => 1], $plain->json());
         self::assertSame(['a' => 1], $fenced->json());
     }
 
+    public function testMainFeaturesUseTheDefaultModelAndLightOnesUseHaiku(): void
+    {
+        [, $main] = $this->call(fn(AiClient $c) => $c->complete(AiFeature::GoalCheckin, null, 's', self::TURN));
+        [, $light] = $this->call(fn(AiClient $c) => $c->complete(AiFeature::HelpAssistant, null, 's', self::TURN));
+
+        self::assertSame(AnthropicClient::MODEL, $main['body']['model']);
+        self::assertSame(AnthropicClient::LIGHT_MODEL, $light['body']['model']);
+    }
+
+    public function testTheResultNamesTheProviderAndTheModelSent(): void
+    {
+        [$result] = $this->call(fn(AiClient $c) => $c->complete(AiFeature::HelpAssistant, null, 's', self::TURN));
+
+        self::assertSame('anthropic', $result->provider);
+        self::assertSame(AnthropicClient::LIGHT_MODEL, $result->model);
+    }
+
+    public function testConfiguredModelsReplaceTheDefaults(): void
+    {
+        $build = static fn(MockHttpClient $http): AnthropicClient
+            => new AnthropicClient($http, 'k', 'main-x', 'light-y');
+
+        [, $main] = $this->call(
+            fn(AiClient $c) => $c->completeWithImages(AiFeature::MealAnalysis, null, 'p', [], 64),
+            build: $build,
+        );
+        [, $light] = $this->call(
+            fn(AiClient $c) => $c->complete(AiFeature::HelpAssistant, null, 's', self::TURN),
+            build: $build,
+        );
+
+        self::assertSame('main-x', $main['body']['model']);
+        self::assertSame('light-y', $light['body']['model']);
+    }
+
     public function testJsonThrowsWhenNoObjectCanBeRecovered(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Claude returned invalid JSON');
+        $this->expectExceptionMessage('The model returned invalid JSON');
 
-        (new ClaudeResult('I could not read this, sorry!', 0, 0))->json();
+        (new AiResult('I could not read this, sorry!', 0, 0))->json();
     }
 
     /**
      * Runs $call against a client whose HTTP layer records the request.
      *
-     * @param callable(ClaudeClient): ClaudeResult $call
+     * @param callable(AiClient): AiResult $call
      * @param array<string, mixed>                 $responseBody
+     * @param (callable(MockHttpClient): AnthropicClient)|null $build client factory; default is a plain test client
      *
-     * @return array{0: ClaudeResult, 1: array{url: string, headers: list<string>, body: array<string, mixed>}}
+     * @return array{0: AiResult, 1: array{url: string, headers: list<string>, body: array<string, mixed>}}
      */
-    private function call(callable $call, array $responseBody = []): array
+    private function call(callable $call, array $responseBody = [], ?callable $build = null): array
     {
         $responseBody = $responseBody ?: ['content' => [['type' => 'text', 'text' => '{}']]];
         $request = null;
@@ -179,7 +231,7 @@ final class ClaudeClientTest extends TestCase
             },
         );
 
-        $result = $call(new ClaudeClient($http, 'test-key'));
+        $result = $call($build !== null ? $build($http) : new AnthropicClient($http, 'test-key'));
 
         return [$result, $request];
     }

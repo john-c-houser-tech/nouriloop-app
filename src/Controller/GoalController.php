@@ -347,7 +347,7 @@ class GoalController extends AbstractController
             'baselines'    => $baselines,
             'warnings'     => [],
             'submitted'    => [],
-            // Daily cadence is Loop+ (the form disables the option with an upsell
+            // Daily cadence is a paid-plan feature (the form disables the option with an upsell
             // hint; GoalFactory coerces server-side as the backstop).
             'canDaily'     => $this->subscriptions->hasFeature($user, 'daily_checkins'),
         ];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Http;
 
+use App\Ai\VisionBenchmark;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
@@ -11,7 +12,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  *
  * Wired (in config/services_test.yaml) as the response factory of a
  * MockHttpClient that replaces the real HttpClient injected into
- * FoodAnalysisService, SupplementAnalysisService and ClaudeClient. So every
+ * FoodAnalysisService, SupplementAnalysisService and AnthropicClient. So every
  * Claude call in the E2E suite returns deterministic, canned JSON — no network,
  * no tokens, no flakiness. The shapes here mirror exactly what each service's
  * parser expects (see those classes' BASE_PROMPT / PROMPT / parseProposal).
@@ -27,6 +28,12 @@ final class FakeAnthropicResponder
     public const FAIL_ALWAYS = 'TRIGGER-ANALYSIS-FAILURE-ALWAYS';
     public const FAIL_ONCE = 'TRIGGER-ANALYSIS-FAILURE-ONCE';
 
+    /** A model name containing this makes every vision-benchmark answer 50 % high (a failing model). */
+    public const BENCHMARK_FAIL_MODEL = 'benchmark-fail';
+
+    /** An API key that the fake rejects with 401, for a user's own key that is wrong. */
+    public const REJECTED_KEY = 'sk-test-rejected-key';
+
     /**
      * Returns a meal estimate with confidence exactly 0.0 — a valid value under
      * the analysis contract that truthiness checks silently swallow (it hid the
@@ -35,6 +42,9 @@ final class FakeAnthropicResponder
     public const ZERO_CONFIDENCE = 'TRIGGER-ZERO-CONFIDENCE';
 
     private static bool $failedOnce = false;
+
+    /** Set while answering an OpenAI-compatible request, so the reply uses that envelope. */
+    private bool $openAiShape = false;
 
     /** The prompt of the most recent analysis (vision-shaped) call, for tests that check what was sent. */
     private static ?string $lastAnalysisPrompt = null;
@@ -55,11 +65,23 @@ final class FakeAnthropicResponder
 
     public function __invoke(string $method, string $url, array $options = []): MockResponse
     {
+        foreach ((array) ($options['headers'] ?? []) as $header) {
+            if (str_contains((string) $header, self::REJECTED_KEY)) {
+                return new MockResponse('{"error":"invalid api key"}', ['http_code' => 401]);
+            }
+        }
+
+        // A user's own OpenRouter / custom key speaks chat-completions: answer it with the
+        // same routing as the Messages API, then wrap the reply in that envelope.
+        $this->openAiShape = str_ends_with(parse_url($url, PHP_URL_PATH) ?: '', '/chat/completions');
         $payload = $this->payload($options);
+        if ($this->openAiShape) {
+            $payload = self::fromChatCompletions($payload);
+        }
         $messages = $payload['messages'] ?? [];
         $system = (string) ($payload['system'] ?? '');
 
-        // Text conversation (ClaudeClient): goal setup or goal evaluation.
+        // Text conversation (AnthropicClient::complete): goal setup or goal evaluation.
         if (\is_string($messages[0]['content'] ?? null) || $system !== '') {
             return $this->envelope($this->textReply($system, $messages));
         }
@@ -76,6 +98,13 @@ final class FakeAnthropicResponder
             self::$failedOnce = true;
 
             return $this->upstreamError();
+        }
+
+        // A vision-benchmark photo: answer with that case's reference values (or 50 % high
+        // when the configured model's name says it should fail), so both outcomes are testable.
+        $benchmark = $this->benchmarkReply($messages, (string) ($payload['model'] ?? ''));
+        if ($benchmark !== null) {
+            return $this->envelope($benchmark);
         }
 
         if (str_contains($prompt, self::ZERO_CONFIDENCE)) {
@@ -266,12 +295,85 @@ final class FakeAnthropicResponder
         return new MockResponse('upstream unavailable', ['http_code' => 500]);
     }
 
+    /**
+     * A chat-completions payload in Messages-API shape: the system message lifted out,
+     * `image_url` parts standing in for image blocks.
+     *
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private static function fromChatCompletions(array $payload): array
+    {
+        $system = '';
+        $messages = [];
+        foreach ((array) ($payload['messages'] ?? []) as $m) {
+            if (($m['role'] ?? '') === 'system') {
+                $system = (string) $m['content'];
+                continue;
+            }
+            if (\is_array($m['content'] ?? null)) {
+                $m['content'] = array_map(
+                    static fn(array $part): array => ($part['type'] ?? '') === 'image_url'
+                        ? ['type' => 'image', 'source' => [
+                            'data' => substr((string) ($part['image_url']['url'] ?? ''), (int) strpos(
+                                (string) ($part['image_url']['url'] ?? ''),
+                                ',',
+                            ) + 1),
+                        ]]
+                        : $part,
+                    $m['content'],
+                );
+            }
+            $messages[] = $m;
+        }
+
+        return ['system' => $system, 'messages' => $messages] + $payload;
+    }
+
+    /** @param list<array<string, mixed>> $messages */
+    private function benchmarkReply(array $messages, string $model): ?string
+    {
+        $first = null;
+        foreach ((array) ($messages[0]['content'] ?? []) as $block) {
+            if (\is_array($block) && ($block['type'] ?? '') === 'image') {
+                $first = (string) ($block['source']['data'] ?? '');
+                break;
+            }
+        }
+        if ($first === null || $first === '') {
+            return null;
+        }
+
+        $hash = sha1((string) base64_decode($first, true));
+        foreach (VisionBenchmark::CASES as $case) {
+            $file = \dirname(__DIR__, 2) . '/' . VisionBenchmark::DIR . '/' . $case['file'];
+            if (is_file($file) && sha1((string) file_get_contents($file)) === $hash) {
+                $factor = str_contains($model, self::BENCHMARK_FAIL_MODEL) ? 1.5 : 1.0;
+
+                return (string) json_encode([
+                    'description' => 'Benchmark reference: ' . $case['name'],
+                    'confidence' => 0.9,
+                    'ingredients' => [],
+                    'questions' => [],
+                ] + array_map(static fn(float|int $v): float => $v * $factor, $case['expected']));
+            }
+        }
+
+        return null;
+    }
+
     private function envelope(string $text): MockResponse
     {
-        $body = (string) json_encode([
-            'content' => [['type' => 'text', 'text' => $text]],
-            'usage' => ['input_tokens' => 1200, 'output_tokens' => 300],
-        ]);
+        $body = (string) json_encode($this->openAiShape
+            ? [
+                'choices' => [['message' => ['role' => 'assistant', 'content' => $text]]],
+                'usage' => ['prompt_tokens' => 1200, 'completion_tokens' => 300],
+            ]
+            : [
+                'content' => [['type' => 'text', 'text' => $text]],
+                'usage' => ['input_tokens' => 1200, 'output_tokens' => 300],
+            ]);
 
         return new MockResponse($body, [
             'response_headers' => ['content-type' => 'application/json'],

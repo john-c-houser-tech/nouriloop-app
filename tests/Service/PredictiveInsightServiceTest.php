@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
-use App\Dto\ClaudeResult;
+use App\Ai\AiClient;
+use App\Ai\AiResult;
 use App\Dto\ScenarioRequest;
 use App\Entity\Favorite;
 use App\Entity\Supplement;
@@ -20,7 +21,6 @@ use App\Repository\MealEntryRepository;
 use App\Repository\SupplementRepository;
 use App\Repository\SymptomDayRepository;
 use App\Repository\SymptomTypeRepository;
-use App\Service\ClaudeClient;
 use App\Service\InflammationScoreService;
 use App\Service\PredictiveInsightService;
 use App\Service\SupplementRecommendationService;
@@ -309,8 +309,8 @@ final class PredictiveInsightServiceTest extends TestCase
             static fn (array $intake): bool => array_sum($intake) > 0.0,
         );
 
-        $claude = $this->createStub(ClaudeClient::class);
-        $claude->method('complete')->willReturn(new ClaudeResult('A computed projection.', 10, 5));
+        $claude = $this->createStub(AiClient::class);
+        $claude->method('complete')->willReturn(new AiResult('A computed projection.', 10, 5));
 
         return new PredictiveInsightService(
             $intake,

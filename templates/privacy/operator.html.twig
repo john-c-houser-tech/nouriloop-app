@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{#
+  A self-hosted copy's privacy or terms page when its operator set no PRIVACY_URL /
+  TERMS_URL (configurable branding, Plan Q11c). NouriLoop LLC's own documents only apply
+  to nouriloop.com.
+#}
+{% set title = ('legal.operator.title_' ~ kind)|trans %}
+{% block title %}{{ title }} — {{ brand.name }}{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 680px;">
+    <h1 class="fw-bold h3 mb-3">{{ title }}</h1>
+    <p>{{ ('legal.operator.body_' ~ kind)|trans }}</p>
+    {% if brand.operatorEmail %}
+        <p>{{ 'legal.operator.contact'|trans }}
+            <a href="mailto:{{ brand.operatorEmail }}">{{ brand.operatorEmail }}</a></p>
+    {% else %}
+        <p class="text-muted">{{ 'legal.operator.no_contact'|trans }}</p>
+    {% endif %}
+    <p class="small text-muted">{{ 'legal.operator.software'|trans({
+        software: 'NouriLoop',
+        link: '<a href="' ~ brand.sourceUrl|e('html_attr') ~ '" rel="noopener">',
+        link_end: '</a>',
+    })|raw }}</p>
+</div>
+{% endblock %}

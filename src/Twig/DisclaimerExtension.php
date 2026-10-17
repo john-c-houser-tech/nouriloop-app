@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Twig;
 
 use App\Content\WellnessDisclaimers;
+use App\Hosting\Brand;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -16,6 +17,11 @@ use Twig\TwigFunction;
  */
 class DisclaimerExtension extends AbstractExtension
 {
+    public function __construct(
+        private readonly Brand $brand,
+    ) {
+    }
+
     public function getFunctions(): array
     {
         return [
@@ -25,6 +31,7 @@ class DisclaimerExtension extends AbstractExtension
 
     public function wellnessDisclaimer(string $length = WellnessDisclaimers::LONG): string
     {
-        return WellnessDisclaimers::random($length);
+        // The jokes name the app; a self-hosted copy says its own name (configurable branding).
+        return str_replace(Brand::NOURILOOP, $this->brand->name(), WellnessDisclaimers::random($length));
     }
 }

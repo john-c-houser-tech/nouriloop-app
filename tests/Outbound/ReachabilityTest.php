@@ -42,10 +42,12 @@ final class ReachabilityTest extends TestCase
         yield 'digest email, unverified' => [['verified' => false] + $ready, $email, $digest, false];
         yield 'digest email, SMS-only choice' => [$smsOnly + $ready, $email, $digest, false];
         yield 'check-in email, Loop+' => [$ready, $email, $checkIn, true];
-        yield 'check-in email, Loop' => [['tier' => $loop] + $ready, $email, $checkIn, false];
+        yield 'check-in email, Loop' => [['tier' => $loop] + $ready, $email, $checkIn, true];
+        yield 'check-in email, free' => [['tier' => null] + $ready, $email, $checkIn, false];
 
-        // SMS
-        yield 'digest SMS, Loop' => [['tier' => $loop] + $ready, $sms, $digest, true];
+        // SMS — Loop+ only since the tier rework (Twilio fees; ADR 0003)
+        yield 'digest SMS, Loop+' => [$ready, $sms, $digest, true];
+        yield 'digest SMS, Loop' => [['tier' => $loop] + $ready, $sms, $digest, false];
         yield 'digest SMS, free' => [['tier' => null] + $ready, $sms, $digest, false];
         yield 'digest SMS, no consent' => [['consent' => false] + $ready, $sms, $digest, false];
         yield 'digest SMS, no phone' => [['phone' => null] + $ready, $sms, $digest, false];

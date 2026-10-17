@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.ai.title'|trans }} — {{ brand.name }}{% endblock %}
+
+{% block body %}
+{% set current = posted.provider|default(settings ? settings.provider.value : 'nouriloop') %}
+<div class="container" style="max-width: 680px;">
+    <a href="{{ path('app_settings_index') }}" class="small text-decoration-none d-inline-block mb-2">
+        <i class="bi bi-arrow-left"></i> {{ 'settings.back'|trans }}
+    </a>
+    <h2 class="fw-bold mb-1">{{ 'settings.ai.title'|trans }}</h2>
+    <p class="text-muted">{{ 'settings.ai.lead'|trans }}</p>
+
+    <div class="card p-3 mb-3" id="ai-status">
+        {% if settings %}
+            <div class="fw-semibold">
+                <i class="bi bi-key-fill text-success"></i>
+                {{ 'settings.ai.status_own'|trans({
+                    'provider': settings.provider.displayName ?? 'settings.ai.custom_service'|trans,
+                    'hint': settings.keyHint,
+                }) }}
+            </div>
+            <div class="small text-muted">
+                {{ 'settings.ai.status_models'|trans({
+                    'text': settings.textModel ?? 'settings.ai.nouriloop_chooses'|trans,
+                    'vision': settings.visionModel ?? 'settings.ai.same_as_text'|trans,
+                }) }}
+            </div>
+            <form method="post" action="{{ path('app_settings_ai_test') }}" class="mt-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('settings-ai-test') }}">
+                <button type="submit" class="btn btn-sm btn-outline-success" id="ai-test">
+                    <i class="bi bi-plug"></i> {{ 'settings.ai.test'|trans }}
+                </button>
+            </form>
+        {% else %}
+            <div class="fw-semibold"><i class="bi bi-stars text-success"></i> {{ 'settings.ai.status_nouriloop'|trans }}</div>
+        {% endif %}
+    </div>
+
+    {% if settings and available %}
+    {% set results = settings.benchmarkResults %}
+    {% set autostart = app.flashes('ai_benchmark_start') is not empty %}
+    <div class="card p-3 mb-3" id="ai-benchmark" data-total="{{ benchmarkCases|length }}"
+         data-autostart="{{ autostart ? '1' : '0' }}"
+         data-url="{{ path('app_settings_ai_benchmark_case', {index: 0})|replace({'/0': '/__INDEX__'}) }}"
+         data-token="{{ csrf_token('settings-ai-benchmark') }}"
+         data-checking="{{ 'settings.ai.benchmark.checking'|trans({done: '__DONE__', total: benchmarkCases|length}) }}">
+        <div class="fw-semibold">{{ 'settings.ai.benchmark.title'|trans({model: settings.effectiveVisionModel}) }}</div>
+        <div class="small text-muted mb-2">{{ 'settings.ai.benchmark.lead'|trans }}</div>
+        <div id="ai-benchmark-status" class="mb-2" role="status" aria-live="polite">
+            {% if benchmarkPassed is same as(true) %}
+                <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill"></i> {{ 'settings.ai.benchmark.passed'|trans }}</span>
+            {% elseif benchmarkPassed is same as(false) %}
+                <span class="text-danger fw-semibold"><i class="bi bi-exclamation-triangle-fill"></i> {{ 'settings.ai.benchmark.failed'|trans }}</span>
+            {% else %}
+                <span class="text-muted">{{ 'settings.ai.benchmark.not_checked'|trans }}</span>
+            {% endif %}
+        </div>
+        {% if results is not empty %}
+        <ul class="list-unstyled small mb-2" id="ai-benchmark-results">
+            {% for case in benchmarkCases %}{% set r = results[case.name] ?? null %}{% if r %}
+            <li class="mb-1" data-case="{{ case.name }}">
+                <i class="bi {{ r.passed ? 'bi-check text-success' : 'bi-x text-danger' }}"></i>
+                {{ ('settings.ai.benchmark.case.' ~ case.name)|trans }}
+                {% if r.error %}
+                    <span class="text-muted">— {{ 'settings.ai.benchmark.error'|trans }}</span>
+                {% elseif r.misses is not empty %}
+                    <ul class="list-unstyled text-muted ms-4 mb-0">
+                    {% for m in r.misses %}
+                        <li>{{ m.got is null
+                            ? 'settings.ai.benchmark.no_number'|trans({nutrient: ('nutrient_full.' ~ m.nutrient)|trans})
+                            : 'settings.ai.benchmark.miss'|trans({
+                                nutrient: ('nutrient_full.' ~ m.nutrient)|trans,
+                                expected: m.expected|round, got: m.got|round, unit: benchmarkUnits[m.nutrient],
+                            }) }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+            {% endif %}{% endfor %}
+        </ul>
+        {% endif %}
+        <form method="post" action="{{ path('app_settings_ai_benchmark') }}" id="ai-benchmark-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('settings-ai-benchmark') }}">
+            <button type="submit" class="btn btn-sm btn-outline-success" id="ai-benchmark-run">
+                <i class="bi bi-camera"></i> {{ 'settings.ai.benchmark.run'|trans }}
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if not available %}
+        <div class="alert alert-secondary">{{ 'settings.ai.unavailable'|trans }}</div>
+        {% if settings %}
+            {# The server can no longer read saved keys, so this user's AI calls would keep
+               failing: always leave them a way back to NouriLoop's AI. #}
+            <form method="post" action="{{ path('app_settings_ai') }}" id="ai-reset">
+                <input type="hidden" name="_token" value="{{ csrf_token('settings-ai-save') }}">
+                <input type="hidden" name="provider" value="nouriloop">
+                <button type="submit" class="btn btn-success">{{ 'settings.ai.use_nouriloop'|trans }}</button>
+            </form>
+        {% endif %}
+    {% else %}
+    <form method="post" action="{{ path('app_settings_ai') }}" class="card p-4 mb-3" id="ai-form" autocomplete="off">
+        <input type="hidden" name="_token" value="{{ csrf_token('settings-ai-save') }}">
+
+        <fieldset class="mb-3">
+            <legend class="form-label fw-semibold fs-6">{{ 'settings.ai.provider_label'|trans }}</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="provider" id="provider-nouriloop" value="nouriloop"
+                       {{ current == 'nouriloop' ? 'checked' }}>
+                <label class="form-check-label" for="provider-nouriloop">{{ 'settings.ai.provider.nouriloop'|trans }}</label>
+            </div>
+            {% for p in providers %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="provider" id="provider-{{ p.value }}"
+                           value="{{ p.value }}" data-default-model="{{ defaults[p.value] ?? '' }}"
+                           {{ current == p.value ? 'checked' }}>
+                    <label class="form-check-label" for="provider-{{ p.value }}">{{ p.transKey|trans }}</label>
+                </div>
+            {% endfor %}
+            {% if errors.provider is defined %}<div class="text-danger small">{{ errors.provider|trans }}</div>{% endif %}
+        </fieldset>
+
+        <div data-own-only>
+            <div class="mb-3 {{ current != 'custom' ? 'd-none' }}" data-custom-only>
+                <label class="form-label fw-semibold" for="base_url">{{ 'settings.ai.base_url_label'|trans }}</label>
+                <input type="url" class="form-control {{ errors.base_url is defined ? 'is-invalid' }}" id="base_url"
+                       name="base_url" maxlength="255" placeholder="https://"
+                       value="{{ posted.base_url ?? (settings ? settings.baseUrl : '') }}">
+                <div class="form-text">{{ 'settings.ai.base_url_help'|trans }}</div>
+                {% if errors.base_url is defined %}<div class="invalid-feedback">{{ errors.base_url|trans }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="api_key">{{ 'settings.ai.key_label'|trans }}</label>
+                <input type="password" class="form-control {{ errors.api_key is defined ? 'is-invalid' }}" id="api_key"
+                       name="api_key" maxlength="500" autocomplete="new-password"
+                       placeholder="{{ keyOnFile ? '•••• ' ~ settings.keyHint : '' }}">
+                <div class="form-text">
+                    {{ (keyOnFile ? 'settings.ai.key_help_keep' : 'settings.ai.key_help')|trans }}
+                </div>
+                {% if errors.api_key is defined %}<div class="invalid-feedback">{{ errors.api_key|trans }}</div>{% endif %}
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label fw-semibold" for="text_model">{{ 'settings.ai.text_model_label'|trans }}</label>
+                    <input type="text" class="form-control {{ errors.text_model is defined ? 'is-invalid' }}"
+                           id="text_model" name="text_model" maxlength="150" data-model-input
+                           value="{{ posted.text_model ?? (settings ? settings.textModel : '') }}">
+                    {% if errors.text_model is defined %}<div class="invalid-feedback">{{ errors.text_model|trans }}</div>{% endif %}
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label fw-semibold" for="vision_model">{{ 'settings.ai.vision_model_label'|trans }}</label>
+                    <input type="text" class="form-control {{ errors.vision_model is defined ? 'is-invalid' }}"
+                           id="vision_model" name="vision_model" maxlength="150"
+                           value="{{ posted.vision_model ?? (settings ? settings.visionModel : '') }}">
+                    {% if errors.vision_model is defined %}<div class="invalid-feedback">{{ errors.vision_model|trans }}</div>{% endif %}
+                </div>
+                <div class="col-12 form-text mt-1">{{ 'settings.ai.models_help'|trans }}</div>
+            </div>
+        </div>
+
+        <p class="small text-muted mb-3">{{ 'settings.ai.privacy_note'|trans({
+            'link': '<a href="' ~ path('app_privacy_health') ~ '">',
+            'link_end': '</a>',
+        })|raw }}</p>
+
+        <div><button type="submit" class="btn btn-success">{{ 'settings.ai.save'|trans }}</button></div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    // Vision benchmark: one request per photo, so no request waits on five model calls.
+    var box = document.getElementById('ai-benchmark');
+    if (!box) { return; }
+    var form = document.getElementById('ai-benchmark-form');
+    var status = document.getElementById('ai-benchmark-status');
+    var total = parseInt(box.dataset.total, 10);
+    function run() {
+        var button = document.getElementById('ai-benchmark-run');
+        button.disabled = true;
+        var i = 0;
+        function next() {
+            status.textContent = box.dataset.checking.replace('__DONE__', String(i));
+            var body = new FormData();
+            body.append('_token', box.dataset.token);
+            fetch(box.dataset.url.replace('__INDEX__', String(i)), {method: 'POST', body: body, credentials: 'same-origin'})
+                .then(function (r) { return r.json().then(function (d) { return {ok: r.ok, d: d}; }); })
+                .then(function (res) {
+                    if (!res.ok) { status.textContent = res.d.error || ''; button.disabled = false; return; }
+                    i += 1;
+                    if (i < total) { next(); } else { window.location.reload(); }
+                })
+                .catch(function () { window.location.reload(); });
+        }
+        next();
+    }
+    form.addEventListener('submit', function (e) { e.preventDefault(); run(); });
+    if (box.dataset.autostart === '1') { run(); }
+})();
+(function () {
+    var form = document.getElementById('ai-form');
+    if (!form) { return; }
+    var radios = form.querySelectorAll('input[name="provider"]');
+    var own = form.querySelector('[data-own-only]');
+    var custom = form.querySelector('[data-custom-only]');
+    var text = form.querySelector('[data-model-input]');
+    function sync() {
+        var picked = form.querySelector('input[name="provider"]:checked');
+        var value = picked ? picked.value : 'nouriloop';
+        own.classList.toggle('d-none', value === 'nouriloop');
+        custom.classList.toggle('d-none', value !== 'custom');
+        // A blank model means "Let NouriLoop choose": show what that will be.
+        text.placeholder = (picked && picked.dataset.defaultModel) || '';
+    }
+    radios.forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+})();
+</script>
+{% endblock %}

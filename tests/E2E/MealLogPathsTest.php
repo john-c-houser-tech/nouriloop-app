@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\E2E;
 
+use App\Ai\UserAiProvider;
 use App\Entity\Favorite;
 use App\Entity\MealEntry;
 use App\Entity\User;
+use App\Entity\UserAiSettings;
+use App\Enum\MealType;
 use App\Enum\SubscriptionTier;
+use App\Service\AnalysisAllowance;
+use App\Service\FavoriteManager;
 use App\Tests\Http\FakeAnthropicResponder;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -268,7 +273,7 @@ final class MealLogPathsTest extends WebTestCase
         self::assertStringContainsString('Go to the dashboard', $crawler->html());
     }
 
-    public function testFreeUserSeesTheAllowanceCounterAndPaidUserDoesNot(): void
+    public function testEachPlanSeesItsAllowanceCounterAndAKeyRemovesIt(): void
     {
         $client = static::createClient();
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -279,12 +284,58 @@ final class MealLogPathsTest extends WebTestCase
         $crawler = $client->request('GET', '/meal/log');
         self::assertStringContainsString('10 of 10 free AI analyses left this month', $crawler->html());
 
-        $paid = $this->seedUser($em, 'paid@test.local');
-        $paid->setCompTier(SubscriptionTier::LoopPlus);
+        $loop = $this->seedUser($em, 'loop@test.local');
+        $loop->setCompTier(SubscriptionTier::Loop);
         $em->flush();
-        $client->loginUser($paid);
+        $client->loginUser($loop);
         $crawler = $client->request('GET', '/meal/log');
-        self::assertStringNotContainsString('free AI analyses left', $crawler->html());
+        self::assertStringContainsString('10 of 10 AI analyses left until you add your AI key', $crawler->html());
+
+        $plus = $this->seedUser($em, 'plus@test.local');
+        $plus->setCompTier(SubscriptionTier::LoopPlus);
+        $em->flush();
+        $client->loginUser($plus);
+        $crawler = $client->request('GET', '/meal/log');
+        self::assertStringContainsString('120 of 120 included AI analyses left this month', $crawler->html());
+
+        // A paid user's own key lifts the cap: no counter at all.
+        $settings = new UserAiSettings($plus, UserAiProvider::Anthropic);
+        $settings->setEncryptedKey('not-a-real-ciphertext', 'abcd');
+        $em->persist($settings);
+        $em->flush();
+        $crawler = $client->request('GET', '/meal/log');
+        self::assertSame(0, $crawler->filter('#allowance-counter')->count());
+    }
+
+    /**
+     * Re-logging a favorite is a copy, not an AI call: it must not spend an analysis,
+     * even after the favorite is deleted (its link is SET NULL; the flag stays).
+     * Copilot catch on #247 — Loop+ would otherwise lose paid credits to re-logs.
+     */
+    public function testFavoriteReLogsDoNotSpendTheAllowance(): void
+    {
+        static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $this->truncateAll($em);
+        $user = $this->seedUser($em, 'relogger@test.local');
+
+        $favorite = (new Favorite())->setUser($user)->setName('Oatmeal')->setNutrients(['calories' => 300]);
+        $em->persist($favorite);
+        $em->flush();
+        $manager = static::getContainer()->get(FavoriteManager::class);
+        for ($i = 0; $i < 3; $i++) {
+            $em->persist($manager->buildEntry($favorite, 1.0, MealType::Breakfast, null));
+        }
+        $em->flush();
+
+        $allowance = static::getContainer()->get(AnalysisAllowance::class);
+        self::assertSame(AnalysisAllowance::FREE_MONTHLY_LIMIT, $allowance->remaining($user));
+
+        $em->remove($favorite);
+        $em->flush();
+        $em->clear();
+        $user = $em->getRepository(User::class)->find($user->getId());
+        self::assertSame(AnalysisAllowance::FREE_MONTHLY_LIMIT, $allowance->remaining($user));
     }
 
     /**

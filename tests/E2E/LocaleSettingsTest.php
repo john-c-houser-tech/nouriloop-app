@@ -125,9 +125,9 @@ final class LocaleSettingsTest extends WebTestCase
         $this->truncateAll($em);
         $user = $this->seedUser($em, 'locale@test.local');
         $user->setLocale(SupportedLocale::Spanish);
-        // SMS controls only render for sms_digest users (goal tiering) — this test
-        // is about the FormError's locale, so make the user entitled via a comp.
-        $user->setCompTier(SubscriptionTier::Loop);
+        // SMS controls only render for `sms` users (Loop+) — this test is about
+        // the FormError's locale, so make the user entitled via a comp.
+        $user->setCompTier(SubscriptionTier::LoopPlus);
         $em->flush();
         $client->loginUser($user);
 
@@ -603,19 +603,19 @@ final class LocaleSettingsTest extends WebTestCase
         $em->flush();
         $client->loginUser($user);
 
-        // Free user: glucose insights shows the Spanish Loop+ lock.
+        // Free user: glucose insights shows the Spanish paid-plan lock.
         $crawler = $client->request('GET', '/insights/glucose');
         self::assertResponseIsSuccessful();
         $body = $crawler->filter('body')->text();
         self::assertStringContainsString('Correlación de glucosa (MCG)', $body);
-        self::assertStringContainsString('Mejorar a Loop+', $body);
+        self::assertStringContainsString('Es parte de los planes de pago.', $body);
 
         // Free user hitting Predict: redirected to pricing with the Spanish gate flash.
         $client->request('GET', '/insights/predict');
         self::assertResponseRedirects('/pricing');
         $crawler = $client->followRedirect();
         self::assertStringContainsString(
-            'es una función de Loop+',
+            'es parte de los planes de pago',
             $crawler->filter('body')->text(),
         );
 

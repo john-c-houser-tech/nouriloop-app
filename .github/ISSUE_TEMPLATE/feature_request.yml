@@ -1,0 +1,33 @@
+name: Feature request
+description: An idea for something the app could do, or do better.
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        NouriLoop has one maintainer, so not every idea can be built, but every one is read.
+        If you'd like to build it yourself, say so below and see CONTRIBUTING.md.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem or need, in your own words, before any solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: How you imagine it working.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything you've tried instead?
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Building it
+      options:
+        - label: I'd like to work on this myself.

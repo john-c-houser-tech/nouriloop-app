@@ -37,12 +37,14 @@ class LandingPageController extends AbstractController
         'weight-loss'  => 'lp.weight_loss.seo_description',
     ];
 
-    #[Route('/lp/{slug}', name: 'app_landing_page', methods: ['GET'])]
+    // NouriLoop's ad landing pages: hosted only (configurable branding, PR 6b).
+    #[Route('/lp/{slug}', name: 'app_landing_page', methods: ['GET'], condition: "service('hosting').isHosted()")]
     #[Route(
         '/{_locale}/lp/{slug}',
         name: 'app_landing_page_i18n',
         requirements: ['_locale' => SupportedLocale::URL_PREFIX_REQUIREMENT],
         methods: ['GET'],
+        condition: "service('hosting').isHosted()",
     )]
     public function show(string $slug, TranslatorInterface $translator): Response
     {

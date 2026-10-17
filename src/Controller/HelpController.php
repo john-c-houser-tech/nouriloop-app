@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Hosting\Brand;
 use App\Service\HelpAssistantService;
 use App\Twig\TextExtension;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -82,11 +83,26 @@ class HelpController extends AbstractController
         ],
     ];
 
+    /**
+     * TOPICS with the instance's name in place of "NouriLoop" in each summary (configurable
+     * branding, PR 6b). Everything user-facing reads summaries through this: the help pages,
+     * the help assistant and the help pages' structured data.
+     *
+     * @return array<string, array{title: string, summary: string}>
+     */
+    public static function topicsFor(string $appName): array
+    {
+        return array_map(
+            static fn(array $t): array => ['summary' => str_replace(Brand::NOURILOOP, $appName, $t['summary'])] + $t,
+            self::TOPICS,
+        );
+    }
+
     #[Route('', name: 'app_help')]
-    public function index(): Response
+    public function index(Brand $brand): Response
     {
         return $this->render('help/index.html.twig', [
-            'topics' => self::TOPICS,
+            'topics' => self::topicsFor($brand->name()),
             'seo_description' => 'Learn how to log meals, track supplements, read your inflammation score, '
                 . 'connect a CGM, and more.',
         ]);
@@ -142,18 +158,19 @@ class HelpController extends AbstractController
     }
 
     #[Route('/{topic}', name: 'app_help_show', requirements: ['topic' => '[a-z-]+'])]
-    public function show(string $topic): Response
+    public function show(string $topic, Brand $brand): Response
     {
         if (!isset(self::TOPICS[$topic])) {
             throw $this->createNotFoundException('Unknown help topic.');
         }
+        $meta = self::topicsFor($brand->name())[$topic];
 
         return $this->render('help/' . $topic . '.html.twig', [
             'topic' => $topic,
-            'meta'  => self::TOPICS[$topic],
+            'meta'  => $meta,
             // The topic's summary doubles as its meta description (DRY — TOPICS is the
             // single source of truth for both the page and its SEO copy).
-            'seo_description' => self::TOPICS[$topic]['summary'],
+            'seo_description' => $meta['summary'],
         ]);
     }
 }

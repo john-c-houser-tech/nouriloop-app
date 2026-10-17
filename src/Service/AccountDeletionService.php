@@ -73,6 +73,9 @@ class AccountDeletionService
             // account" keeps them. api_token.user_id has no ON DELETE, so a
             // leftover token blocks the `user` delete and rolls back the purge.
             $conn->executeStatement('DELETE FROM api_token WHERE user_id = ?', [$userId]);
+            // Top-ups are paid billing records, so "start fresh" keeps them (like the
+            // subscription); only the full purge removes them.
+            $conn->executeStatement('DELETE FROM allowance_top_up WHERE user_id = ?', [$userId]);
             $conn->executeStatement('DELETE FROM `user` WHERE id = ?', [$userId]);
         });
         $this->unlinkFiles($files);

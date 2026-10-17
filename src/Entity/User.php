@@ -192,6 +192,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $trialEndsAt = null;
 
+    // When a cancellation scheduled in the portal takes effect (Stripe's cancel_at, or
+    // the period end for cancel_at_period_end); null when nothing is scheduled. Shown on
+    // Settings ▸ Subscription so a user who canceled sees the plan's end date.
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $subscriptionCancelAt = null;
+
     // Complimentary entitlement, independent of Stripe billing — used to
     // grandfather beta testers. When set (and not past compExpiresAt), it overrides
     // the Stripe tier in SubscriptionService::effectiveTier. compExpiresAt null =
@@ -714,6 +720,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTrialEndsAt(?\DateTimeImmutable $trialEndsAt): static
     {
         $this->trialEndsAt = $trialEndsAt;
+
+        return $this;
+    }
+
+    public function getSubscriptionCancelAt(): ?\DateTimeImmutable
+    {
+        return $this->subscriptionCancelAt;
+    }
+
+    public function setSubscriptionCancelAt(?\DateTimeImmutable $subscriptionCancelAt): static
+    {
+        $this->subscriptionCancelAt = $subscriptionCancelAt;
 
         return $this;
     }

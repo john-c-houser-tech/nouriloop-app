@@ -1,25 +1,30 @@
 # Security Policy
 
-NouriLoop is a hosted nutrition-tracking service at **https://nouriloop.com**. It
-handles food logs, health metrics, and account data for real users, and it takes
-payments through Stripe. Reports about any of that are welcome and taken seriously.
+NouriLoop is a nutrition-tracking app. NouriLoop LLC runs it as a hosted service at
+**https://nouriloop.com**, where it handles food logs, health metrics, and account data
+for real users and takes payments through Stripe. It is also open-source software that
+anyone can run themselves. Reports about the hosted service or the software are welcome
+and taken seriously.
 
 ## Supported Versions
 
-NouriLoop is **a hosted service first.** The source is public, but there is one
-supported production instance, self-hosted copies aren't supported, and there are no
-maintenance branches.
-So the usual version-support matrix doesn't apply — there is only ever one version
-running, and security fixes reach users by deploying forward, never by backporting.
+There are no maintenance branches. Security fixes go forward into the next release,
+never back into an old one.
 
 | Version | Supported |
 | ------- | ------------------ |
 | The release currently deployed to nouriloop.com | :white_check_mark: |
-| Any earlier tag | :x: |
+| The latest release, on a self-hosted copy | :white_check_mark: |
+| Any earlier release | :x: |
 
-The deployed release is shown in the footer of the site. Earlier tags are history,
-not supported artifacts: if you are running one, you are running your own copy, and
-nothing here covers it.
+The deployed release is shown in the footer of the site. If you run your own copy,
+updating to the latest release is how you get security fixes
+([docs/self-hosting.md](docs/self-hosting.md) says how).
+
+**A self-hosted copy is run by its operator, not by NouriLoop LLC.** A flaw in the
+NouriLoop software is in scope wherever you found it; report it here. A problem with
+one particular copy (its server, its settings, its data) goes to that copy's operator,
+whose address is in the copy's `/.well-known/security.txt`.
 
 ## Reporting a Vulnerability
 
@@ -61,8 +66,9 @@ inferred from this policy. Reports are still genuinely appreciated.
 
 **In scope:** `nouriloop.com` and its subdomains, the web application, its
 authentication and session handling (including magic-link sign-in and password
-reset), the billing and subscription flows, and any exposure of one user's data to
-another.
+reset), the billing and subscription flows, any exposure of one user's data to
+another, and the self-hosting package (the Docker image, the Compose stack and its
+default settings).
 
 **Out of scope:**
 
@@ -83,6 +89,9 @@ another.
 responsible testing looks like:
 
 - Test against **your own account only**. Registration is open and free — make one.
+  Better still, test against your own self-hosted copy, where there's no one else's data
+  to reach.
+- Never test against someone else's self-hosted copy without its operator's permission.
 - **Do not access, modify, download, or retain another user's data.** If you access
   someone else's data by accident, stop immediately, don't save it, and tell us what
   you saw in your report.
@@ -98,11 +107,10 @@ other users' data — is a different conversation.
 
 ## ⚠️ Note on where this file is reachable
 
-NouriLoop is developed in a private repository. Since 2026-10-11 this file is also
-published in the public source mirror,
-[john-c-houser-tech/nouriloop-app](https://github.com/john-c-houser-tech/nouriloop-app),
-which is refreshed occasionally. A researcher probing the site has no reason to go
-looking for either, though.
+NouriLoop's source, this file included, is public at
+[john-c-houser-tech/nouriloop-app](https://github.com/john-c-houser-tech/nouriloop-app)
+and ships with every copy, self-hosted ones too. A researcher probing the site has no
+reason to go looking there, though.
 
 This file therefore documents the process, but it is **not** the main way for an
 outside researcher to find out how to reach us.

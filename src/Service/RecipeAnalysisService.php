@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Dto\RecipeAnalysis;
 use App\Entity\NutritionData;
 use App\Entity\User;
@@ -101,7 +103,7 @@ all minerals in mg except selenium (mcg).
 PROMPT;
 
     public function __construct(
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly AnalysisAllowance $allowance,
         private readonly LocalePromptBuilder $localePrompt,
     ) {
@@ -125,7 +127,13 @@ PROMPT;
             }
 
             $prompt = $this->buildPrompt($user, $context);
-            $reply = $this->claude->completeWithImages($prompt, $paths, self::MAX_TOKENS);
+            $reply = $this->ai->completeWithImages(
+                AiFeature::RecipeAnalysis,
+                $user,
+                $prompt,
+                $paths,
+                self::MAX_TOKENS,
+            );
             $data = $reply->json();
 
             $servings = $data['servings'] ?? null;

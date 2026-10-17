@@ -2,6 +2,11 @@
 # plural/select syntax for anything countable. Keys are dot-nested by module;
 # nested YAML flattens to dotted keys ('settings.language.title').
 #
+# The app's own name is {app_name}, never a literal "NouriLoop": it is a translator
+# global (NouriLoop on the hosted service, the operator's name on a self-hosted
+# copy). Only the hosted-only lp/about/pricing_page sections name NouriLoop.
+# Quote a value that starts with {app_name} (a bare { opens a YAML mapping).
+#
 # Sentences with embedded links use ICU placeholders for the markup
 # ({terms_link}…{link_end}) rendered with |raw — values are trusted catalog
 # text, and this lets a translator reorder the sentence around the link.
@@ -30,6 +35,8 @@ chrome:
         admin_users: Users
         admin_favorites: Favorite savings
         logout: Logout
+    badge:
+        paid: Paid plans
     bell:
         aria: Notifications
         unread_sr: unread notifications
@@ -39,14 +46,16 @@ chrome:
         see_all: See all notifications
     help_button:
         title: Help — ask a question
-        aria: Open NouriLoop help
+        aria: Open {app_name} help
     footer:
+        runs_on: "Runs on {software}, open-source software"
+        source: "Source code"
         feedback: Send us feedback
     deletion_banner:
         text: Your account will be permanently deleted on {date}.
         cancel: Cancel deletion
     tz_banner:
-        text: Times in NouriLoop use {account}, but your device looks like it is in {browser}.
+        text: Times in {app_name} use {account}, but your device looks like it is in {browser}.
         switch: Use my device's timezone
         dismiss: Keep current
     verify_banner:
@@ -58,7 +67,7 @@ chrome:
         aria: Cookie consent
         text: >-
             We use Google Analytics and the Meta Pixel to see how people find
-            and use NouriLoop. Their cookies stay off unless you accept, and
+            and use {app_name}. Their cookies stay off unless you accept, and
             your meals and health data never go to them. See our
             {link}Terms{link_end}.
         decline: Decline
@@ -81,7 +90,7 @@ auth:
             Snap a photo of your meal. We analyze it. See how it lines up with
             your nutrition, inflammation score, blood glucose, and sleep.
         hero_cycle_alt: >-
-            The NouriLoop cycle: log your meal, we analyze it, you see the
+            The {app_name} cycle: log your meal, we analyze it, you see the
             patterns, then repeat.
         hero_log: Log
         hero_analyze: Analyze
@@ -92,10 +101,10 @@ auth:
         forgot: Forgot password?
         submit: Sign In
         magic_link: Email me a sign-in link
-        new_here: New to NouriLoop?
+        new_here: New to {app_name}?
         sign_up: Sign up for a free account
         no_card: No credit card needed.
-        learn_more: Learn more about NouriLoop
+        learn_more: Learn more about {app_name}
     register:
         title: Create Account
         subtitle: Create your account
@@ -115,7 +124,7 @@ auth:
             Service{link_end}. Our {privacy_link}Health Data Privacy
             Notice{link_end} explains how we handle your data.
         success: Account created! Please log in.
-        welcome: Welcome to NouriLoop! Your account is ready.
+        welcome: Welcome to {app_name}! Your account is ready.
         have_coupon: Have a coupon?
         pw_length_ok: At least 8 characters
         pw_length_short: Needs at least 8 characters
@@ -157,7 +166,7 @@ auth:
             password to remember or type. The link works for 15 minutes.
         email: Email
         submit: Email me a sign-in link
-        new_here: New to NouriLoop?
+        new_here: New to {app_name}?
         create_account: Create your account
         sent_title: Check Your Email
         sent_heading: Check your email
@@ -182,7 +191,7 @@ dashboard:
     ghost:
         preview: "Preview"
         inflammation_text: >-
-            Log a few meals and NouriLoop scores how inflammatory your day's
+            Log a few meals and {app_name} scores how inflammatory your day's
             food was — this card fills in on its own.
         glucose_text: >-
             Wear a glucose sensor (Lingo or Stelo)? Connect it and every meal
@@ -359,7 +368,7 @@ goal:
         heading: Nutrition Goals
         new: New goal
         lead: >-
-            Set a measurable goal and NouriLoop will check your logged meals
+            Set a measurable goal and {app_name} will check your logged meals
             against it on a schedule, sending you a progress note. This is
             wellness feedback, not medical advice.
         empty: You haven't set any goals yet.
@@ -397,8 +406,8 @@ goal:
         rate_limited: "You've sent a lot of messages in the last hour. Please try again a little later."
         no_proposal: There is no goal to confirm yet — keep chatting until I propose one.
         daily_note: >-
-            Daily check-ins are part of Loop+, so this goal will check in
-            weekly. {link}See plans{link_end}.
+            Daily check-ins are part of the paid plans, so this goal will
+            check in weekly. {link}See plans{link_end}.
     starter:
         heading: Quick start
         lead: The most common aims, one tap each — pick one and it's set.
@@ -439,7 +448,7 @@ goal:
         schedule: Check-in schedule
         frequency: Frequency
         daily_locked: >-
-            Daily check-ins are part of Loop+ — {link}see plans{link_end}.
+            Daily check-ins are part of the paid plans — {link}see plans{link_end}.
         day: Day
         time: Time
         hour_aria: Hour
@@ -471,7 +480,7 @@ goal:
         output: 'Output:'
         channel: 'Channel:'
         channel_val: via your {link}notification channel setting{link_end}
-        channel_inapp: in-app (the bell and this page) — email/SMS delivery comes with Loop+
+        channel_inapp: in-app (the bell and this page) — email delivery comes with a paid plan
         allowance: '{used} of {limit} included check-ins used.'
         allowance_link: Upgrade for unlimited check-ins.
         paused_allowance_heading: Check-ins paused
@@ -490,7 +499,7 @@ goal:
         prompt_heading: Evaluation prompt
         prompt_advanced: (advanced)
         prompt_note: >-
-            This is the prompt NouriLoop sends to Claude on each check-in. The
+            This is the prompt {app_name} sends to Claude on each check-in. The
             progress numbers are computed in the app and inserted via the
             {placeholders}; you can reword the rest.
         prompt_save: Save prompt
@@ -516,13 +525,13 @@ goal:
             keep weekly check-ins coming.
         daily_to_weekly_title: “{name}” now checks in weekly
         daily_to_weekly_body: >-
-            Daily check-ins are part of Loop+, so this goal now checks in
-            weekly. Everything else is unchanged.
+            Daily check-ins are part of the paid plans, so this goal now
+            checks in weekly. Everything else is unchanged.
 cgm:
     title: Connect Your CGM
     heading: Connect Your Lingo or Stelo
     lead: >-
-        A one-time setup that sends your glucose readings to NouriLoop
+        A one-time setup that sends your glucose readings to {app_name}
         automatically, so every meal you log gets its own blood-sugar
         response curve.
     need_heading: What you'll need
@@ -537,7 +546,7 @@ cgm:
         Premium).</li>
     need_note: >-
         Before you start: open the Health app and confirm you can see recent
-        glucose readings there. If Health has no readings, NouriLoop can't
+        glucose readings there. If Health has no readings, {app_name} can't
         receive any either — check your sensor's own app first.
     step1_heading: Install "Health Auto Export"
     step1_install: >-
@@ -548,15 +557,15 @@ cgm:
     step1_permissions: >-
         When you first open it, it asks for permission to read your Health
         data. Tapping <strong>Turn On All</strong> is easiest — but you're in
-        control: if you prefer, turn on only what you want NouriLoop to see.
+        control: if you prefer, turn on only what you want {app_name} to see.
         <strong>Blood Glucose</strong> is the one this setup needs;
         <strong>Weight, Steps, Sleep, Heart Rate, and Blood Pressure</strong>
         are also put to good use in your charts and trends.
     permissions_alt: Health access prompt with Blood Glucose enabled
-    step2_heading: Create your NouriLoop access token
+    step2_heading: Create your {app_name} access token
     step2_lead: >-
         The token is like a special password that lets the helper app — and
-        only it — send health data to your NouriLoop account.
+        only it — send health data to your {app_name} account.
     token_reveal: Your new token — you'll paste it in Step 3
     copy: Copy
     copied: Copied
@@ -585,22 +594,22 @@ cgm:
     row_data_type: Data type
     data_type_body: >-
         <strong>Health Metrics</strong>, then under "Select Health Metrics"
-        tapping <strong>Select All</strong> is easiest — NouriLoop charts
+        tapping <strong>Select All</strong> is easiest — {app_name} charts
         glucose, weight, steps, sleep, heart rate, and blood pressure, and
         simply ignores anything else. Prefer to share less? Select only
         <strong>Blood Glucose</strong> (the one this setup needs) plus
-        whichever of the others you want NouriLoop to see.
+        whichever of the others you want {app_name} to see.
     row_cadence: Sync cadence
     cadence_body: >-
         Once a <strong>day</strong> is plenty — each morning's sync brings
         yesterday's curves. Prefer same-day curves? A faster cadence (say,
-        hourly) is fine too; NouriLoop ignores readings it already has.
+        hourly) is fine too; {app_name} ignores readings it already has.
     summarize_warning: >-
         <strong>One setting matters more than any other:</strong> in Export
         Settings, turn <strong>Summarize Data off</strong>. When it's on, the
         app sends daily summaries instead of your actual readings — they
         still import, but a whole day collapses into a single number, and
-        NouriLoop needs the ~5-minute readings to draw your meal curves. The
+        {app_name} needs the ~5-minute readings to draw your meal curves. The
         rest are fine as they come (Export Format <code>JSON</code>, Export
         Version v2, Date Range Default); turning <strong>Batch Requests
         on</strong> is a good idea — it splits a big first export into
@@ -619,7 +628,7 @@ cgm:
     noscript: (JavaScript is off in this browser — refresh the page to update.)
     rung_token: Token created
     rung_token_sub: Step 2 — your access token exists.
-    rung_phone: Your phone reached NouriLoop
+    rung_phone: Your phone reached {app_name}
     rung_phone_sub: The token was used recently — the automation connected.
     rung_arrived: Glucose readings arrived
     rung_arrived_sub: >-
@@ -661,8 +670,8 @@ cgm:
         {link}Open Glucose Insights{link_end} to see which meals move your
         blood sugar most (and least).
     upsell: >-
-        <strong>Your glucose is flowing — Loop+ puts it to work.</strong>
-        Loop+ correlates every meal you log with your readings: per-meal
+        <strong>Your glucose is flowing — a paid plan puts it to work.</strong>
+        Paid plans correlate every meal you log with your readings: per-meal
         response curves, biggest-riser and gentlest-meal rankings, and more.
         {link}See plans{link_end}
 glucose_page:
@@ -673,8 +682,8 @@ glucose_page:
     locked_lead: >-
         Connect your continuous glucose data to see which meals raised your
         glucose the most and least, and which spiked more than their nutrition
-        predicted. This is a Loop+ feature.
-    upgrade: Upgrade to Loop+
+        predicted. This is part of the paid plans.
+    upgrade: See plans
     not_connected: >-
         Haven't connected your sensor yet? {link}The guided setup{link_end}
         takes about 10 minutes.
@@ -753,13 +762,13 @@ predict:
     step2: 2. Projection results
     qualitative: >-
         This projection is a qualitative AI estimate based on your scenario
-        description, not a computed result from NouriLoop's scoring engine.
+        description, not a computed result from {app_name}'s scoring engine.
     col_dimension: Dimension
     col_current: Current (30-day avg)
     col_projected: Projected
     col_change: Change
     means: What this means
-    loop_plus_only: Predict "What If" is a Loop+ feature. Upgrade to access it.
+    loop_plus_only: Predict "What If" is part of the paid plans. Upgrade to access it.
     rate_limited: You've reached the projection limit for now — please try again later.
     err_type: Please select a scenario type.
     err_window: Please select a valid projection window (1, 2, or 4 weeks).
@@ -780,7 +789,7 @@ predict:
     note:
         computed: >-
             Inflammation and nutrition projections are computed from
-            NouriLoop's scoring engine over your last 30 days; weight uses a
+            {app_name}'s scoring engine over your last 30 days; weight uses a
             standard energy-balance estimate. Educational estimates, not
             medical advice.
         gaps: >-
@@ -891,7 +900,7 @@ health:
         auto_detect: Auto-detect
         json_app_hint: Leave on auto-detect unless the format isn't recognized.
         agree: >-
-            By importing, you agree to how NouriLoop handles your health data
+            By importing, you agree to how {app_name} handles your health data
             — see our {link}Health Data Privacy Notice{link_end}.
         submit: Import
         tab_apple: Apple Health XML
@@ -937,7 +946,7 @@ health:
             steps and sleep.</li>
         json_note: >-
             Each app's own units are honored (e.g. lb→kg, mmol/L→mg/dL).
-            Types NouriLoop doesn't track (calories, BMI, VO₂max, dietary
+            Types {app_name} doesn't track (calories, BMI, VO₂max, dietary
             totals, workouts, etc.) are skipped. For automated daily syncing,
             point the <code>scripts/apple-health-sync.php</code> script at
             the exported <code>.json</code> file (or its folder) with an
@@ -1081,7 +1090,7 @@ supp_suggestion:
         supplement.
 delivery:
     digest:
-        subject: NouriLoop — a few things worth a look
+        subject: "{app_name} — a few things worth a look"
         hi: 'Hi {name}, here''s what''s worth a look:'
         no_meals_title: No meals logged today
         no_meals_body: >-
@@ -1138,7 +1147,7 @@ delivery:
         supplements: >-
             {count, plural, one {# nutrient low this week} other {# nutrients
             low this week}}
-        wrapper: 'NouriLoop: {body}. See the app.'
+        wrapper: '{app_name}: {body}. See the app.'
     checkin:
         subject: 'Goal check-in: {name}'
         hi: 'Hi {name}, here''s your check-in for <strong>{goal}</strong>.'
@@ -1147,26 +1156,26 @@ delivery:
         view: View this goal
         footer: >-
             This is wellness feedback, not medical advice. You're receiving it
-            because you set up a goal check-in on NouriLoop — you can pause or
+            because you set up a goal check-in on {app_name} — you can pause or
             delete the goal anytime from its page.
         inapp_title: '{goal} — {status}'
-        sms: 'NouriLoop goal "{name}": {status}. See the app for details.'
+        sms: '{app_name} goal "{name}": {status}. See the app for details.'
     email:
         hi: 'Hi {name},'
         change_lead: >-
-            You asked to switch your NouriLoop sign-in email to this address.
+            You asked to switch your {app_name} sign-in email to this address.
             Click the button to confirm the change.
         change_cta: Confirm new email
         change_note: >-
             If you didn't request this, you can ignore this message — nothing
             changes until the button is clicked. The link works for 24 hours.
         changed_notice: >-
-            The sign-in email for your NouriLoop account was just changed to
+            The sign-in email for your {app_name} account was just changed to
             {new}. If this was you, no action is needed. If it wasn't, contact
             info@nouriloop.com right away.
-        team: — The NouriLoop team
-        link_lead: Tap the button below to sign in to NouriLoop — no password needed.
-        link_cta: Sign in to NouriLoop
+        team: — The {app_name} team
+        link_lead: Tap the button below to sign in to {app_name} — no password needed.
+        link_cta: Sign in to {app_name}
         link_expiry: >-
             This link works once and expires in {minutes, plural, one {#
             minute} other {# minutes}}. If it has expired, just request a new
@@ -1186,11 +1195,11 @@ delivery:
         reset_expiry: This link will expire in {duration}.
         reset_bye: Cheers!
     transactional:
-        login_link_subject: Your NouriLoop sign-in link
-        verify_subject: Confirm your NouriLoop email
+        login_link_subject: Your {app_name} sign-in link
+        verify_subject: Confirm your {app_name} email
         reset_subject: Your password reset request
-        email_change_subject: Confirm your new NouriLoop email
-        email_changed_subject: Your NouriLoop sign-in email was changed
+        email_change_subject: Confirm your new {app_name} email
+        email_changed_subject: Your {app_name} sign-in email was changed
 help_assistant:
     fallback_none: >-
         I couldn't find a close match. Browse the help topics below, or try
@@ -1232,7 +1241,7 @@ help_assistant:
 inbox:
     title: Notifications
     empty: No notifications yet.
-    empty_sub: Goal check-ins and reminders from NouriLoop will show up here.
+    empty_sub: Goal check-ins and reminders from {app_name} will show up here.
     new: New
     gone: That item is no longer available.
 favorite:
@@ -1413,8 +1422,14 @@ meal:
         analyzing: Analyzing your meal with AI… this takes a few seconds.
         analyzing_btn: Analyzing…
         limit_reached: >-
-            You've used your 10 free analyses this month. Upgrade to Loop for
-            unlimited photos.
+            You've used your {limit} free AI analyses this month. A paid plan
+            gives you more.
+        limit_reached_key_pending: >-
+            You've used the {limit} AI analyses Loop includes before you add
+            your own AI key. Add your key to keep going.
+        limit_reached_included: >-
+            You've used all {limit} of this month's AI analyses. Add more now,
+            wait for next month, or use your own AI key.
         analyze_failed: We couldn't analyze that photo. Please try again in a moment.
         reanalyze_failed: We couldn't re-analyze that. Please try again in a moment.
         retry_lead: Your photo is saved — no need to upload it again.
@@ -1427,13 +1442,18 @@ meal:
         describe_toggle: No photo? Describe your meal instead
         describe_hint: The AI estimates nutrition from your words — you'll review and adjust before saving.
         allowance_left: '{remaining, plural, one {# of {limit} free AI analyses left this month} other {# of {limit} free AI analyses left this month}}'
-        allowance_upgrade: Upgrade for unlimited
+        allowance_upgrade: See plans
+        allowance_left_key_pending: '{remaining, plural, one {# of {limit} AI analyses left until you add your AI key} other {# of {limit} AI analyses left until you add your AI key}}'
+        allowance_add_key: Add your AI key
+        allowance_left_included: '{remaining, plural, one {# of {limit} included AI analyses left this month} other {# of {limit} included AI analyses left this month}}'
+        allowance_more: Get more analyses
         session_expired: Your session expired — please review and submit again.
         saved: Meal logged.
         saved_portions: Meal logged ({count} servings).
         deleted: Meal deleted.
         favorite_saved: Saved “{name}” to your favorites.
     clarify:
+        photo_model_failed: "Your photo model didn't pass {app_name}'s photo check, so these estimates may be off. {link}See the results{link_end}"
         title: Clarify Meal
         heading: Confirm & Refine
         round: Round {round}
@@ -1464,7 +1484,7 @@ meal:
         add_ingredient: Add ingredient
         amounts_note: >-
             Amounts are <strong>optional</strong> — packaged labels don't list
-            them. NouriLoop links these ingredient <em>names</em> to your
+            them. {app_name} links these ingredient <em>names</em> to your
             symptoms and inflammation score, and the nutrition above comes
             straight from the label.
         questions_heading: 'Additional questions:'
@@ -1510,13 +1530,13 @@ meal:
         save_anyway: Save to log anyway
     show:
         first_meal_text_backdated: >-
-            NouriLoop read its nutrition for you — no manual entry. It's saved
+            {app_name} read its nutrition for you — no manual entry. It's saved
             under its own date, and your next setup step is waiting on the
             dashboard.
         first_meal_cta_backdated: "Go to the dashboard"
         first_meal_strong: "That's your first meal logged! 🎉"
         first_meal_text: >-
-            NouriLoop read its nutrition for you — no manual entry. Your
+            {app_name} read its nutrition for you — no manual entry. Your
             dashboard now scores today's food, and your next setup step is
             waiting there.
         first_meal_cta: "See today's score"
@@ -1604,10 +1624,10 @@ meal:
             chart_baseline: Baseline
         locked:
             lead: >-
-                You have glucose data around this meal. Upgrade to Loop+ to see
-                the response curve, peak, and how the measured rise compares to
-                this meal's nutrition.
-            upgrade: Upgrade to Loop+
+                You have glucose data around this meal. Upgrade to a paid plan to
+                see the response curve, peak, and how the measured rise compares
+                to this meal's nutrition.
+            upgrade: See plans
 confidence:
     high: High
     medium: Medium
@@ -1746,7 +1766,7 @@ trends:
         heading: Possible nausea triggers
         insufficient: >-
             Keep logging nausea check-ins — once you have a few more days
-            ({days, plural, one {# so far} other {# so far}}), NouriLoop can
+            ({days, plural, one {# so far} other {# so far}}), {app_name} can
             flag which foods tend to show up on your higher-nausea days.
         none: >-
             No foods stood out as linked to higher nausea across your {days,
@@ -1986,7 +2006,7 @@ inflammation:
         lentil: Lentil
         chickpea: Chickpea
 onboarding:
-    aria: Getting started with NouriLoop
+    aria: Getting started with {app_name}
     title: Get set up
     bonus_left: One optional bonus step
     steps_left: '{count} of 3 quick steps left'
@@ -1998,11 +2018,11 @@ onboarding:
     meal:
         heading: Log your first meal
         lead: >-
-            Snap a photo of a meal — NouriLoop reads the nutrition for you, no
+            Snap a photo of a meal — {app_name} reads the nutrition for you, no
             manual entry. It's the core of everything else here.
         cta: Take a photo
         desktop_lead: >-
-            On a computer? Just type what you ate — NouriLoop reads the nutrition
+            On a computer? Just type what you ate — {app_name} reads the nutrition
             from your description, no photo needed. It's the core of everything
             else here.
         desktop_cta: Describe a meal in words
@@ -2010,7 +2030,7 @@ onboarding:
     goal:
         heading: Set a nutrition goal
         lead: >-
-            Pick a one-tap starter goal — NouriLoop checks your logged meals
+            Pick a one-tap starter goal — {app_name} checks your logged meals
             against it each week and sends a friendly progress note.
         custom: Prefer your own? Chat with the AI or set it up manually
     notifications:
@@ -2047,6 +2067,7 @@ settings:
     index:
         title: Settings
         lead: Manage your preferences, notifications, security, billing, and account.
+        lead_self_hosted: "Manage your preferences, notifications, security, and account."
     category:
         preferences: Preferences
         notifications: Notifications
@@ -2061,6 +2082,7 @@ settings:
         tone: Voice & tone
         notifications: Notifications
         api_tokens: API tokens
+        ai: "AI provider"
         subscription: Subscription
         profile: Name & email
         account: Delete my data or account
@@ -2091,11 +2113,11 @@ settings:
         confirm_success: Your sign-in email is now {email}.
     timezone:
         title: Timezone
-        lead: NouriLoop shows times and decides what counts as “today” in your timezone.
+        lead: "{app_name} shows times and decides what counts as “today” in your timezone."
         label: Your timezone
         help: >-
             Used for your dashboard “today”, daily charts, reminders, and the
-            times shown across NouriLoop.
+            times shown across {app_name}.
         forward_note: >-
             Changing this only affects what happens going forward — past
             entries keep the date and time you logged them.
@@ -2103,7 +2125,7 @@ settings:
         saved: Timezone saved.
     units:
         title: Units
-        lead: Choose how your weight and blood glucose are displayed across NouriLoop.
+        lead: Choose how your weight and blood glucose are displayed across {app_name}.
         label: Units
         help: >-
             Controls how your weight and blood glucose readings are shown. Your
@@ -2119,7 +2141,7 @@ settings:
         lead: Tracking tailored for GLP-1 medications.
         label: Enable GLP-1 mode
         help: >-
-            Tailors NouriLoop for GLP-1 medications (e.g. Ozempic, Wegovy,
+            Tailors {app_name} for GLP-1 medications (e.g. Ozempic, Wegovy,
             Zepbound, Mounjaro): a protein-focus card on your dashboard,
             nausea-trigger insights, and small-portion guidance. Enabling this
             also turns on the Nausea and Fullness/satiety symptom check-ins,
@@ -2141,7 +2163,7 @@ settings:
         title: Voice & Tone
         heading: Voice & tone
         lead: >-
-            Tune how NouriLoop's AI coaching notes <em>sound</em> — your goal
+            Tune how {app_name}'s AI coaching notes <em>sound</em> — your goal
             check-ins, glucose Pattern Coach, and "what if" projections. Slide
             to taste. (These dials change the wording only, never the facts or
             the not-medical-advice part — we promise the robot won't diagnose
@@ -2175,16 +2197,15 @@ settings:
     notifications:
         title: Notification Settings
         heading: Notifications
-        lead: Choose how and when NouriLoop reaches you.
+        lead: Choose how and when {app_name} reaches you.
         channel: Deliver notifications via
         phone: Mobile number (for text messages)
         phone_help: Use E.164 format, e.g. +1 followed by your 10-digit number.
         phone_required: Add a mobile number to receive text messages.
         consent_required: Please agree to the SMS terms to enable text messages.
         sms_upsell: >-
-            Text (SMS) delivery is a paid feature — the daily digest by
-            text starts with Loop, and goal check-ins by email or text come
-            with Loop+. {link}See plans{link_end}.
+            Text (SMS) delivery is part of Loop+ — the daily digest and goal
+            check-ins by text. {link}See plans{link_end}.
         which: Which notices to send
         no_meals: Remind me in the evening if I haven't logged any meals that day
         stale: Remind me when I haven't logged health metrics in over a week
@@ -2199,17 +2220,79 @@ settings:
         email: Email only
         sms: Text message only
         both: Email and text
+    ai:
+        title: "AI provider"
+        lead: "{app_name}'s AI features use our AI service by default. You can use your own API key instead, from Anthropic, OpenRouter, or another service that works like OpenAI's API."
+        status_nouriloop: "Using {app_name}'s AI."
+        status_own: "Using your own key for {provider} (•••• {hint})."
+        custom_service: "a custom service"
+        status_models: "Text model: {text} · Photo model: {vision}"
+        nouriloop_chooses: "{app_name} chooses"
+        same_as_text: "same as text"
+        test: "Test connection"
+        unavailable: "Using your own AI key isn't available on this server yet."
+        provider_label: "Which AI should {app_name} use?"
+        provider:
+            nouriloop: "{app_name}'s AI (default)"
+            anthropic: "My Anthropic key"
+            openrouter: "My OpenRouter key"
+            custom: "Another service with an OpenAI-style API"
+        base_url_label: "Service address"
+        base_url_help: "The API address, starting with https://, for example https://example.com/v1. Addresses on a private network are not allowed."
+        key_label: "API key"
+        key_help: "Stored encrypted. After you save it, only its last four characters are shown."
+        key_help_keep: "Leave blank to keep the key you saved. Stored encrypted."
+        text_model_label: "Text model"
+        vision_model_label: "Photo model"
+        models_help: "Leave a model blank to let {app_name} choose. The photo model reads meal, recipe, and supplement photos, so it must accept images; left blank, it is the text model."
+        privacy_note: "With your own key, your meals, photos, and questions go to the service you choose, under its terms, instead of to the AI service {app_name} uses. {link}Health-data notice{link_end}"
+        use_nouriloop: "Use {app_name}'s AI"
+        benchmark:
+            title: "Photo model check: {model}"
+            lead: "{app_name} checks your photo model against five reference photos: three nutrition labels and two plates of food. It runs on your key and takes about five calls."
+            not_checked: "Not checked yet."
+            checking: "Checking… {done} of {total} photos done."
+            passed: "Passed. Your photo model reads labels and estimates portions well enough for {app_name}."
+            failed: "Didn't pass. Photo analysis still works, but its estimates may be off."
+            run: "Check my photo model"
+            rate_limited: "You've checked several times this hour. Please wait a while and try again."
+            error: "no usable answer"
+            no_number: "gave no number for {nutrient}"
+            miss: "{nutrient}: expected {expected} {unit}, got {got} {unit}"
+            case:
+                pizza_label: "Pizza label (one serving)"
+                protein_bar_label: "Protein bar label (photographed sideways)"
+                gumbo_label: "Gumbo label"
+                blueberries: "Bowl of blueberries"
+                lox_bagel: "Lox bagel"
+        save: "Save"
+        saved: "Your AI settings are saved."
+        removed: "{app_name}'s AI is back on. Your key has been removed."
+        test_ok: "It works: {model} answered."
+        test_rate_limited: "You've tested several times this hour. Please wait a while and try again."
+        test_rejected: "The service rejected your key. Check that it is correct and still active."
+        test_unreachable: "{app_name} couldn't reach that service. Check the address."
+        test_failed: "The test didn't work. Check your key and model names, then try again."
+        error:
+            provider: "Choose one of the options."
+            key_required: "Enter the API key for this service."
+            key_format: "That doesn't look like an API key (no spaces, at most 500 characters)."
+            url_format: "Enter the full address, starting with https://."
+            url_https: "The address must start with https://, because your key is sent with every request."
+            url_private: "Addresses on a private network or this computer are not allowed."
+            model_required: "Enter the model name this service uses."
+            model_format: "Model names can be at most 150 characters."
     api_tokens:
         title: API Tokens
         lead: >-
             Bearer tokens let a device or script send health data to
-            NouriLoop's ingestion API without your password. Setting up a
+            {app_name}'s ingestion API without your password. Setting up a
             Lingo/Stelo CGM? Use the {link}guided setup{link_end} instead — it
             creates the token for you.
         reveal: Your new token — copy it now
         copy: Copy
         reveal_warning: >-
-            This is the only time it's shown. NouriLoop stores only a hash —
+            This is the only time it's shown. {app_name} stores only a hash —
             if you lose it, revoke it and create a new one.
         new_label: New token
         new_ph: e.g. iPhone, Mac sync script
@@ -2245,12 +2328,15 @@ settings:
         current_plan: Current plan
         upgrade: Upgrade
         change_plan: Change plan
+        ends_on: "Canceled. You keep {plan} until {date}."
         manage_heading: Manage billing
         manage_text: >-
             Update your payment method, view invoices, or cancel — handled
             securely by Stripe. Access continues through the end of your
             billing period after a cancel.
         manage_btn: Manage subscription
+        allowance: '{remaining, plural, one {# of {limit} AI analyses left this month} other {# of {limit} AI analyses left this month}}'
+        allowance_link: AI analyses and top-ups
         no_billing: >-
             You don't have a billing account yet. Choose a plan on the
             {link}pricing page{link_end} to get started.
@@ -2261,7 +2347,7 @@ settings:
         scheduled_text: >-
             Your account and all its data will be permanently deleted on
             {date}. Until then your account stays fully active — you can keep
-            logging in and using NouriLoop.
+            logging in and using {app_name}.
         cancel: Cancel deletion
         fresh_heading: Start fresh
         fresh_text: >-
@@ -2296,13 +2382,43 @@ settings:
         cancel_done: Account deletion cancelled — welcome back.
     language:
         title: Language
-        lead: Choose the language NouriLoop uses with you.
+        lead: Choose the language {app_name} uses with you.
         label: Language
         help: >-
-            Translation is rolling out gradually — some parts of NouriLoop may
+            Translation is rolling out gradually — some parts of {app_name} may
             still appear in English for now.
         save: Save language
         saved: Language saved.
+# Loop+'s monthly AI analyses (/allowance, PR 7b): what's left, a one-off top-up
+# for this month, or the user's own key. In-app, so {app_name}, never the name.
+allowance_page:
+    title: AI analyses
+    heading: Your AI analyses this month
+    left: '{remaining, plural, one {# of {limit} left} other {# of {limit} left}}'
+    renews: Your analyses renew on the 1st of each month.
+    paused: >-
+        Photo and recipe analyses are paused until the 1st or until you add
+        more. Everything else keeps working — logging favorites, editing
+        meals, check-ins and the help assistant.
+    top_up_heading: Need more this month?
+    top_up_body: >-
+        Add {count} AI analyses to this month for ${price}. A one-time
+        payment, not a subscription. Unused ones don't carry over to next
+        month.
+    top_up_button: 'Add {count} analyses — ${price}'
+    own_key_heading: Or use your own AI key
+    own_key_body: >-
+        With a key from Anthropic, OpenRouter or your own server, analyses are
+        unlimited and your AI provider bills you directly for what you use.
+    own_key_link: Set up your AI key
+    flash:
+        topped_up: '{count} more AI analyses added for this month.'
+        pending: >-
+            Thanks — your payment is being confirmed. The extra analyses will
+            appear here in a moment.
+        checkout_failed: We couldn't start checkout. Please try again in a moment.
+        session_expired: Your session expired — please try again.
+
 # ── Public marketing pages (i18n Phase 4): /about, /pricing, /lp/* ──────────
 # List-item blobs are trusted HTML fragments rendered with |trans|raw (house
 # pattern — see cgm.need_items); embedded links use ICU placeholders
@@ -2330,7 +2446,7 @@ about:
         in your phone's browser, so there's nothing to install.
     create_account: Create your account
     sign_in: Sign in
-    plans: Free to start. Want Loop+? {plans_link}See plans{link_end}.
+    plans: Free to start. Want more? {plans_link}See plans{link_end}.
     disclaimer: >-
         NouriLoop is an educational wellness tool, not a medical device. Its
         scores and insights are designed to help you understand patterns in
@@ -2392,7 +2508,7 @@ about:
             only the relationships that are statistically significant in your
             own data — both same-day and next-day, since some effects
             lag.</li> <li><strong>"What if?" predictions</strong>
-            <em>(Loop+)</em> — Wondering what eating your favorite meal every
+            <em>(paid plans)</em> — Wondering what eating your favorite meal every
             day for two weeks would do? NouriLoop projects how your
             inflammation score, nutrition, weight, and symptoms would likely
             trend — computed from your own history and explained in plain
@@ -2400,7 +2516,7 @@ about:
             you use a continuous glucose monitor, NouriLoop maps each meal's
             blood-sugar response, compares it to what your meal's nutrition
             predicted, and ranks which meals spiked you most and least.</li>
-            <li><strong>AI Pattern Coach</strong> <em>(Loop+)</em> — Goes a
+            <li><strong>AI Pattern Coach</strong> <em>(paid plans)</em> — Goes a
             step further: an AI deep-dive reads your own glucose responses
             across meals — the foods, timing, and combinations behind them —
             and writes a personalized coaching summary, calling out the
@@ -2468,36 +2584,41 @@ about:
 pricing_page:
     title: Plans & Pricing
     seo_description: >-
-        Free and Loop+ plans for AI nutrition tracking, recipe
+        Free, Loop and Loop+ plans for AI nutrition tracking, recipe
         import, CGM glucose insights, and personalized goal
         check-ins.
     heading: Choose your plan
     subtitle: Close the loop between what you eat and how you feel.
-    billing_period: Billing period
-    monthly: Monthly
-    annual: Annual
-    save_badge: save up to {percent}%
-    loop_tagline: Everything you need to track and improve your nutrition.
-    loop_plus_tagline: For deeper, data-driven feedback on your body.
+    loop_descriptor: Bring your own AI key
+    loop_plus_descriptor: AI included
+    loop_tagline: >-
+        Every feature, running on an AI key you get from Anthropic,
+        OpenRouter or your own server. Your AI provider bills you for
+        what you use.
+    loop_plus_tagline: Every feature, with our AI and text messages included. Nothing to set up.
+    loop_key_note: >-
+        Until you add your key, Loop includes {photoLimit, plural, one {#
+        AI analysis} other {# AI analyses}} a month.
     per_month: /mo
-    per_year: /yr
     feature:
-        unlimited_photos: 'Unlimited photo & recipe analyses'
-        goal_checkins: Weekly goal check-ins with no limit
-        sms_reports: Text (SMS) reports
+        own_key: Unlimited AI analyses on your own key
+        checkins_email: Daily or weekly goal check-ins, delivered by email
         assistant: AI help assistant
         inflammation: Dietary inflammation score
         symptoms: Symptom check-ins
         supplements: Supplement tracking
-        everything_in_loop: '<strong>Everything in Loop</strong>, plus:'
+        everything_in_loop: '<strong>Everything in Loop</strong>, with no key to manage'
+        included_analyses: '{limit, plural, one {# AI analysis} other {# AI analyses}} a month included'
+        sms: Daily digest and goal check-ins by text (SMS)
+        own_key_later: Add your own AI key any time for unlimited analyses
+        top_up: 'Need more in a month? Add {count} for ${price}'
         cgm: Glucose response insights
         coach: AI Pattern Coach
-        daily_checkins: Daily goal check-ins, delivered by email or text
         predictive: “What if?” predictions
-    most_insight: Most insight
     current_plan: Your current plan
     get_loop: Get Loop
     get_loop_plus: Get Loop+
+    switch_plan: Switch to this plan
     free_note: >-
         Every account — including Free — gets goal setup with
         {limit, plural, one {its first # goal check-in} other {its
@@ -2584,12 +2705,12 @@ lp:
         price_body: >-
             Apps like Nutrisense and Levels charge $200+ a year and want you
             on their sensor program. NouriLoop Loop+ is
-            <strong>${price}/year</strong> and works with the
-            over-the-counter sensor you already wear.
+            <strong>${price}/month</strong> with AI included, and works with
+            the over-the-counter sensor you already wear.
         compare_them_name: Metabolic coaching apps
         compare_them_price: $200+/yr
         compare_them_sub: Proprietary sensor programs, subscription required
-        compare_us_price: ${price}/yr
+        compare_us_price: ${price}/mo
         compare_us_sub: Works with your existing Lingo or Stelo · 7-day free trial
         confidence_heading: A nutrition estimate that tells you when it's guessing
         confidence_body: >-
@@ -2606,9 +2727,10 @@ lp:
             without a $200-a-year hardware program. So he built it.
         footnote: >-
             Free to start — photo logging and glucose import are included
-            free. Per-meal glucose correlation is part of Loop+
-            (${price}/year, 7-day free trial). No credit card needed to sign
-            up.
+            free. Per-meal glucose correlation is part of both paid plans:
+            Loop+ (${price}/month, AI included) or Loop (${loop_price}/month
+            with your own AI key), each with a 7-day free trial. No credit
+            card needed to sign up.
     fiber:
         seo_description: >-
             Track fiber, vitamins, and minerals from a photo of your meal —
@@ -2675,8 +2797,8 @@ lp:
             advice actually takes.
         footnote: >-
             Free to start — your first 10 photo analyses each month are
-            included. Unlimited photo logging is part of Loop (${price}/year).
-            No credit card needed to sign up.
+            included. Unlimited photo logging is part of Loop (${price}/month
+            with your own AI key). No credit card needed to sign up.
     inflammation:
         seo_description: >-
             A daily inflammation score computed from what you actually ate,
@@ -2794,10 +2916,10 @@ lp:
             isn't.
         goal_tier_note: >-
             Goal setup is free, and every account includes its first
-            {limit} check-ins. Loop (${loop_price}/year) keeps them coming
-            weekly; Loop+ (${plus_price}/year) adds daily check-ins
-            delivered by email or text. Paid plans start with a 7-day free
-            trial.
+            {limit} check-ins. Loop (${loop_price}/month, your own AI key) and
+            Loop+ (${plus_price}/month, AI included) keep them coming daily or
+            weekly by email; Loop+ also sends them by text. Paid plans start
+            with a 7-day free trial.
         founder: >-
             <strong>Why NouriLoop exists:</strong> it was built by a
             developer in his 60s who got tired of calorie counters that
@@ -2806,10 +2928,10 @@ lp:
             guessing. So he built one.
         footnote: >-
             Free to start — your first 10 photo analyses each month and
-            your goals' first {limit} check-ins are included. Unlimited
-            photo logging and weekly check-ins are part of Loop
-            (${price}/year); daily check-ins delivered by email or text are
-            part of Loop+. No credit card needed to sign up.
+            your goals' first {limit} check-ins are included. Paid plans
+            start at ${price}/month (Loop, with your own AI key) and add
+            unlimited daily or weekly check-ins; check-ins by text are part
+            of Loop+. No credit card needed to sign up.
 
 # Recipe photo import: photograph a cookbook page / printout / handwritten
 # card, review the AI's reading, and save it as a per-serving favorite.
@@ -2827,7 +2949,7 @@ recipe:
         lead: >-
             Photograph a recipe — a cookbook page, a printed page, or a
             handwritten card. Up to {max} photos of one recipe (front and
-            back, or several pages). NouriLoop reads the ingredients and
+            back, or several pages). {app_name} reads the ingredients and
             yield, works out the nutrition per serving, and saves it as a
             favorite you can log in one tap.
         failed: >-
@@ -2857,3 +2979,12 @@ recipe:
         cancel: Cancel
         bad_servings: Enter how many servings the recipe makes (a number above zero).
         instructions: Preparation steps (kept for your reference)
+legal:
+    operator:
+        title_privacy: "Privacy"
+        title_terms: "Terms of use"
+        body_privacy: "{app_name} is run by its operator, not by NouriLoop LLC. They haven't published a privacy policy here yet, so contact them to ask how your data is handled."
+        body_terms: "{app_name} is run by its operator, not by NouriLoop LLC. They haven't published terms of use here yet."
+        contact: "Contact the operator:"
+        no_contact: "The operator hasn't published a contact address."
+        software: "{app_name} runs on {software}, open-source software. {link}Source code{link_end}"

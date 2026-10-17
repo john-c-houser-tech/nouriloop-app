@@ -123,8 +123,8 @@ final class GoalTieringTest extends WebTestCase
         $client = static::createClient();
         $em = $this->em();
 
-        // A Loop comp: unlimited weekly check-ins, but daily_checkins is Loop+.
-        $user = $this->seedUser($em, 'loop@test.local', comp: SubscriptionTier::Loop);
+        // A Free owner (e.g. a lapsed subscriber): daily_checkins is a paid feature.
+        $user = $this->seedUser($em, 'lapsed@test.local');
         $goal = $this->seedDueGoal($em, $user, GoalFrequency::Daily);
 
         $this->runCheckins();
@@ -247,12 +247,15 @@ final class GoalTieringTest extends WebTestCase
         $crawler = $client->request('GET', '/goals/new/manual');
         self::assertResponseIsSuccessful();
         self::assertSame(1, $crawler->filter('#frequency option[value="daily"][disabled]')->count());
-        self::assertStringContainsString('Daily check-ins are part of Loop+', $crawler->text());
+        self::assertStringContainsString('Daily check-ins are part of the paid plans', $crawler->text());
 
-        $plus = $this->seedUser($em, 'plus@test.local', comp: SubscriptionTier::LoopPlus);
-        $client->loginUser($plus);
-        $crawler = $client->request('GET', '/goals/new/manual');
-        self::assertSame(0, $crawler->filter('#frequency option[value="daily"][disabled]')->count());
+        // Both paid plans have daily check-ins since the tier rework.
+        foreach ([SubscriptionTier::Loop, SubscriptionTier::LoopPlus] as $tier) {
+            $paid = $this->seedUser($em, $tier->value . '@test.local', comp: $tier);
+            $client->loginUser($paid);
+            $crawler = $client->request('GET', '/goals/new/manual');
+            self::assertSame(0, $crawler->filter('#frequency option[value="daily"][disabled]')->count(), $tier->value);
+        }
     }
 
     public function testGoalFactoryCoercesDailyToWeeklyForNonEntitledUsers(): void
@@ -301,9 +304,16 @@ final class GoalTieringTest extends WebTestCase
         $free = $em->getRepository(User::class)->find($free->getId());
         self::assertSame('+15035551234', $free->getPhoneNumber(), 'an unrendered field must not clobber the phone');
 
-        // Entitled users keep the full phone + consent controls.
+        // SMS is Loop+ only (Twilio fees), so Loop sees the upsell too…
         $loop = $this->seedUser($em, 'loop@test.local', comp: SubscriptionTier::Loop);
         $client->loginUser($loop);
+        $crawler = $client->request('GET', '/settings/notifications');
+        self::assertSame(1, $crawler->filter('#sms-upsell')->count());
+        self::assertSame(0, $crawler->filter('input[type="tel"]')->count());
+
+        // …and Loop+ keeps the full phone + consent controls.
+        $plus = $this->seedUser($em, 'plus@test.local', comp: SubscriptionTier::LoopPlus);
+        $client->loginUser($plus);
         $crawler = $client->request('GET', '/settings/notifications');
         self::assertSame(0, $crawler->filter('#sms-upsell')->count());
         self::assertSame(1, $crawler->filter('input[type="tel"]')->count());
@@ -316,9 +326,9 @@ final class GoalTieringTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $body = $client->getCrawler()->text();
-        self::assertStringContainsString('Weekly goal check-ins with no limit', $body);
-        self::assertStringContainsString('Text (SMS) reports', $body);
-        self::assertStringContainsString('Daily goal check-ins, delivered by email or text', $body);
+        self::assertStringContainsString('Daily or weekly goal check-ins, delivered by email', $body);
+        self::assertStringContainsString('Daily digest and goal check-ins by text (SMS)', $body);
+        self::assertStringContainsString('Unlimited AI analyses on your own key', $body);
         // The free_note footer discloses BOTH Free allowances: the 6 lifetime
         // check-ins and the 10 monthly AI analyses (meal photos or recipe
         // imports share one bucket since the recipe import shipped).

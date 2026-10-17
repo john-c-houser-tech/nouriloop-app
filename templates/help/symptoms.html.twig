@@ -7,7 +7,7 @@
          alt="The Symptom Tracking page with a daily 0–10 slider per symptom">
 </figure>
 <p>Symptom tracking closes the loop between what you eat and how you feel. You pick the symptoms that matter to
-you, rate them daily, and NouriLoop looks for connections with your diet.</p>
+you, rate them daily, and {{ brand.name }} looks for connections with your diet.</p>
 
 <h2 class="h5 fw-bold mt-4">Getting started</h2>
 <ol>
@@ -34,7 +34,7 @@ onto one shared, normalized axis, you scan straight down a column: does a spike 
 spike — or a dip — just below it?</p>
 
 <h2 class="h5 fw-bold mt-4">What "statistically significant" means</h2>
-<p>Below each chart, NouriLoop calls out only the factors worth your attention:</p>
+<p>Below each chart, {{ brand.name }} calls out only the factors worth your attention:</p>
 
 <figure class="figure d-block border rounded shadow-sm overflow-hidden mb-4 w-100">
     <img src="{{ asset('images/help/symptoms-significance.png') }}" class="figure-img img-fluid mb-0 w-100"
@@ -47,7 +47,7 @@ before a factor makes that list:</p>
     <li><strong>Enough days to trust.</strong> There have to be at least 7 days where you logged both the
         symptom and the factor. One unusually good or bad day can't fake a pattern that needs a week or more of
         days lining up.</li>
-    <li><strong>Not just a coincidence.</strong> NouriLoop runs a standard statistical test that asks: "if there
+    <li><strong>Not just a coincidence.</strong> {{ brand.name }} runs a standard statistical test that asks: "if there
         were really no connection here, how likely is it we'd still see a pattern this strong just by luck?"
         A factor only makes the list when that chance is under 5% — what statisticians call
         <strong>p &lt; 0.05</strong>.</li>
@@ -56,7 +56,7 @@ before a factor makes that list:</p>
 together, from <strong>−1</strong> (perfectly opposite — one goes up as the other goes down) through
 <strong>0</strong> (no relationship) to <strong>+1</strong> (perfectly together). The closer to −1 or +1, the
 stronger the pattern. And <strong>same-day vs. next-day</strong> just tells you when it showed up — sometimes
-what you eat today doesn't affect a symptom until tomorrow, so NouriLoop checks both.</p>
+what you eat today doesn't affect a symptom until tomorrow, so {{ brand.name }} checks both.</p>
 <p>One more thing worth remembering: these are <strong>descriptive, not causal</strong>. A significant
 correlation is a good lead for your own experimenting — it doesn't prove that factor is <em>causing</em> the
 symptom, and it isn't a diagnosis.</p>

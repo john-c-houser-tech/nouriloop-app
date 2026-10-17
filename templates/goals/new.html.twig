@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ 'goal.form.heading'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'goal.form.heading'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container" style="max-width: 760px;">
@@ -101,12 +101,12 @@
                 <label class="form-label fw-semibold">{{ 'goal.form.frequency'|trans }}</label>
                 <select name="frequency" class="form-select" id="frequency">
                     {% for f in frequencies %}
-                    {# Daily cadence is Loop+ — disabled (not hidden) so the ladder is
+                    {# Daily cadence is a paid-plan feature — disabled (not hidden) so the ladder is
                        visible; GoalFactory coerces server-side as the backstop. #}
                     {% set dailyLocked = f.value == 'daily' and not canDaily %}
                     <option value="{{ f.value }}" {{ dailyLocked ? 'disabled' }}
                             {{ not dailyLocked and submitted.frequency|default('weekly') == f.value ? 'selected' }}>
-                        {{ f.transKey|trans }}{{ dailyLocked ? ' — Loop+' }}
+                        {{ f.transKey|trans }}{{ dailyLocked ? ' — ' ~ 'chrome.badge.paid'|trans }}
                     </option>
                     {% endfor %}
                 </select>

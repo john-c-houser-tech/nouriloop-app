@@ -11,6 +11,7 @@ use App\Form\NotificationPreferencesFormType;
 use App\Form\ProfileFormType;
 use App\Form\TimezoneFormType;
 use App\Form\UnitsFormType;
+use App\Hosting\HostingMode;
 use App\Outbound\Reachability;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
@@ -59,6 +60,7 @@ class SettingsController extends AbstractController
         ]],
         'security' => ['label' => 'settings.category.security', 'items' => [
             ['route' => 'app_settings_api_tokens', 'label' => 'settings.item.api_tokens', 'icon' => 'bi-key'],
+            ['route' => 'app_settings_ai', 'label' => 'settings.item.ai', 'icon' => 'bi-cpu'],
         ]],
         'billing' => ['label' => 'settings.category.billing', 'items' => [
             ['route' => 'app_settings_subscription', 'label' => 'settings.item.subscription', 'icon' => 'bi-stars'],
@@ -85,10 +87,16 @@ class SettingsController extends AbstractController
     private const EMAIL_CHANGE_LINK_TTL = 'P1D';
 
     #[Route('/settings', name: 'app_settings_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(HostingMode $hosting): Response
     {
+        $categories = self::CATEGORIES;
+        if ($hosting->isSelfHosted()) {
+            // No billing on a self-hosted instance: its subscription page doesn't exist.
+            unset($categories['billing']);
+        }
+
         return $this->render('settings/index.html.twig', [
-            'categories' => self::CATEGORIES,
+            'categories' => $categories,
         ]);
     }
 
@@ -279,12 +287,12 @@ class SettingsController extends AbstractController
         $user = $this->getUser();
         \assert($user instanceof User);
 
-        // SMS sends are a paid feature (sms_digest, Loop and up): for non-entitled
+        // SMS sends are a Loop+ feature (`sms`): for non-entitled
         // users the phone + TCPA-consent controls are omitted from the form (so an
         // unsubmitted phone field can't clobber a stored number) and the template
         // shows an upsell hint. The channel preference itself stays shared and
         // unmutated — gating is per-feature at send time.
-        $smsAllowed = $subscriptions->hasFeature($user, 'sms_digest');
+        $smsAllowed = $subscriptions->hasFeature($user, 'sms');
 
         $form = $this->createForm(NotificationPreferencesFormType::class, $user, [
             'include_sms' => $smsAllowed,

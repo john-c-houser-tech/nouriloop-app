@@ -22,7 +22,7 @@ final class SubscriptionServiceTest extends TestCase
         self::assertFalse($service->isSubscriptionActive($user));
         self::assertSame(SubscriptionTier::Free, $service->effectiveTier($user));
         self::assertFalse($service->hasFeature($user, 'unlimited_checkins'));
-        self::assertFalse($service->hasFeature($user, 'sms_digest'));
+        self::assertFalse($service->hasFeature($user, 'sms'));
     }
 
     public function testActiveSubscriptionGrantsItsTier(): void
@@ -45,7 +45,7 @@ final class SubscriptionServiceTest extends TestCase
             ->setSubscriptionStatus('trialing');
 
         self::assertTrue($service->isSubscriptionActive($user));
-        self::assertTrue($service->hasFeature($user, 'unlimited_photos'));
+        self::assertTrue($service->hasFeature($user, 'unlimited_checkins'));
     }
 
     public function testCanceledWithinGracePeriodKeepsAccess(): void
@@ -217,6 +217,66 @@ final class SubscriptionServiceTest extends TestCase
 
         self::assertSame(SubscriptionTier::LoopPlus, $user->getCompTier());
         self::assertNull($user->getCompExpiresAt());
+    }
+
+    /**
+     * Who changes plan in the portal rather than through a second Checkout: anyone whose
+     * Stripe subscription still exists and can bill. A comp alone is not a subscription.
+     */
+    public function testHasLiveSubscriptionFollowsTheStripeStatus(): void
+    {
+        $service = $this->service();
+        foreach (['active', 'trialing', 'past_due', 'unpaid', 'incomplete'] as $status) {
+            $user = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus($status);
+            self::assertTrue($service->hasLiveSubscription($user), $status);
+        }
+        foreach (['canceled', 'incomplete_expired', null] as $status) {
+            $user = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus($status);
+            self::assertFalse($service->hasLiveSubscription($user), (string) $status);
+        }
+
+        $comped = (new User())->setCompTier(SubscriptionTier::LoopPlus)->setSubscriptionStatus('active');
+        self::assertFalse($service->hasLiveSubscription($comped), 'no Stripe subscription id');
+    }
+
+    /** The plan Stripe bills, for the pricing page; a comp lifts only the effective tier. */
+    public function testBilledTierIgnoresAComp(): void
+    {
+        $service = $this->service();
+        $user = (new User())
+            ->setStripeSubscriptionId('sub_1')
+            ->setSubscriptionTier(SubscriptionTier::Loop)
+            ->setSubscriptionStatus('active')
+            ->setCompTier(SubscriptionTier::LoopPlus);
+
+        self::assertSame(SubscriptionTier::Loop, $service->billedTier($user));
+        self::assertSame(SubscriptionTier::LoopPlus, $service->effectiveTier($user));
+
+        $user->setSubscriptionStatus('canceled');
+        self::assertNull($service->billedTier($user));
+    }
+
+    /** The date Settings shows for a canceled plan, and when it shows none. */
+    public function testScheduledEnd(): void
+    {
+        $service = $this->service();
+        $ends = new \DateTimeImmutable('2026-07-13 12:00:00');
+
+        $scheduled = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus('active')
+            ->setSubscriptionPeriodEnd($ends)->setSubscriptionCancelAt($ends);
+        self::assertEquals($ends, $service->scheduledEnd($scheduled));
+
+        $renewing = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus('active')
+            ->setSubscriptionPeriodEnd($ends);
+        self::assertNull($service->scheduledEnd($renewing), 'nothing scheduled');
+
+        $grace = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus('canceled')
+            ->setSubscriptionPeriodEnd($ends);
+        self::assertEquals($ends, $service->scheduledEnd($grace), 'canceled, paid period still running');
+
+        $lapsed = (new User())->setStripeSubscriptionId('sub_1')->setSubscriptionStatus('canceled')
+            ->setSubscriptionPeriodEnd(new \DateTimeImmutable('2026-06-01'));
+        self::assertNull($service->scheduledEnd($lapsed), 'already ended');
     }
 
     private function service(): SubscriptionService

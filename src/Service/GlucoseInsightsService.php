@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Dto\AnalyzedMeal;
 use App\Dto\GlucoseInsights;
 use App\Entity\MealEntry;
@@ -26,8 +28,8 @@ use Symfony\Contracts\Cache\ItemInterface;
  * which keeps the per-meal glucose queries to a small, indexed set.
  *
  * The AI "Pattern Coach" is a deliberately separate, higher-cost tier, gated by BOTH
- * the global {@see $aiDeepDiveEnabled} env flag (a master kill switch) AND the Loop+
- * `ai_pattern_coach` feature — both must be on. Only then
+ * the global {@see $aiDeepDiveEnabled} env flag (a master kill switch) AND the
+ * `ai_pattern_coach` feature (both paid plans) — both must be on. Only then
  * does {@see forUser()} spend tokens to generate {@see GlucoseInsights::$coachingNarrative};
  * the free deterministic insights never incur token spend. Educational wellness
  * signal, not a medical measure.
@@ -48,10 +50,10 @@ class GlucoseInsightsService
         private readonly PostprandialResponseService $responses,
         private readonly GlycemicImpactEstimator $estimator,
         // Lazy: a non-AI page load (kill switch off, or user not entitled) must not
-        // instantiate ClaudeClient or resolve ANTHROPIC_API_KEY. This service is also
+        // instantiate the AI client or resolve ANTHROPIC_API_KEY. This service is also
         // used on the Dashboard, so the client is only materialised when the coach runs.
         #[Autowire(lazy: true)]
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly LoggerInterface $logger,
         private readonly CacheInterface $cache,
         private readonly SubscriptionService $subscriptions,
@@ -79,7 +81,7 @@ class GlucoseInsightsService
         $analyzed = $this->analyzeMeals($meals);
 
         // The AI Pattern Coach runs when BOTH the global kill switch and the user's
-        // Loop+ feature are on. (The old per-user admin entitlement was retired
+        // paid-plan feature are on. (The old per-user admin entitlement was retired
         // 2026-07-24 — services follow the tier; admins adjust the tier instead.)
         $aiAvailable = $this->aiDeepDiveEnabled
             && $this->subscriptions->hasFeature($user, 'ai_pattern_coach');
@@ -197,9 +199,9 @@ class GlucoseInsightsService
 
         return $this->cache->get(
             $key,
-            function (ItemInterface $item, bool &$save) use ($message, $tone, $maxTokens): ?string {
+            function (ItemInterface $item, bool &$save) use ($user, $message, $tone, $maxTokens): ?string {
                 $item->expiresAfter(self::COACH_CACHE_TTL);
-                $narrative = $this->generateCoaching($message, $tone, $maxTokens);
+                $narrative = $this->generateCoaching($user, $message, $tone, $maxTokens);
                 $save = $narrative !== null; // don't cache a failed/empty generation
 
                 return $narrative;
@@ -213,10 +215,16 @@ class GlucoseInsightsService
      * no generic advice. Returns null on any failure (logged), so the page degrades to
      * a graceful notice rather than erroring (same fallback posture as GoalEvaluationService).
      */
-    private function generateCoaching(string $message, string $tone, int $maxTokens = self::COACH_MAX_TOKENS): ?string
-    {
+    private function generateCoaching(
+        User $user,
+        string $message,
+        string $tone,
+        int $maxTokens = self::COACH_MAX_TOKENS,
+    ): ?string {
         try {
-            $result = $this->claude->complete(
+            $result = $this->ai->complete(
+                AiFeature::GlucoseCoach,
+                $user,
                 $this->coachSystemPrompt() . ' ' . $tone,
                 [['role' => 'user', 'content' => $message]],
                 $maxTokens,

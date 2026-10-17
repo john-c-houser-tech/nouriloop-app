@@ -6,19 +6,19 @@
     <img src="{{ asset('images/help/health-metrics.png') }}" class="figure-img img-fluid mb-0 w-100"
          alt="The Health Metrics page showing weight, glucose, heart rate, steps, and sleep">
 </figure>
-<p>NouriLoop becomes much more useful when it can see your body's numbers alongside your food. You can bring in
+<p>{{ brand.name }} becomes much more useful when it can see your body's numbers alongside your food. You can bring in
 weight, blood glucose, blood pressure, heart rate, body fat, steps, and sleep.</p>
 
 <h2 class="h5 fw-bold mt-4">Importing a file</h2>
 <ol>
     <li>Go to <strong>Health Metrics → Import</strong>.</li>
     <li>Upload an <strong>Apple Health export</strong>, a <strong>health-export JSON</strong>, or a
-        <strong>CSV</strong>. NouriLoop detects the format automatically.</li>
+        <strong>CSV</strong>. {{ brand.name }} detects the format automatically.</li>
 </ol>
 
 <h2 class="h5 fw-bold mt-4">Automatic syncing (recommended for large histories)</h2>
 <p>A full Apple Health export is too big to upload directly. For ongoing, hands-off syncing, create an
-<strong>API token</strong> in Settings and point an app like <em>Health Auto Export</em> at NouriLoop — it
+<strong>API token</strong> in Settings and point an app like <em>Health Auto Export</em> at {{ brand.name }} — it
 posts your readings on a schedule. <a href="{{ path('app_help_show', {topic: 'settings'}) }}">See Settings →</a></p>
 <p>Connecting a <strong>Lingo or Stelo</strong> glucose sensor? There's a dedicated walkthrough:
 <a href="{{ path('app_help_show', {topic: 'connect-cgm'}) }}">Connect Your Lingo or Stelo</a>.</p>

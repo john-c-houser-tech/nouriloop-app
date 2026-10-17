@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'settings.notifications.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'settings.notifications.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="container" style="max-width: 680px;">
@@ -48,7 +48,7 @@
             </div>
         </div>
         {% else %}
-        {# SMS sends are a paid feature (sms_digest, Loop and up) — the phone + TCPA
+        {# SMS sends are a Loop+ feature (`sms`) — the phone + TCPA
            consent controls are replaced by this upsell hint. The TCPA opt-in flow
            itself is unchanged for entitled users (the branch above). #}
         <div class="border rounded-3 bg-light p-3 mb-4 small" id="sms-upsell">

@@ -24,8 +24,8 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * The two send-time gates on check-in email: the Loop+ `checkin_delivery`
- * entitlement (goal tiering — a Free/Loop owner gets in-app only), and the
+ * The two send-time gates on check-in email: the `checkin_delivery` entitlement
+ * (either paid plan — a Free owner gets in-app only), and the
  * verified-address rule (same as the notifications digest). The in-app delivery
  * is a separate transport and unaffected by either.
  */
@@ -61,18 +61,18 @@ final class EmailGoalDeliveryTest extends TestCase
 
     public function testUserWithoutCheckinDeliveryGetsNoEmail(): void
     {
-        // Verified, but Free — email/SMS push of check-ins is Loop+ only.
+        // Verified, but Free — email push of check-ins needs a paid plan.
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::never())->method('send');
 
         $this->delivery($mailer)->deliver($this->checkin(emailVerified: true, entitled: false));
     }
 
-    public function testLoopUserGetsNoEmailEither(): void
+    public function testLoopUserGetsCheckinEmailToo(): void
     {
-        // checkin_delivery is Loop+ only — Loop's unlimited check-ins stay in-app.
+        // Both paid plans are full-featured since the tier rework; only SMS is Loop+.
         $mailer = $this->createMock(MailerInterface::class);
-        $mailer->expects(self::never())->method('send');
+        $mailer->expects(self::once())->method('send');
 
         $checkin = $this->checkin(emailVerified: true, entitled: false);
         $checkin->getGoal()?->getUser()?->setCompTier(SubscriptionTier::Loop);

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
-use App\Dto\ClaudeResult;
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
+use App\Ai\AiResult;
 use App\Dto\GoalDefinition;
 use App\Entity\GoalCheckin;
 use App\Entity\NutritionGoal;
@@ -15,7 +17,6 @@ use App\Enum\GoalDirection;
 use App\Enum\GoalMetric;
 use App\Enum\GoalOutputFormat;
 use App\Service\Chart\GoalChartRenderer;
-use App\Service\ClaudeClient;
 use App\Service\GoalEvaluationService;
 use App\Service\GoalMetricCalculator;
 use App\Service\LocalePromptBuilder;
@@ -60,7 +61,7 @@ final class GoalEvaluationServiceTest extends TestCase
 
         $service = new GoalEvaluationService(
             $calc,
-            $this->createStub(ClaudeClient::class),
+            $this->createStub(AiClient::class),
             $this->createStub(GoalChartRenderer::class),
             new NullLogger(),
             new UserTime(),
@@ -166,8 +167,8 @@ final class GoalEvaluationServiceTest extends TestCase
         );
         $calc->method('aggregate')->willReturn(20.0);
 
-        $claude = $this->createStub(ClaudeClient::class);
-        $claude->method('complete')->willReturn(new ClaudeResult('Nice work.', 1, 1));
+        $claude = $this->createStub(AiClient::class);
+        $claude->method('complete')->willReturn(new AiResult('Nice work.', 1, 1));
 
         $renderer = $this->createMock(GoalChartRenderer::class);
         $renderer->expects(self::once())->method('render')
@@ -206,9 +207,11 @@ final class GoalEvaluationServiceTest extends TestCase
 
         $system = null;
         $tokens = null;
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
             ->with(
+                self::identicalTo(AiFeature::GoalCheckin),
+                self::isInstanceOf(User::class),
                 self::callback(static function (string $s) use (&$system): bool {
                     $system = $s;
 
@@ -221,7 +224,7 @@ final class GoalEvaluationServiceTest extends TestCase
                     return true;
                 }),
             )
-            ->willReturn(new ClaudeResult('Buen trabajo.', 1, 1));
+            ->willReturn(new AiResult('Buen trabajo.', 1, 1));
 
         $service = new GoalEvaluationService(
             $calc,
@@ -268,9 +271,11 @@ final class GoalEvaluationServiceTest extends TestCase
         );
 
         $system = null;
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
             ->with(
+                self::identicalTo(AiFeature::GoalCheckin),
+                self::isInstanceOf(User::class),
                 self::callback(static function (string $s) use (&$system): bool {
                     $system = $s;
 
@@ -279,7 +284,7 @@ final class GoalEvaluationServiceTest extends TestCase
                 self::anything(),
                 self::anything(),
             )
-            ->willReturn(new ClaudeResult('Solid progress.', 1, 1));
+            ->willReturn(new AiResult('Solid progress.', 1, 1));
 
         $service = new GoalEvaluationService(
             $calc,
@@ -314,8 +319,8 @@ final class GoalEvaluationServiceTest extends TestCase
         $calc->method('dailyValues')->willReturn(['2026-06-22' => 20.0]);
         $calc->method('aggregate')->willReturn(20.0);
 
-        $claude = $this->createStub(ClaudeClient::class);
-        $claude->method('complete')->willReturn(new ClaudeResult('Nice work.', 1, 1));
+        $claude = $this->createStub(AiClient::class);
+        $claude->method('complete')->willReturn(new AiResult('Nice work.', 1, 1));
 
         $renderer = $this->createMock(GoalChartRenderer::class);
         $renderer->expects(self::never())->method('render');
@@ -369,7 +374,7 @@ final class GoalEvaluationServiceTest extends TestCase
             },
         );
 
-        $claude = $this->createStub(ClaudeClient::class);
+        $claude = $this->createStub(AiClient::class);
         $claude->method('complete')->willThrowException(new \RuntimeException('outage'));
 
         $service = new GoalEvaluationService(

@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'auth.link.sent_title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'auth.link.sent_title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="min-vh-hero d-flex align-items-center justify-content-center bg-hero">
     <div class="card p-4 text-center" style="width: 100%; max-width: 460px;">
-        <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop" width="88" height="88" class="mb-2 mx-auto">
+        {% include '_brand_mark.html.twig' with {variant: 'auth', size: 88, class: 'mb-2 mx-auto', alt: brand.name} %}
         <h1 class="h3 fw-bold">{{ 'auth.link.sent_heading'|trans }}</h1>
         {# Uniform copy whether or not the account exists — no enumeration. #}
         <p class="text-muted">{{ 'auth.link.sent_lead'|trans }}</p>

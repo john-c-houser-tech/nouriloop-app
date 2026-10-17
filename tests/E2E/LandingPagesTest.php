@@ -120,8 +120,8 @@ final class LandingPagesTest extends WebTestCase
     public function testWeightLossPageLabelsPaidFeaturesHonestly(): void
     {
         // Comprehensive Review §9, both directions (updated for goal tiering):
-        // goal setup is free with the first 6 check-ins included, weekly
-        // check-ins continue with Loop, daily + email/SMS delivery are Loop+ —
+        // goal setup is free with the first 6 check-ins included, daily or weekly
+        // check-ins by email continue on either paid plan, text delivery is Loop+ —
         // and the page must say exactly that wherever it sells goals: no
         // implying gated features are free, and no implying free ones are paid.
         $client = static::createClient();
@@ -132,9 +132,10 @@ final class LandingPagesTest extends WebTestCase
 
         self::assertStringContainsString('Goal setup is free', $body, 'goal definition must be labeled free');
         self::assertStringContainsString('first 6 check-ins', $body, 'the Free allowance must be disclosed');
-        self::assertStringContainsString('Loop', $body, 'weekly continuation must name Loop');
-        self::assertStringContainsString('daily check-ins', $body, 'daily cadence must be named');
-        self::assertStringContainsString('Loop+', $body, 'daily/delivered check-ins must name Loop+');
+        self::assertStringContainsString('Loop ($2/month, your own AI key)', $body, 'Loop must name its key');
+        self::assertStringContainsString('Loop+ ($13.50/month, AI included)', $body);
+        self::assertStringContainsString('daily or weekly', $body, 'the cadence must be named');
+        self::assertStringContainsString('Loop+ also sends them by text', $body, 'texts must name Loop+');
         self::assertStringContainsString('first 10 photo analyses', $body, 'footnote must disclose the Free photo cap');
     }
 

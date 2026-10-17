@@ -13,15 +13,24 @@ services:
         arguments:
             $responseFactory: '@App\Tests\Http\FakeAnthropicResponder'
 
-    # ClaudeClient is the only module that calls the Messages API (text and vision),
+    # AnthropicClient is the only module that calls the Messages API (text and vision),
     # so it is the only one whose HTTP client is swapped. autowire: true so any
     # *other* constructor dependency still autowires (this definition doesn't
     # inherit the main services.yaml _defaults).
-    App\Service\ClaudeClient:
+    # Users' own provider clients use the same faked HTTP layer, so a saved key's
+    # "Test connection" and every call made with it stay offline in tests.
+    App\Ai\UserAiClientBuilder:
+        autowire: true
+        arguments:
+            $httpClient: '@test.anthropic_http_client'
+
+    App\Ai\AnthropicClient:
         autowire: true
         arguments:
             $httpClient: '@test.anthropic_http_client'
             $anthropicApiKey: '%anthropic_api_key%'
+            $model: '%env(AI_MODEL)%'
+            $lightModel: '%env(AI_MODEL_LIGHT)%'
 
     # No DNS lookups in tests (same posture as the disabled HIBP check): the
     # stub inherits the typo map but answers the MX question deterministically

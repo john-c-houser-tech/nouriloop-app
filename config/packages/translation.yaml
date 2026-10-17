@@ -6,4 +6,8 @@ framework:
         # ICU locale fallback on top of this (es_MX → es → en), so the es_MX/
         # es_ES/en_GB catalogs only carry the strings that differ from their base.
         fallbacks: ['en']
+        # {app_name} in any message is this instance's name: "NouriLoop" on the hosted
+        # service, the operator's APP_NAME or domain on a self-hosted copy (Brand).
+        globals:
+            app_name: '%env(brand_name:APP_NAME)%'
         providers:

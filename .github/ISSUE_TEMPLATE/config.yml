@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/john-c-houser-tech/nouriloop-app/blob/main/SECURITY.md
+    about: Please don't open a public issue for a vulnerability. SECURITY.md says how to report it privately.
+  - name: Help with an account on nouriloop.com
+    url: https://nouriloop.com/help
+    about: Questions about your own account, billing or data on the hosted service go to its help center, not here.

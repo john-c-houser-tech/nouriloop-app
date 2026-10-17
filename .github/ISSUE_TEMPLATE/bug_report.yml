@@ -1,0 +1,56 @@
+name: Bug report
+description: Something in the app or the self-hosting package doesn't work as it should.
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please leave out anything personal: no health data, meal
+        photos, email addresses, API keys or passwords, in the text or in screenshots.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options:
+        - nouriloop.com (the hosted service)
+        - My own self-hosted copy
+        - A development checkout
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Shown in the footer of every page, or the release tag you installed.
+      placeholder: v3.0
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Click …
+        3. See …
+  - type: textarea
+    id: environment
+    attributes:
+      label: Browser, device, or server details
+      description: For example "Safari on iPhone 15", or for a self-hosted copy the operating system and AI provider.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or logs
+      description: For a self-hosted copy, `docker compose logs app` usually shows the error. Check it for personal data first.
+      render: text

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'auth.login.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'auth.login.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {% block body %}
 <div class="min-vh-hero row g-0">
@@ -11,8 +11,7 @@
             <img src="{{ asset('auth-hero-foods.png') }}" alt=""
                  class="img-fluid rounded shadow-sm mb-4 d-block">
             <div class="d-flex align-items-center gap-3 mb-3">
-                <img src="{{ asset('auth-logo.png') }}" alt="NouriLoop"
-                     width="80" height="80" class="flex-shrink-0">
+                {% include '_brand_mark.html.twig' with {variant: 'auth', size: 80, class: 'flex-shrink-0', alt: brand.name} %}
                 <h1 class="display-6 fw-bold mb-0">{{ 'auth.login.hero_headline'|trans }}</h1>
             </div>
             <p class="lead mb-4 text-white-50">{{ 'auth.login.hero_lead'|trans }}</p>
@@ -140,9 +139,11 @@
                 </a>
                 <p class="text-muted small mt-2 mb-0">{{ 'auth.login.no_card'|trans }}</p>
             </div>
+            {% if brand.isNouriLoop %}{# /about is NouriLoop LLC's company page: hosted only #}
             <p class="text-center small mt-3 mb-0">
                 <a href="{{ localized_path('app_about') }}">{{ 'auth.login.learn_more'|trans }}</a>
             </p>
+            {% endif %}
         </div>
     </div>
 

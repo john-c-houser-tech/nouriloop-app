@@ -39,7 +39,7 @@ class GoalFactory
         int $minute,
         GoalOutputFormat $outputFormat,
     ): NutritionGoal {
-        // Server-side backstop for the daily-cadence entitlement (Loop+ only): the
+        // Server-side backstop for the daily-cadence entitlement (paid plans): the
         // form disables the option and the chat card shows a note, but every
         // creation path funnels through here, so a tampered POST or a raw daily
         // proposal is coerced to weekly rather than trusted.

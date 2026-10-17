@@ -12,7 +12,7 @@ auth:
             Snap a photo of your meal. We analyse it. See how it lines up with
             your nutrition, inflammation score, blood glucose, and sleep.
         hero_cycle_alt: >-
-            The NouriLoop cycle: log your meal, we analyse it, you see the
+            The {app_name} cycle: log your meal, we analyse it, you see the
             patterns, then repeat.
         hero_analyze: Analyse
 dashboard:
@@ -60,7 +60,7 @@ health:
             (pick one only if detection fails). Currently supported:
         json_note: >-
             Each app's own units are honoured (e.g. lb→kg, mmol/L→mg/dL).
-            Types NouriLoop doesn't track (calories, BMI, VO₂max, dietary
+            Types {app_name} doesn't track (calories, BMI, VO₂max, dietary
             totals, workouts, etc.) are skipped. For automated daily syncing,
             point the <code>scripts/apple-health-sync.php</code> script at
             the exported <code>.json</code> file (or its folder) with an
@@ -230,8 +230,15 @@ inflammation:
         candy: Sweets
         arugula: Rocket
 settings:
+    subscription:
+        ends_on: "Cancelled. You keep {plan} until {date}."
     tone:
         humor: Humour
+allowance_page:
+    paused: >-
+        Photo and recipe analyses are paused until the 1st or until you add
+        more. Everything else keeps working — logging favourites, editing
+        meals, check-ins and the help assistant.
 about:
     real_life:
         items: >-
@@ -295,7 +302,7 @@ about:
             only the relationships that are statistically significant in your
             own data — both same-day and next-day, since some effects
             lag.</li> <li><strong>"What if?" predictions</strong>
-            <em>(Loop+)</em> — Wondering what eating your favourite meal every
+            <em>(paid plans)</em> — Wondering what eating your favourite meal every
             day for two weeks would do? NouriLoop projects how your
             inflammation score, nutrition, weight, and symptoms would likely
             trend — computed from your own history and explained in plain
@@ -303,7 +310,7 @@ about:
             you use a continuous glucose monitor, NouriLoop maps each meal's
             blood-sugar response, compares it to what your meal's nutrition
             predicted, and ranks which meals spiked you most and least.</li>
-            <li><strong>AI Pattern Coach</strong> <em>(Loop+)</em> — Goes a
+            <li><strong>AI Pattern Coach</strong> <em>(paid plans)</em> — Goes a
             step further: an AI deep-dive reads your own glucose responses
             across meals — the foods, timing, and combinations behind them —
             and writes a personalised coaching summary, calling out the
@@ -327,9 +334,8 @@ about:
             that could be unsafe.</li>
 pricing_page:
     seo_description: >-
-        Free and Loop+ plans for AI nutrition tracking, recipe
-        import, CGM glucose insights, and personalised goal
-        check-ins.
+        Free, Loop and Loop+ plans for AI nutrition tracking, recipe import,
+        CGM glucose insights, and personalised goal check-ins.
     free_note: >-
         Every account — including Free — gets goal setup with
         {limit, plural, one {its first # goal check-in} other {its
@@ -343,8 +349,8 @@ lp:
         price_body: >-
             Apps like Nutrisense and Levels charge $200+ a year and want you
             on their sensor programme. NouriLoop Loop+ is
-            <strong>${price}/year</strong> and works with the
-            over-the-counter sensor you already wear.
+            <strong>${price}/month</strong> with AI included, and works with
+            the over-the-counter sensor you already wear.
         compare_them_sub: Proprietary sensor programmes, subscription required
         founder: >-
             <strong>Why NouriLoop exists:</strong> it was built by a
@@ -437,7 +443,7 @@ recipe:
         lead: >-
             Photograph a recipe — a cookbook page, a printed page, or a
             handwritten card. Up to {max} photos of one recipe (front and
-            back, or several pages). NouriLoop reads the ingredients and
+            back, or several pages). {app_name} reads the ingredients and
             yield, works out the nutrition per serving, and saves it as a
             favourite you can log in one tap.
     confirm:

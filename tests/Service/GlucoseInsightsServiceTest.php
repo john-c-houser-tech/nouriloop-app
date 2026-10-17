@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
-use App\Dto\ClaudeResult;
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
+use App\Ai\AiResult;
 use App\Dto\GlycemicImpact;
 use App\Dto\PostprandialResponse;
 use App\Entity\MealEntry;
@@ -12,7 +14,6 @@ use App\Entity\NutritionData;
 use App\Entity\User;
 use App\Enum\MealType;
 use App\Repository\MealEntryRepository;
-use App\Service\ClaudeClient;
 use App\Service\GlycemicImpactEstimator;
 use App\Service\GlucoseInsightsService;
 use App\Service\PostprandialResponseService;
@@ -88,7 +89,7 @@ final class GlucoseInsightsServiceTest extends TestCase
     private function service(
         array $meals,
         bool $aiEnabled = false,
-        ?ClaudeClient $claude = null,
+        ?AiClient $claude = null,
         bool $entitled = true,
     ): GlucoseInsightsService {
         $repo = $this->createStub(MealEntryRepository::class);
@@ -114,7 +115,7 @@ final class GlucoseInsightsServiceTest extends TestCase
             $repo,
             $responses,
             $estimator,
-            $claude ?? $this->createStub(ClaudeClient::class),
+            $claude ?? $this->createStub(AiClient::class),
             new NullLogger(),
             new ArrayAdapter(),
             $subscriptions,
@@ -237,9 +238,9 @@ final class GlucoseInsightsServiceTest extends TestCase
     {
         $meals = [$this->meal($this->response(40.0, 1200.0), $this->impact(1.3, 'higher'))];
 
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
-            ->willReturn(new ClaudeResult('Your dinners spike you most; try pairing rice with protein.', 300, 120));
+            ->willReturn(new AiResult('Your dinners spike you most; try pairing rice with protein.', 300, 120));
 
         [$from, $to] = $this->window();
         $user = new User();
@@ -254,9 +255,11 @@ final class GlucoseInsightsServiceTest extends TestCase
         $meals = [$this->meal($this->response(40.0, 1200.0), $this->impact(1.3, 'higher'))];
 
         $captured = null;
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
             ->with(
+                self::identicalTo(AiFeature::GlucoseCoach),
+                self::isInstanceOf(User::class),
                 self::callback(static function (string $system) use (&$captured): bool {
                     $captured = $system;
 
@@ -265,7 +268,7 @@ final class GlucoseInsightsServiceTest extends TestCase
                 self::anything(),
                 self::anything(),
             )
-            ->willReturn(new ClaudeResult('ok', 1, 1));
+            ->willReturn(new AiResult('ok', 1, 1));
 
         [$from, $to] = $this->window();
         $user = (new User())->setToneHumor(5)->setToneWarmth(1);
@@ -284,9 +287,11 @@ final class GlucoseInsightsServiceTest extends TestCase
 
         $captured = null;
         $tokens   = null;
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
             ->with(
+                self::identicalTo(AiFeature::GlucoseCoach),
+                self::isInstanceOf(User::class),
                 self::callback(static function (string $system) use (&$captured): bool {
                     $captured = $system;
 
@@ -299,7 +304,7 @@ final class GlucoseInsightsServiceTest extends TestCase
                     return true;
                 }),
             )
-            ->willReturn(new ClaudeResult('ok', 1, 1));
+            ->willReturn(new AiResult('ok', 1, 1));
 
         [$from, $to] = $this->window();
         $user = new User();
@@ -318,9 +323,9 @@ final class GlucoseInsightsServiceTest extends TestCase
 
         // Same user + data, but a language switch must NOT serve the cached
         // English narrative — the locale is part of the cache key.
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::exactly(2))->method('complete')
-            ->willReturn(new ClaudeResult('narrative', 1, 1));
+            ->willReturn(new AiResult('narrative', 1, 1));
 
         [$from, $to] = $this->window();
         $user    = new User();
@@ -335,7 +340,7 @@ final class GlucoseInsightsServiceTest extends TestCase
     {
         $meals = [$this->meal($this->response(40.0, 1200.0), $this->impact(1.3, 'higher'))];
 
-        $claude = $this->createStub(ClaudeClient::class);
+        $claude = $this->createStub(AiClient::class);
         $claude->method('complete')->willThrowException(new \RuntimeException('boom'));
 
         [$from, $to] = $this->window();
@@ -352,9 +357,9 @@ final class GlucoseInsightsServiceTest extends TestCase
         $meals = [$this->meal($this->response(40.0, 1200.0), $this->impact(1.3, 'higher'))];
 
         // Same data + window across two page views → only one Claude call.
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::once())->method('complete')
-            ->willReturn(new ClaudeResult('Cached coaching narrative.', 300, 120));
+            ->willReturn(new AiResult('Cached coaching narrative.', 300, 120));
 
         [$from, $to] = $this->window();
         $user    = new User();
@@ -371,7 +376,7 @@ final class GlucoseInsightsServiceTest extends TestCase
     {
         $meals = [$this->meal($this->response(40.0, 1200.0), $this->impact(1.3, 'higher'))];
 
-        $claude = $this->createMock(ClaudeClient::class);
+        $claude = $this->createMock(AiClient::class);
         $claude->expects(self::never())->method('complete');
 
         [$from, $to] = $this->window();

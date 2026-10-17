@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Ai\AnthropicClient;
 use App\Entity\User;
 use App\Enum\AnalysisKind;
-use App\Service\ClaudeClient;
 use App\Service\SupplementAnalysisService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -103,6 +103,6 @@ final class SupplementAnalysisServiceTest extends TestCase
 
     private function service(MockHttpClient $http): SupplementAnalysisService
     {
-        return new SupplementAnalysisService(new ClaudeClient($http, 'test-key'), $this->allowance());
+        return new SupplementAnalysisService(new AnthropicClient($http, 'test-key'), $this->allowance());
     }
 }

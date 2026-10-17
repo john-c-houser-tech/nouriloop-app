@@ -33,4 +33,9 @@
 
 # Editor / local tooling config
 /.idea/
-/.claude/
+/.claude/*
+# The path-scoped CLAUDE.md rules files are project docs, not local tooling config:
+!/.claude/rules/
+
+# Self-hosting: the operator's settings (secrets). See docs/self-hosting.md.
+/selfhost.env

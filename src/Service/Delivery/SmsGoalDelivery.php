@@ -35,8 +35,8 @@ class SmsGoalDelivery implements GoalDeliveryInterface
         $goal = $checkin->getGoal();
         $user = $goal?->getUser();
 
-        // Phone, TCPA/CTIA consent and the Loop+ checkin_delivery entitlement;
-        // otherwise the in-app delivery still records the check-in.
+        // Phone, TCPA/CTIA consent, and both `checkin_delivery` (paid plans) and `sms`
+        // (Loop+ only); otherwise the in-app delivery still records the check-in.
         if ($user === null || !$this->reachability->canReach($user, OutboundChannel::Sms, MessagePurpose::CheckIn)) {
             return;
         }

@@ -21,9 +21,9 @@ use App\Service\SubscriptionService;
  *    consent.
  *  - The entitlement the purpose needs, checked at send time so a lapsed
  *    subscription quietly drops to in-app (the stored preference is never
- *    mutated): digest email is free, digest SMS needs `sms_digest` (Loop and up,
- *    the one channel with a real per-message cost), check-in email and SMS need
- *    `checkin_delivery` (Loop+).
+ *    mutated): digest email is free, any SMS needs `sms` (Loop+ only, the one
+ *    channel with a real per-message cost), and check-ins also need
+ *    `checkin_delivery` (either paid plan).
  */
 final class Reachability
 {
@@ -72,7 +72,9 @@ final class Reachability
     {
         return match ([$purpose, $channel]) {
             [MessagePurpose::Digest, OutboundChannel::Email] => true,
-            [MessagePurpose::Digest, OutboundChannel::Sms] => $this->subscriptions->hasFeature($user, 'sms_digest'),
+            [MessagePurpose::Digest, OutboundChannel::Sms] => $this->subscriptions->hasFeature($user, 'sms'),
+            [MessagePurpose::CheckIn, OutboundChannel::Sms] => $this->subscriptions->hasFeature($user, 'sms')
+                && $this->subscriptions->hasFeature($user, 'checkin_delivery'),
             default => $this->subscriptions->hasFeature($user, 'checkin_delivery'),
         };
     }

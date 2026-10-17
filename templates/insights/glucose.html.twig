@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ 'glucose_page.title'|trans }} — NouriLoop{% endblock %}
+{% block title %}{{ 'glucose_page.title'|trans }} — {{ brand.name }}{% endblock %}
 
 {# Renders one ranked meal row: name, time, glucose rise, and (when available) the
    measured-vs-expected badge from the glycemic-impact model. #}
@@ -47,7 +47,7 @@
     <div class="card p-5 text-center">
         <i class="bi bi-lock fs-1 text-muted mb-2"></i>
         <h5 class="fw-bold">{{ 'glucose_page.locked_heading'|trans }}
-            <span class="badge text-bg-light border ms-1">Loop+</span>
+            <span class="badge text-bg-light border ms-1">{{ 'chrome.badge.paid'|trans }}</span>
         </h5>
         <p class="text-muted mb-3" style="max-width: 48ch; margin-inline: auto;">
             {{ 'glucose_page.locked_lead'|trans }}

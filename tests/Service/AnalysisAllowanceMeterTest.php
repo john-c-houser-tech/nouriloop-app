@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AnthropicClient;
 use App\Dto\TokenUsage;
 use App\Entity\MealEntry;
 use App\Entity\User;
 use App\Enum\AnalysisKind;
 use App\Exception\PhotoLimitExceededException;
 use App\Service\AnalysisAllowance;
-use App\Service\ClaudeClient;
 use App\Service\FoodAnalysisService;
 use App\Service\LocalePromptBuilder;
 use App\Service\RecipeAnalysisService;
@@ -167,9 +168,9 @@ final class AnalysisAllowanceMeterTest extends TestCase
         return new SupplementAnalysisService($this->claude(), $this->allowance());
     }
 
-    private function claude(): ClaudeClient
+    private function claude(): AiClient
     {
-        return new ClaudeClient(new MockHttpClient(new MockResponse((string) json_encode([
+        return new AnthropicClient(new MockHttpClient(new MockResponse((string) json_encode([
             'content' => [['type' => 'text', 'text' => '{"description": "ok", "title": "ok", "calories": 100}']],
             'usage' => ['input_tokens' => 1200, 'output_tokens' => 300],
         ]))), 'test-key');

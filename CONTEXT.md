@@ -50,6 +50,14 @@ _Avoid_: usage log, event log
 An analysis whose spend is booked in the ledger rather than derived. Only re-analyses and supplement scans are ledgered.
 _Avoid_: tracked analysis
 
+**Own key**:
+An AI provider and API key a user saved under Settings ▸ AI provider. Every AI call made for that user goes to their provider with their key; it never falls back to NouriLoop's.
+_Avoid_: BYOK (in user-facing text), personal key
+
+**AI call record**:
+One row per AI call that came back, of any kind, with its tokens and estimated cost. It measures what calls cost; it is not the ledger and never decides whether a call may run.
+_Avoid_: usage log, cost ledger
+
 ## Health data
 
 **Reading**:

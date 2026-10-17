@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Enum\SubscriptionTier;
+use App\Hosting\HostingMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
@@ -29,6 +30,21 @@ class SubscriptionService
 
     /** Statuses that retain access only until the paid period ends (grace period). */
     public const GRACE_STATUSES = ['canceled', 'past_due'];
+
+    /**
+     * Stripe statuses whose subscription still exists and can still bill. A user in one
+     * of these goes to the Billing Portal, never to a second Checkout, which would leave
+     * the customer paying for two subscriptions (found in the PR 8 test-mode run,
+     * 2026-10-13). `incomplete` counts: its first payment can still be completed for
+     * about a day (Copilot catch on #249).
+     */
+    public const PORTAL_STATUSES = ['active', 'trialing', 'past_due', 'unpaid', 'incomplete'];
+
+    /**
+     * The PORTAL_STATUSES whose subscription the portal can change plan on. An
+     * `incomplete` one can't: its user lands on the portal home to finish paying.
+     */
+    public const SWITCHABLE_STATUSES = ['active', 'trialing', 'past_due', 'unpaid'];
 
     /**
      * The complimentary offer for a beta-tester invitation: Loop+ for 45 days.
@@ -66,9 +82,8 @@ class SubscriptionService
         private readonly ?EntityManagerInterface $em = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly string $loopMonthlyPriceId = '',
-        private readonly string $loopYearlyPriceId = '',
         private readonly string $loopPlusMonthlyPriceId = '',
-        private readonly string $loopPlusYearlyPriceId = '',
+        private readonly ?HostingMode $hosting = null,
     ) {
     }
 
@@ -104,6 +119,12 @@ class SubscriptionService
      */
     public function effectiveTier(User $user): SubscriptionTier
     {
+        // A self-hosted instance has no billing: every account gets every feature
+        // (APP_HOSTING_MODE=self, ADR 0003). Allowances follow, since they ask hasFeature().
+        if ($this->hosting?->isSelfHosted() === true) {
+            return SubscriptionTier::LoopPlus;
+        }
+
         $tier = SubscriptionTier::Free;
 
         if ($this->hasActiveComp($user)) {
@@ -228,15 +249,9 @@ class SubscriptionService
         string $successUrl,
         string $cancelUrl,
     ): string {
-        \assert($this->stripe !== null && $this->em !== null);
+        \assert($this->stripe !== null);
 
-        $customerId = $user->getStripeCustomerId();
-        if ($customerId === null) {
-            $customer = $this->stripe->customers->create(['email' => $user->getEmail()]);
-            $customerId = $customer->id;
-            $user->setStripeCustomerId($customerId);
-            $this->em->flush();
-        }
+        $customerId = $this->ensureStripeCustomer($user);
 
         $params = [
             'mode' => 'subscription',
@@ -257,10 +272,56 @@ class SubscriptionService
     }
 
     /**
-     * Open a Stripe Billing Portal session (manage payment method, cancel, etc.) and
-     * return its hosted URL. The user must already be a Stripe customer.
+     * The user's Stripe customer id, creating (and persisting) the customer on first use
+     * so the webhook can later resolve the user by customer id. Shared by subscription
+     * checkout and the allowance top-up.
      */
-    public function createPortalSession(User $user, string $returnUrl): string
+    public function ensureStripeCustomer(User $user): string
+    {
+        \assert($this->stripe !== null && $this->em !== null);
+
+        $customerId = $user->getStripeCustomerId();
+        if ($customerId === null) {
+            $customer = $this->stripe->customers->create(['email' => $user->getEmail()]);
+            $customerId = $customer->id;
+            $user->setStripeCustomerId($customerId);
+            $this->em->flush();
+        }
+
+        return $customerId;
+    }
+
+    /**
+     * Whether the user has a Stripe subscription that still exists and can bill
+     * (PORTAL_STATUSES). Such a user switches plans in the portal; Checkout would start
+     * a second subscription. Reads the stored mirror, not effectiveTier(): a comp says
+     * nothing about what Stripe is billing.
+     */
+    public function hasLiveSubscription(User $user): bool
+    {
+        return $user->getStripeSubscriptionId() !== null
+            && \in_array($user->getSubscriptionStatus(), self::PORTAL_STATUSES, true);
+    }
+
+    /**
+     * The plan Stripe is billing a user with a live subscription, or null. For the pricing
+     * page's subscriber buttons only: a comp can lift the effective tier above what is
+     * billed, and the plan to switch from is the billed one (Copilot catch on #249).
+     * Feature gates still go through effectiveTier()/hasFeature().
+     */
+    public function billedTier(User $user): ?SubscriptionTier
+    {
+        return $this->hasLiveSubscription($user) ? $user->getSubscriptionTier() : null;
+    }
+
+    /**
+     * Open a Stripe Billing Portal session (manage payment method, cancel, etc.) and
+     * return its hosted URL. The user must already be a Stripe customer. With
+     * $switchPlan, a user with a live subscription lands on the portal's change-plan
+     * screen for that subscription and comes back to $returnUrl when done; one Stripe
+     * can't change yet (`incomplete`) gets the portal home, to finish paying.
+     */
+    public function createPortalSession(User $user, string $returnUrl, bool $switchPlan = false): string
     {
         \assert($this->stripe !== null);
 
@@ -269,10 +330,24 @@ class SubscriptionService
             throw new \LogicException('Cannot open the billing portal for a user without a Stripe customer.');
         }
 
-        $session = $this->stripe->billingPortal->sessions->create([
+        $params = [
             'customer' => $customerId,
             'return_url' => $returnUrl,
-        ]);
+        ];
+        $subscriptionId = $user->getStripeSubscriptionId();
+        if (
+            $switchPlan
+            && $subscriptionId !== null
+            && \in_array($user->getSubscriptionStatus(), self::SWITCHABLE_STATUSES, true)
+        ) {
+            $params['flow_data'] = [
+                'type' => 'subscription_update',
+                'subscription_update' => ['subscription' => $subscriptionId],
+                'after_completion' => ['type' => 'redirect', 'redirect' => ['return_url' => $returnUrl]],
+            ];
+        }
+
+        $session = $this->stripe->billingPortal->sessions->create($params);
 
         return (string) $session->url;
     }
@@ -315,6 +390,32 @@ class SubscriptionService
         if (isset($sub->trial_end)) {
             $user->setTrialEndsAt((new \DateTimeImmutable())->setTimestamp((int) $sub->trial_end));
         }
+
+        // A cancellation scheduled in the portal: recent API versions set cancel_at, older
+        // ones cancel_at_period_end. Neither means none is scheduled (or it was resumed).
+        $cancelAt = match (true) {
+            isset($sub->cancel_at)                                 => (int) $sub->cancel_at,
+            isset($sub->cancel_at_period_end) && $sub->cancel_at_period_end && $periodEnd !== null
+                                                                    => (int) $periodEnd,
+            default                                                => null,
+        };
+        $user->setSubscriptionCancelAt($cancelAt !== null ? (new \DateTimeImmutable())->setTimestamp($cancelAt) : null);
+    }
+
+    /**
+     * When a canceled plan ends, for Settings ▸ Subscription: the scheduled cancellation
+     * of a live subscription, or the end of the paid period a canceled one keeps (the
+     * grace period). Null when nothing is ending or the date has passed.
+     */
+    public function scheduledEnd(User $user): ?\DateTimeImmutable
+    {
+        $end = match (true) {
+            $this->hasLiveSubscription($user)               => $user->getSubscriptionCancelAt(),
+            $user->getSubscriptionStatus() === 'canceled'   => $user->getSubscriptionPeriodEnd(),
+            default                                         => null,
+        };
+
+        return $end !== null && $end > $this->clock->now() ? $end : null;
     }
 
     /**
@@ -362,8 +463,9 @@ class SubscriptionService
     }
 
     /**
-     * Map a Stripe Price id to the tier it grants, or null if it isn't one of the four
-     * known plan prices.
+     * Map a Stripe Price id to the tier it grants, or null if it isn't one of the two
+     * known plan prices (billing is monthly only since PR 7; a subscription on a retired
+     * price syncs as unknown — logged, tier unchanged).
      */
     public function tierForPriceId(string $priceId): ?SubscriptionTier
     {
@@ -372,15 +474,13 @@ class SubscriptionService
         }
 
         return match (true) {
-            in_array($priceId, [$this->loopMonthlyPriceId, $this->loopYearlyPriceId], true)
-                => SubscriptionTier::Loop,
-            in_array($priceId, [$this->loopPlusMonthlyPriceId, $this->loopPlusYearlyPriceId], true)
-                => SubscriptionTier::LoopPlus,
+            $priceId === $this->loopMonthlyPriceId => SubscriptionTier::Loop,
+            $priceId === $this->loopPlusMonthlyPriceId => SubscriptionTier::LoopPlus,
             default => null,
         };
     }
 
-    /** Whether the given Stripe Price id is one of the four known plan prices. */
+    /** Whether the given Stripe Price id is one of the two known plan prices. */
     public function isKnownPriceId(string $priceId): bool
     {
         return $this->tierForPriceId($priceId) !== null;

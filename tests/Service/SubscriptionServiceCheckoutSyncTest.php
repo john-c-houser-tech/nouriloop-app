@@ -123,9 +123,7 @@ final class SubscriptionServiceCheckoutSyncTest extends TestCase
             $em,
             null,
             'price_loop_monthly',
-            'price_loop_yearly',
             self::LOOP_PLUS_MONTHLY,
-            'price_loop_plus_yearly',
         );
     }
 }

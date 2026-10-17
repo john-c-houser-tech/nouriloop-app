@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
+use App\Ai\AiResult;
 use App\Dto\AnalysisResult;
-use App\Dto\ClaudeResult;
 use App\Entity\MealEntry;
 use App\Entity\NutritionData;
 use App\Entity\User;
@@ -94,7 +96,7 @@ all minerals in mg except selenium (mcg).
 PROMPT;
 
     public function __construct(
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly AnalysisAllowance $allowance,
         private readonly LocalePromptBuilder $localePrompt,
     ) {
@@ -140,7 +142,9 @@ PROMPT;
 
                 $prompt = $this->buildPrompt($user, $context, $notes, count($paths));
 
-                return $this->toResult($this->claude->completeWithImages($prompt, $paths, self::MAX_TOKENS));
+                return $this->toResult(
+                    $this->ai->completeWithImages(AiFeature::MealAnalysis, $user, $prompt, $paths, self::MAX_TOKENS),
+                );
             },
         );
     }
@@ -178,7 +182,9 @@ PROMPT;
                     . "refer to the image, apply them to the described meal.\n\n"
                     . $this->buildPrompt($user, $context, $notes, 1);
 
-                return $this->toResult($this->claude->completeWithImages($prompt, [], self::MAX_TOKENS));
+                return $this->toResult(
+                    $this->ai->completeWithImages(AiFeature::MealAnalysis, $user, $prompt, [], self::MAX_TOKENS),
+                );
             },
         );
     }
@@ -190,6 +196,26 @@ PROMPT;
      *
      * @param array<array{question: string, answer: string}> $context
      */
+    /**
+     * One vision-benchmark photo ({@see \App\Ai\VisionBenchmark}): the same base meal
+     * prompt real analyses use, one image, in English (only numbers are compared), with
+     * no notes or follow-up context. It does not touch the allowance: a run is the user
+     * checking their own photo model on their own key (or an operator checking the
+     * instance's), not a meal being logged.
+     */
+    public function analyzeForBenchmark(?User $user, string $imagePath): AnalysisResult
+    {
+        return $this->toResult(
+            $this->ai->completeWithImages(
+                AiFeature::VisionBenchmark,
+                $user,
+                self::BASE_PROMPT,
+                [$imagePath],
+                self::MAX_TOKENS,
+            ),
+        );
+    }
+
     private function buildPrompt(User $user, array $context, ?string $notes, int $imageCount): string
     {
         $prompt = self::BASE_PROMPT;
@@ -249,7 +275,7 @@ PROMPT;
         return $prompt;
     }
 
-    private function toResult(ClaudeResult $reply): AnalysisResult
+    private function toResult(AiResult $reply): AnalysisResult
     {
         $data = $reply->json();
 

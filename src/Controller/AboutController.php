@@ -16,12 +16,14 @@ class AboutController extends AbstractController
      * Public marketing overview of NouriLoop's features, linked from the login
      * page so prospective users can learn about the product without an account.
      */
-    #[Route('/about', name: 'app_about', methods: ['GET'])]
+    // NouriLoop LLC's company page: a self-hosted copy has none (configurable branding, PR 6b).
+    #[Route('/about', name: 'app_about', methods: ['GET'], condition: "service('hosting').isHosted()")]
     #[Route(
         '/{_locale}/about',
         name: 'app_about_i18n',
         requirements: ['_locale' => SupportedLocale::URL_PREFIX_REQUIREMENT],
         methods: ['GET'],
+        condition: "service('hosting').isHosted()",
     )]
     public function index(TranslatorInterface $translator): Response
     {

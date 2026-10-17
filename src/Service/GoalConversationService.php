@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Ai\AiClient;
+use App\Ai\AiFeature;
 use App\Entity\User;
 use App\Enum\GoalMetric;
 use App\Support\Format;
@@ -19,7 +21,7 @@ use App\Support\Format;
 class GoalConversationService
 {
     public function __construct(
-        private readonly ClaudeClient $claude,
+        private readonly AiClient $ai,
         private readonly DietaryReference $reference,
         private readonly GoalMetricCalculator $calculator,
         private readonly \Symfony\Contracts\Translation\TranslatorInterface $translator,
@@ -36,7 +38,7 @@ class GoalConversationService
      */
     public function converse(User $user, array $history): array
     {
-        $result = $this->claude->complete($this->systemPrompt($user), $history);
+        $result = $this->ai->complete(AiFeature::GoalSetup, $user, $this->systemPrompt($user), $history);
 
         return [
             'reply'    => self::stripProposalBlock($result->text),
