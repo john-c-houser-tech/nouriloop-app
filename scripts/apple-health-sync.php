@@ -24,7 +24,7 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/apple-health-sync.php \
  *       --file=/path/to/export.xml        # or a .json file, or a directory of .json
- *       --url=https://nouriloop.com/api/health-metrics \
+ *       --url=https://app.nouriloop.com/api/health-metrics \
  *       --token=nutri_xxxxxxxx            # or set NOURILOOP_TOKEN (NUTRILOG_TOKEN still honored)
  *   Options: --batch=500 (max 1000, XML only)  --app=<key> (force a JSON source
  *            app instead of auto-detecting)  --dry-run
@@ -32,7 +32,7 @@ declare(strict_types=1);
  * Cron example (newest Health Export JSON in a Dropbox folder, nightly at 9 PM):
  *   0 21 * * * php /path/to/scripts/apple-health-sync.php \
  *       --file="$HOME/Library/CloudStorage/Dropbox/Health" \
- *       --url=https://nouriloop.com/api/health-metrics --token=nutri_xxx >> ~/health-sync.log 2>&1
+ *       --url=https://app.nouriloop.com/api/health-metrics --token=nutri_xxx >> ~/health-sync.log 2>&1
  */
 
 const MAX_BATCH = 1000;

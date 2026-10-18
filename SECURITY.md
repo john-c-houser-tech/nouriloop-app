@@ -1,7 +1,7 @@
 # Security Policy
 
 NouriLoop is a nutrition-tracking app. NouriLoop LLC runs it as a hosted service at
-**https://nouriloop.com**, where it handles food logs, health metrics, and account data
+**https://app.nouriloop.com**, where it handles food logs, health metrics, and account data
 for real users and takes payments through Stripe. It is also open-source software that
 anyone can run themselves. Reports about the hosted service or the software are welcome
 and taken seriously.
@@ -13,7 +13,7 @@ never back into an old one.
 
 | Version | Supported |
 | ------- | ------------------ |
-| The release currently deployed to nouriloop.com | :white_check_mark: |
+| The release currently deployed to app.nouriloop.com | :white_check_mark: |
 | The latest release, on a self-hosted copy | :white_check_mark: |
 | Any earlier release | :x: |
 
@@ -116,7 +116,7 @@ This file therefore documents the process, but it is **not** the main way for an
 outside researcher to find out how to reach us.
 
 **The published disclosure path is the RFC 9116 file at
-`https://nouriloop.com/.well-known/security.txt`** (added 2026-08-10), served by
+`https://app.nouriloop.com/.well-known/security.txt`** (added 2026-08-10), served by
 `SecurityTxtController` and carrying the contact address plus the essential testing
 rules inline — because a researcher who reaches it can read nothing else we have
 written, including this file.

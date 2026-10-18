@@ -24,6 +24,10 @@ Create an `A` record (and `AAAA` if the server has IPv6) for your domain, pointi
 server's address. Do this first: it can take a few minutes to spread, and the web server
 needs it to get your HTTPS certificate.
 
+If your cloud provider puts a firewall in front of the server (many do, often with only SSH
+open), allow incoming **TCP 80 and 443** there now, and **UDP 443** for HTTP/3. The
+certificate check arrives on port 80; if it's blocked, the site never gets HTTPS.
+
 ## 2. Install Docker
 
 On Ubuntu or Debian:
@@ -129,6 +133,22 @@ docker run --rm -v nouriloop_uploads:/uploads -v "$PWD":/out debian:stable-slim 
 
 …plus `selfhost.env`. Copy all three off the server, and test a restore once.
 
+**Restoring** (on the same server, or a new one set up with steps 1–3 and your saved
+`selfhost.env` copied into the folder instead of running step 4). Put `backup.sql` and
+`uploads.tar.gz` in the same folder, then:
+
+```bash
+docker compose up -d --build --wait     # creates the volumes and the database
+docker compose stop app scheduler       # nothing writes while you restore
+docker compose exec -T database sh -c 'mariadb -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' < backup.sql
+docker run --rm -v nouriloop_uploads:/uploads -v "$PWD":/in debian:stable-slim tar xzf /in/uploads.tar.gz -C /uploads
+docker compose up -d
+```
+
+This replaces the database's contents with the backup. Log in and open a meal with a
+photo to check. Use the backup's own `selfhost.env`: with a different `USER_SECRETS_KEY`,
+the AI keys your users saved can't be read.
+
 **Logs:** `docker compose logs -f app`, and the app's own log files in the `logs` volume
 (`docker compose exec app ls var/log`).
 
@@ -144,8 +164,12 @@ address and bypass the login rate limits.
 ## Troubleshooting
 
 - **The site doesn't load / certificate error:** DNS isn't pointing at the server yet, or
-  ports 80/443 are blocked by a firewall. `docker compose logs app | grep -i tls` shows the
-  certificate attempts.
+  ports 80/443 are blocked by a firewall (check your cloud provider's firewall as well as
+  the server's own). `docker compose logs app | grep -i tls` shows the certificate attempts.
+- **Warnings in the app log at start-up** such as "Caddyfile input is not formatted",
+  "No files matching import glob pattern" or "HTTP/2 skipped because it requires TLS" come
+  from the web server's built-in configuration and are expected. A line with
+  `"level":"error"` is the one to look at.
 - **"The database didn't answer":** `docker compose logs database`. The first start takes
   longer while MariaDB creates its files.
 - **No emails arrive:** check `MAILER_DSN` and that `MAILER_FROM` is an address your provider

@@ -103,7 +103,7 @@ fat %, **steps**) plus five sleep stages, stored in `health_metric`. Dedup is en
   file (works for every supported app via auto-detect — the portable path); (2)
   **Health Auto Export's built-in REST API automation** POSTs straight from the phone
   — no Mac/cron. Configure the automation with URL
-  `https://nouriloop.com/api/health-metrics/health-export`, header
+  `https://app.nouriloop.com/api/health-metrics/health-export`, header
   `Authorization: Bearer <token>`, **JSON** format, on a schedule. **Summarize Data is the
   lever that matters for glucose: OFF sends every reading** (the wizard's documented working
   config, verified against the live "NouriLoop Blood Glucose" automation 2026-07-03: JSON,
@@ -231,8 +231,9 @@ everything is derived. Fully deterministic, **no Claude call**.
   shows its own address (2026-10-12, PR 6a; it was hardcoded `https://nouriloop.com` before).
   Still **not** `url()`-derived: it's the only address a user should paste into HAE, and
   `url()` echoes whatever host the request came in on. Prod's `.env.local` sets
-  `DEFAULT_URI=https://nouriloop.com`, and `.env.test` pins the same value, so the committed
-  help screenshot is unchanged. The `connect-cgm` help topic uses the same global.
+  `DEFAULT_URI=https://app.nouriloop.com` (the hosted service moved off the root domain at the
+  Linode move, 2026-10-18; nouriloop.com is now the LLC's business site), and `.env.test` pins
+  the same value, so the committed help screenshot shows the production address. The `connect-cgm` help topic uses the same global.
 - **Routes** (catch-all `^/` auth, no security.yaml change): `GET /connect-cgm`
   (`app_connect_cgm`), `POST /connect-cgm/token` (`app_connect_cgm_token`, CSRF
   `connect-cgm-token` — mints an `ApiToken` named `ConnectCgmController::TOKEN_NAME`

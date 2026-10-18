@@ -9,7 +9,7 @@ twig:
         # .env) → no version shown; stamped per-deploy from `git describe`.
         app_version: '%env(APP_VERSION)%'
         # This instance's public address (DEFAULT_URI): what the CGM wizard tells users to
-        # paste into Health Auto Export. https://nouriloop.com on the hosted service.
+        # paste into Health Auto Export. https://app.nouriloop.com on the hosted service.
         public_base_url: '%env(DEFAULT_URI)%'
         # Hosted service or self-hosted copy (APP_HOSTING_MODE): `hosting.hosted` hides
         # pricing links on public pages of a self-hosted copy, where /pricing is a 404.

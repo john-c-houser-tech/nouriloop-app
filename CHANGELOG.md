@@ -1,12 +1,21 @@
 # Changelog
 
-What changed in each release, newest first. Dates are when the release went live on
-nouriloop.com. The format follows [Keep a Changelog](https://keepachangelog.com/), and
+What changed in each release, newest first. Dates are when the release went live on the
+hosted service (app.nouriloop.com since 3.2; nouriloop.com before). The format follows [Keep a Changelog](https://keepachangelog.com/), and
 versions follow [Semantic Versioning](https://semver.org/) loosely: a minor version adds
 something you can see, a patch fixes something.
 
 Changes to the developer notes, deployment and the project's own operations aren't
 listed.
+
+## 3.2 - 2026-10-18
+
+### Changed
+- **New address:** the hosted service is now at **app.nouriloop.com**. nouriloop.com becomes
+  NouriLoop LLC's business site.
+- **Self-hosting guide:** how to restore a backup, a note to open ports 80 and 443 in your
+  cloud provider's firewall, and which start-up warnings are expected. The settings file
+  written by `scripts/selfhost-init.sh` no longer begins with "don't edit this file".
 
 ## 3.1 - 2026-10-16
 

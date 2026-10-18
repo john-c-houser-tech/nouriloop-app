@@ -182,34 +182,29 @@ tokens, **1-hour** expiry, request throttling.
 - The bundle table is `reset_password_request` (migration
   `Version20260608184112`).
 
-## Email delivery (Mailpit dev / Postfix→IONOS prod)
+## Email delivery (Mailpit dev / Resend prod)
 Applies to all mail (password reset, notifications, new-user admin notice, welcome email).
 
 - **Dev:** `mailpit` catcher — `MAILER_DSN=smtp://localhost:1025` (`.env.dev`),
   view at http://localhost:8025 (`brew install mailpit`).
-- **Prod:** the VPS provider blocks direct outbound SMTP (port 25), so mail relays
-  through **IONOS** as a smarthost. Local **Postfix** is configured as the relay
-  (`relayhost = [smtp.ionos.com]:587` + SASL auth in `/etc/postfix/sasl_passwd`),
-  and the app hands mail to it with **`MAILER_DSN=sendmail://default`**. SPF/DKIM/
-  DMARC all pass (IONOS signs it).
+- **Prod (since 2026-10-17):** the app sends straight to **Resend** over SMTP —
+  `MAILER_DSN=smtp://resend:<key>@smtp.resend.com:587` in the server `.env.local`, with a
+  sending-only key restricted to the domain — from the subdomain **`mail.nouriloop.com`**,
+  so app-mail reputation stays apart from the root domain's human mail. SPF/DKIM/DMARC
+  pass, aligned to `mail.nouriloop.com` (verified on a live `mailer:test`). Server-side
+  details are in `nouriloop-ops`' `docs/ops/production.md`. *(Before: Postfix on the VPS
+  relayed to IONOS as the `john@nouriloop.com` mailbox, `MAILER_DSN=sendmail://default`,
+  2026-06-21 → 2026-10-17. The VPS provider blocks port 25, which is why a relay was needed.)*
 - **From address** is a global default header (`framework.mailer.headers.From`)
   driven by **`MAILER_FROM`** (`.env` / `.env.local`) — no per-message `->from()`.
-  It **must** equal the authenticated IONOS mailbox — or an alias of it — or IONOS
-  rejects it. The public contact address is **`info@nouriloop.com`** (an alias of the
-  `john@nouriloop.com` IONOS mailbox, created 2026-07-13): the repo's `.env` default
-  and every public-page contact mention now use it, **except the welcome email's
-  letter sign-off, which deliberately stays `john@nouriloop.com`** (it's a personal
-  note from John — `WelcomeEmailTest` pins this). **`info@` is an alias, not a
-  mailbox: SMTP auth is and stays `john@nouriloop.com`** — the Postfix SASL
-  credentials (`/etc/postfix/sasl_passwd` on the VPS) never change; only the visible
-  From header does. **Both directions are confirmed working (2026-07-13):** inbound —
-  mail sent to info@ lands in the john@ mailbox — and outbound — after the v1.7.0
-  deploy set prod's `MAILER_FROM` to info@, a live password-reset send arrived
-  cleanly, so IONOS accepts the alias as a From identity. Prod sends as
-  **`info@nouriloop.com`**.
-  SPF/DKIM/DMARC pass for `nouriloop.com`. (History: the sender domain was
-  `@johnchouser.com` until the IONOS `nouriloop.com` mailbox existed — cut over
-  2026-06-21; sender was `john@nouriloop.com` until the info@ alias, 2026-07-13.)
+  It must be an address the mail provider lets you send as: with Resend, any address on a
+  verified domain. **Prod sends as `NouriLoop <noreply@mail.nouriloop.com>`.** The public
+  contact address stays **`info@nouriloop.com`** (an alias of the `john@nouriloop.com`
+  mailbox): the repo's `.env` default and every public-page contact mention use it, **except
+  the welcome email's letter sign-off, which deliberately stays `john@nouriloop.com`** (it's
+  a personal note from John — `WelcomeEmailTest` pins this). (History: the sender domain was
+  `@johnchouser.com` until 2026-06-21, `john@nouriloop.com` until 2026-07-13, `info@` via
+  the IONOS relay until 2026-10-17.)
 - **Reply-To** is a second global header (`framework.mailer.headers.Reply-To` =
   **`MAILER_REPLY_TO`**, `.env` default **`noreply@nouriloop.com`**; an env var since
   2026-10-12 so a self-hosted copy can use its own domain), unlike `From` it need not be

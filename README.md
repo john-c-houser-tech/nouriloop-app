@@ -31,7 +31,7 @@ not medical advice or diagnosis.
 
 ## Three ways to use it
 
-- **Hosted:** sign up at **https://nouriloop.com**. Run by NouriLoop LLC, with a free plan.
+- **Hosted:** sign up at **https://app.nouriloop.com**. Run by NouriLoop LLC, with a free plan.
 - **Self-hosted:** run your own copy on a server, with your own name and AI key and no
   billing. [docs/self-hosting.md](docs/self-hosting.md) walks through it: Docker, one
   settings file, about an hour. The AI can be Anthropic, OpenRouter, or your own Ollama

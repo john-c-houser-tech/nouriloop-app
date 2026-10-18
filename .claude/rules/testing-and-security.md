@@ -117,7 +117,7 @@ same PR as any change to the behavior it describes.
     version (`^3.13.5` → 3.13.6), making it a **lock-only** fix. Treat any advisory whose
     fix is inside the existing constraint as one Dependabot may not raise for you.
 - **Security policy (`SECURITY.md`, added 2026-08-10):** supported-version statement
-  (the release deployed to nouriloop.com and, since PR 10 on 2026-10-15, the latest release on a
+  (the release deployed to app.nouriloop.com and, since PR 10 on 2026-10-15, the latest release on a
   self-hosted copy — never a backport; software flaws found on a self-hosted copy come here, a
   copy's own server/settings/data go to its operator via its security.txt; the self-hosting
   package is in scope), the `info@nouriloop.com`
@@ -126,7 +126,7 @@ same PR as any change to the behavior it describes.
   (own-account-only, stop-on-incidental-access, minimum-proof).
   - ⚠️ **`SECURITY.md` isn't where the researchers it addresses will look.** This repo is
     private; since 2026-10-11 the file is also published in the public `nouriloop-app`
-    mirror, but someone probing nouriloop.com has no reason to find either. The file
+    mirror, but someone probing app.nouriloop.com has no reason to find either. The file
     documents the process; it is **not** the main way for an outsider to find the contact
     address.
 - **On a self-hosted copy** `security.txt` names the operator (`OPERATOR_EMAIL`) or 404s

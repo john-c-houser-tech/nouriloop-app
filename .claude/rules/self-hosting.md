@@ -81,7 +81,10 @@ this file is only how it's packaged. Update it in the same PR as any change to t
   into both `MARIADB_PASSWORD` and `DATABASE_URL` (hex so it needs no URL escaping). Plain
   `/dev/urandom` + `od`/`base64` — no PHP or openssl on the host. It **refuses to overwrite**
   an existing `selfhost.env` (its secrets protect stored data) and creates it under `umask 077`, so it is owner-only from the moment it exists (a later
-  chmod alone left a readable window).
+  chmod alone left a readable window). It swaps the example's opening comment (everything
+  up to the first blank line, which says "don't edit this file") for one that says to fill
+  the copy in; the fresh-server test found the old header carried over into `selfhost.env`.
+  ⚠️ So the example's first blank line must stay right after its header comment.
 - The example's defaults that would otherwise leak NouriLoop's identity are all overridden
   there: `MAILER_FROM`, `MAILER_REPLY_TO`, `ADMIN_EMAIL` (new-user notices would go to
   NouriLoop's inbox), `OPERATOR_EMAIL`.
@@ -109,5 +112,19 @@ Fresh volumes → 47 migrations → HTTPS on `localhost` (Caddy's internal CA) w
 redirect → registration auto-signs in → a described meal analysed through Anthropic (an
 `ai_call` row) → `app:make-admin` → `/about` and `/pricing` 404 → security.txt names the
 copy → `down`/`up` keeps the data → the guide's `mariadb-dump` and uploads-tar backup
-commands produce real archives. **Not yet done:** the fresh-VM test with a real domain and a
-Let's Encrypt certificate (the plan's acceptance criterion), timed against the guide.
+commands produce real archives.
+
+## Verified on a fresh server (2026-10-17, the plan's acceptance test)
+Linode Seattle (2 dedicated vCPU / 4 GB, Ubuntu 24.04.4), `v3.1` cloned from the public repo,
+a real subdomain with A + AAAA records. The guide was followed word for word: working HTTPS
+with a Let's Encrypt certificate **26 minutes** after first login (including OS updates, a
+reboot and the DNS wait); the build took 2m 42s and the certificate came 5 s after start;
+`app:make-admin`, `app:ai-benchmark` 5/5, a photo meal logged, both backup commands run. Both
+backups were restored into scratch containers (a separate `mariadb:11.4`, a fresh volume):
+all 22 tables matched the live row counts, and the photos matched by checksum. Fixed from it:
+the init script's header, the provider-firewall note, the restore steps and the
+expected-warnings note in the guide. The guide's **in-place** restore sequence (stop
+app/scheduler → import as the app user → untar → `up`) hasn't been run end to end: the test
+server went away partway through it. Also untested: the 2 GB minimum and real email.
+⚠️ The database container's root password is random (`MARIADB_RANDOM_ROOT_PASSWORD`), so
+restores go through the app user (`$MARIADB_USER`), which can only reach its own database.

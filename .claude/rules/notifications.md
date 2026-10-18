@@ -108,7 +108,7 @@ so users in any timezone get their digest in their own evening (see Timezones).
   affirmative consent checkbox; `SettingsController` enforces both and records
   `User::$smsConsentAt` on opt-in (cleared on opt-out). The public policy lives at
   **`/privacy/sms`** (`PrivacyController`, `templates/privacy/sms.html.twig`,
-  `^/privacy` is `PUBLIC_ACCESS`). The page is live and complete at nouriloop.com/privacy/sms
+  `^/privacy` is `PUBLIC_ACCESS`). The page is live and complete at app.nouriloop.com/privacy/sms
   (effective June 9, 2026). **A2P 10DLC registration is complete (campaign approved).** A
   public, no-login preview of the opt-in screen lives at **`/privacy/sms-optin`**
   (`PrivacyController::smsOptin`), mirroring Settings ▸ Notifications for carrier review.
@@ -128,7 +128,7 @@ so users in any timezone get their digest in their own evening (see Timezones).
   Analytics **and the Meta Pixel** (one banner governs both — Accept grants both) and
   says meals and health data never reach them; it used to say "No health
   data is ever shared", which read as contradicting this notice. Live and
-  complete at nouriloop.com/privacy/health (effective June 9, 2026) — and note it's a
+  complete at app.nouriloop.com/privacy/health (effective June 9, 2026) — and note it's a
   consumer health-data notice, **not** a HIPAA Notice of Privacy Practices (HIPAA covers
   covered entities/business associates, which a D2C wellness app generally isn't).
 - **Terms of Service:** public at `/privacy/terms` (`PrivacyController::terms`,

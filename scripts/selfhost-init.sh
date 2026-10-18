@@ -36,11 +36,20 @@ app_secret=$(hex 32)
 user_secrets_key=$(b64 32)   # libsodium key: exactly 32 bytes, base64
 db_password=$(hex 24)        # hex, so it is safe inside DATABASE_URL
 
-sed -e "s|__SERVER_NAME__|$domain|g" \
-    -e "s|__APP_SECRET__|$app_secret|" \
-    -e "s|__USER_SECRETS_KEY__|$user_secrets_key|" \
-    -e "s|__DB_PASSWORD__|$db_password|g" \
-    selfhost.env.example > selfhost.env
+# The example's opening comment (up to the first blank line) says "don't edit this
+# file", which is right for the example and wrong for the copy, so swap it.
+{
+    echo "# Settings for this self-hosted copy, written by scripts/selfhost-init.sh."
+    echo "# Fill in the AI, email and identity sections below; keep the generated"
+    echo "# secrets as they are. Guide: docs/self-hosting.md."
+    echo
+    sed -e '1,/^$/d' \
+        -e "s|__SERVER_NAME__|$domain|g" \
+        -e "s|__APP_SECRET__|$app_secret|" \
+        -e "s|__USER_SECRETS_KEY__|$user_secrets_key|" \
+        -e "s|__DB_PASSWORD__|$db_password|g" \
+        selfhost.env.example
+} > selfhost.env
 chmod 600 selfhost.env
 
 echo "Wrote selfhost.env for $domain."

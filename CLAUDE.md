@@ -10,7 +10,7 @@
 Symfony web app for nutrition tracking: food-photo analysis (Claude vision),
 daily logs, trend charts, supplement recommendations, health-metric imports, and
 scheduled email & SMS notifications. Deployed to a production VPS
-(**https://nouriloop.com**); multi-user with full auth.
+(**https://app.nouriloop.com**; the root domain is the LLC's business site); multi-user with full auth.
 
 > **Status: publicly launched — `v1.0.0`, soft-launch 2026-06-28.** Registration is
 > **open to the public** (Free tier; beta codes still grant Loop+ — see Registration),
@@ -146,7 +146,7 @@ code that file's paths don't cover.
 
 ## Deployment (production)
 Production runs on a single Ubuntu VPS (Nginx + PHP-FPM + MariaDB, cron for the scheduled
-commands, Postfix relaying mail). The host layout, the `scripts/deploy.sh` procedure
+commands; app mail through Resend since 2026-10-17). The host layout, the `scripts/deploy.sh` procedure
 ("Deploying an update"), prod logging, SSH hardening, backups and the hard-won gotchas live
 in **`docs/ops/production.md`** in the private `nouriloop-ops` repo (`scripts/deploy.sh`
 itself stays here until production deploys from the public repo at the VPS move).

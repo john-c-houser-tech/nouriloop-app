@@ -87,7 +87,7 @@ final class SelfHostedModeTest extends WebTestCase
         $client = $this->signedIn('hosted');
         $client->request('GET', '/connect-cgm');
         self::assertSame(
-            'https://nouriloop.com/api/health-metrics/health-export',
+            'https://app.nouriloop.com/api/health-metrics/health-export',
             $client->getCrawler()->filter('#cfg-url')->attr('value'),
         );
 
