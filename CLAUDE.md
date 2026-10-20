@@ -28,7 +28,11 @@ scheduled email & SMS notifications. Deployed to a production VPS
 > production as `v3.0` (2026-10-14)**, with the old Stripe prices archived (PR 8). The
 > self-host package (PR 9, `self-hosting.md`) and the public-repo presentation (PR 10:
 > README, `CONTRIBUTING.md`, issue forms, `CHANGELOG.md`, `SECURITY.md` covering self-hosted
-> copies) are on `dev`; next is the merge into the public repo. Outside contributions come in
+> copies) are **live as `v3.1` (2026-10-16)**, with the fresh-server test's fixes in `v3.2`
+> (2026-10-18, which also moved the hosted service to app.nouriloop.com). **Since the Linode
+> cutover (2026-10-19) production deploys from this public repo**; the old private `nouriloop`
+> repo is retired and awaits archiving. Development here follows the same flow as before:
+> a branch per change → PR into `dev` → John merges `dev` into `main`. Outside contributions come in
 > under the same AGPL, with no CLA (John, 2026-10-15). Keep `CHANGELOG.md`'s *Unreleased*
 > section current: add a line when a PR changes something a user or self-hoster can see.
 
@@ -145,11 +149,12 @@ code that file's paths don't cover.
   secret.
 
 ## Deployment (production)
-Production runs on a single Ubuntu VPS (Nginx + PHP-FPM + MariaDB, cron for the scheduled
-commands; app mail through Resend since 2026-10-17). The host layout, the `scripts/deploy.sh` procedure
-("Deploying an update"), prod logging, SSH hardening, backups and the hard-won gotchas live
-in **`docs/ops/production.md`** in the private `nouriloop-ops` repo (`scripts/deploy.sh`
-itself stays here until production deploys from the public repo at the VPS move).
+Production runs on a single Ubuntu VPS at Linode (Akamai), Seattle, since the 2026-10-19
+cutover from IONOS (Nginx + PHP-FPM + MariaDB, cron for the scheduled commands; app mail
+through Resend since 2026-10-17). The server deploys from a clone of **this public repo**
+over HTTPS, with `scripts/deploy.sh` from the private `nouriloop-ops` repo; the host layout,
+the deploy procedure, prod logging, SSH hardening, backups and the hard-won gotchas live in
+**`docs/ops/production.md`** there.
 
 ## Agent skills
 
