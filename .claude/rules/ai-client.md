@@ -185,7 +185,9 @@ Owns the AI-call seam (ADR 0003). Update this file in the same PR as any change 
   against), with a note giving their count.
 - ⚠️ **Custom endpoints are an SSRF surface, guarded twice** (John, Q8c): on save the URL
   must be **https** (the key rides in every request) and must not name `localhost` or a
-  private/loopback/link-local IP literal (`IpUtils::PRIVATE_SUBNETS`); at request time the
+  private/loopback/link-local IP literal (`IpUtils::PRIVATE_SUBNETS`, which since
+  symfony/http-foundation 7.4.21 also covers the RFC 5737/3849 documentation ranges, so tests
+  use ordinary public literals as their "public" example); at request time the
   custom client goes through Symfony's **`NoPrivateNetworkHttpClient`**, which resolves
   the host itself, refuses private and reserved addresses, and pins the request to the
   address it checked (DNS rebinding included). The save-time check is UX; the runtime

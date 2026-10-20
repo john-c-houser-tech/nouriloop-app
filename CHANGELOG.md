@@ -10,6 +10,14 @@ listed.
 
 ## Unreleased
 
+### Security
+- Symfony updated within 7.4 for three advisories: a ReDoS in `symfony/http-foundation`
+  reachable through the `Cache-Control` request header (CVE-2026-108082), unbounded recursion
+  in the `symfony/yaml` inline lexer (CVE-2026-109413), and unbounded nesting in the
+  `symfony/expression-language` parser (CVE-2026-109449).
+
+## 3.2.1 - 2026-10-20
+
 ### Fixed
 - Replying to a feedback email now goes only to the person who sent the feedback, not also
   to the no-reply address.

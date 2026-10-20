@@ -78,10 +78,12 @@ same PR as any change to the behavior it describes.
     `gh pr edit <n> --base dev`. **Security-update PRs always target `main` regardless.**
     CI's `pull_request` trigger was `[main]` only, so a PR into `dev` ran no checks at
     all — it is now `[main, dev]`, because green CI is the gate for the batch (step 3).
-  - **This repo only, not the public mirror (2026-10-11):** `.github/dependabot.yml` is
-    `export-ignore`d, so `nouriloop-app` has no Dependabot config. Its vulnerability alerts
-    are off and `security-audit.yml` is disabled there, so all dependency work happens
-    here and reaches the mirror with the next sync.
+  - **Moved to this repo (2026-10-20):** while `nouriloop-app` was a mirror of the private
+    `nouriloop` repo (2026-10-11 → the 2026-10-19 Linode cutover), `dependabot.yml` was
+    `export-ignore`d, its vulnerability alerts were off and `security-audit.yml` was disabled
+    here, and all dependency work happened in the private repo. With that repo archived, this
+    is the live repo: the config is back, and Dependabot alerts, Dependabot security updates
+    and the Monday audit workflow are switched on for `nouriloop-app`.
   - **Weekly triage process for the Dependabot batch** (~15 min, manual — branch
     protection is GitHub-Pro-gated on this repo, so there's no auto-merge-on-green):
     1. **Triage by ecosystem.** `github-actions` PRs are CI-only — no prod impact, no
@@ -111,7 +113,7 @@ same PR as any change to the behavior it describes.
     the alert would have sat until the Monday `composer audit` failed. The authoritative
     list is the alerts endpoint, not the PR page:
     ```
-    gh api "/repos/john-c-houser-tech/nouriloop/dependabot/alerts?state=open"
+    gh api "/repos/john-c-houser-tech/nouriloop-app/dependabot/alerts?state=open"
     ```
     Suspected cause (unconfirmed): the manifest constraint already admitted the patched
     version (`^3.13.5` → 3.13.6), making it a **lock-only** fix. Treat any advisory whose
