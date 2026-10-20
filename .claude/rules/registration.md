@@ -1,5 +1,5 @@
 ---
-description: "Open sign-up, coupons and beta codes, email deliverability warnings, first-touch UTM attribution and its counts endpoint, and the feedback form."
+description: "Open sign-up, coupons and beta codes, email deliverability warnings, first-touch UTM attribution and its counts endpoint, and the feedback form, and the business-site contact form."
 paths:
   - "src/Controller/RegistrationController.php"
   - "src/Form/RegistrationFormType.php"
@@ -15,6 +15,8 @@ paths:
   - "src/Service/TurnstileValidator.php"
   - "templates/registration/**"
   - "templates/feedback/**"
+  - "src/Controller/SiteContactController.php"
+  - "templates/email/site_contact.html.twig"
 ---
 
 # Registration, attribution and feedback — behavioral notes
@@ -201,3 +203,32 @@ mail-transport failure **shows an error and re-renders** (not a false "sent" pag
 the best-effort admin notices, which have the DB row as a backstop. Covered by
 `tests/E2E/FeedbackTest` (public render, email sent + Reply-To, anonymous/no-email send,
 honeypot sends nothing, blank rejected 422).
+
+### Business-site contact form (`POST /site-contact`, 2026-10-20)
+The LLC business site at **nouriloop.com** is static (GitHub Pages, the public
+`nouriloop-site` repo), so its "Book a conversation" form has no server of its own: a plain
+HTML `<form method="post">` posts cross-site to **`https://app.nouriloop.com/site-contact`**
+(`SiteContactController`, `^/site-contact$` is `PUBLIC_ACCESS`). This replaced a `mailto:`
+link (which opened whatever the visitor's browser maps mail links to, IONOS webmail on
+John's machine) and meets Transformation Plan §3A item 4: delivery that doesn't depend on
+IONOS. **Hosted only** (route `condition: service('hosting').isHosted()`, so a self-hosted
+copy answers 404).
+- Fields `name` (optional, 200), `email` (required, valid), `message` (required, 5000), plus
+  the honeypot `website`. Read straight off the request, **no Symfony form and no CSRF
+  token** (the page is on another origin and has no session). Mailed to **`SITE_CONTACT_TO`**
+  (`.env` default `info@nouriloop.com`), subject "Business site: {name}", Reply-To the
+  visitor, template `email/site_contact.html.twig` (team-facing, English, names the LLC's
+  site literally). Not persisted.
+- **Every outcome is a 303 back to the static site** at `SITE_CONTACT_ORIGIN` (`.env`
+  default `https://nouriloop.com`): success and the honeypot → `/contact/thanks/`; bad input,
+  the cap or a mail failure → `/contact/problem/?reason=invalid|limited|error`. Those two
+  pages live in `nouriloop-site`; keep the paths in step.
+- **Defenses:** the honeypot, the **`site_contact` limiter** (5/hour per client IP), and an
+  **Origin check** — an `Origin` that isn't `SITE_CONTACT_ORIGIN` gets a 403, **including
+  the opaque `null`** a sandboxed iframe sends (a Copilot review catch: accepting it let a foreign
+  page post through a visitor's browser and spend their per-IP allowance). Only an absent
+  header passes; a bot can forge the header anyway, so this only stops other sites' pages
+  from using visitors' browsers to post the form. **No Turnstile**: the business site loads no third-party
+  script. The recipient is fixed, so the worst abuse is spam to our own inbox.
+- Covered by `tests/E2E/SiteContactTest` (send + sole Reply-To, honeypot, invalid input,
+  foreign and `null` Origin 403, the sixth-in-an-hour cap, GET 405, self-hosted 404).

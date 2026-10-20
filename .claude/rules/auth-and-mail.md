@@ -210,6 +210,11 @@ Applies to all mail (password reset, notifications, new-user admin notice, welco
   2026-10-12 so a self-hosted copy can use its own domain), unlike `From` it need not be
   the authenticated mailbox — it just steers replies to an unmonitored box so they don't
   land in the `From` mailbox.
+  It is a **default, not an addition** (2026-10-20): Symfony's own rule for Reply-To is
+  "add", so a message that set its own Reply-To (the feedback and business-site contact
+  forms) went out replying to `noreply@` **as well as** the submitter. `src/Kernel.php`'s
+  compiler pass changes the `mailer.message_listener` rule to set-if-empty; pinned by
+  `FeedbackTest` (submitter only), `SiteContactTest`, and `WelcomeEmailTest` (default kept).
 - Mailer/SMS go through **Messenger** but are intentionally **left unrouted in
   `config/packages/messenger.yaml`**, so they send **synchronously in-process in
   all environments** — no `messenger:consume` worker is required. (The Flex recipe's
