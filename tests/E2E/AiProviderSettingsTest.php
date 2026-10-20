@@ -87,12 +87,16 @@ final class AiProviderSettingsTest extends WebTestCase
     {
         [$client, $user] = $this->signedIn();
         $cases = [
-            ['http://203.0.113.10/v1', 'm', 'must start with https://'],
+            ['http://93.184.216.34/v1', 'm', 'must start with https://'],
             ['https://127.0.0.1/v1', 'm', 'private network or this computer'],
             ['https://localhost/v1', 'm', 'private network or this computer'],
             ['https://10.1.2.3/v1', 'm', 'private network or this computer'],
             ['https://[::1]/v1', 'm', 'private network or this computer'],
-            ['https://203.0.113.10/v1', '', 'Enter the model name'],
+            // Documentation ranges (RFC 5737) count as non-public since symfony/http-foundation
+            // 7.4.21, so the "public" addresses in this file are ordinary public literals; the
+            // HTTP client is faked, so nothing is ever contacted.
+            ['https://203.0.113.10/v1', 'm', 'private network or this computer'],
+            ['https://93.184.216.34/v1', '', 'Enter the model name'],
         ];
         foreach ($cases as [$url, $model, $message]) {
             $this->save($client, [
@@ -106,10 +110,10 @@ final class AiProviderSettingsTest extends WebTestCase
         // A public address over https with a model saves, and the connection test reaches it.
         $this->save($client, [
             'provider' => 'custom', 'api_key' => 'k-1234',
-            'base_url' => 'https://203.0.113.10/v1/', 'text_model' => 'llama-x',
+            'base_url' => 'https://93.184.216.34/v1/', 'text_model' => 'llama-x',
         ]);
         self::assertResponseRedirects('/settings/ai');
-        self::assertSame('https://203.0.113.10/v1', $this->conn()->fetchOne('SELECT base_url FROM user_ai_settings'));
+        self::assertSame('https://93.184.216.34/v1', $this->conn()->fetchOne('SELECT base_url FROM user_ai_settings'));
         $client->followRedirect();
         self::assertSelectorTextContains('#ai-status', 'Using your own key for a custom service (•••• 1234).');
         $this->testConnection($client);
@@ -155,23 +159,23 @@ final class AiProviderSettingsTest extends WebTestCase
         [$client] = $this->signedIn();
         $this->save($client, [
             'provider' => 'custom', 'api_key' => 'k-first-service',
-            'base_url' => 'https://203.0.113.10/v1', 'text_model' => 'm',
+            'base_url' => 'https://93.184.216.34/v1', 'text_model' => 'm',
         ]);
         self::assertResponseRedirects('/settings/ai');
         $stored = $this->conn()->fetchOne('SELECT encrypted_key FROM user_ai_settings');
 
         $this->save($client, [
-            'provider' => 'custom', 'api_key' => '', 'base_url' => 'https://198.51.100.7/v1', 'text_model' => 'm',
+            'provider' => 'custom', 'api_key' => '', 'base_url' => 'https://93.184.216.35/v1', 'text_model' => 'm',
         ]);
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('#ai-form', 'Enter the API key for this service.');
         self::assertSelectorTextNotContains('#ai-form', 'Leave blank to keep the key you saved.');
-        self::assertSame('https://203.0.113.10/v1', $this->conn()->fetchOne('SELECT base_url FROM user_ai_settings'));
+        self::assertSame('https://93.184.216.34/v1', $this->conn()->fetchOne('SELECT base_url FROM user_ai_settings'));
         self::assertSame($stored, $this->conn()->fetchOne('SELECT encrypted_key FROM user_ai_settings'));
 
         // The same address (trailing slash and case aside) keeps the saved key.
         $this->save($client, [
-            'provider' => 'custom', 'api_key' => '', 'base_url' => 'https://203.0.113.10/V1/', 'text_model' => 'm2',
+            'provider' => 'custom', 'api_key' => '', 'base_url' => 'https://93.184.216.34/V1/', 'text_model' => 'm2',
         ]);
         self::assertResponseRedirects('/settings/ai');
     }
