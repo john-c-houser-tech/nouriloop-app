@@ -28,7 +28,11 @@ scheduled email & SMS notifications. Deployed to a production VPS
 > production as `v3.0` (2026-10-14)**, with the old Stripe prices archived (PR 8). The
 > self-host package (PR 9, `self-hosting.md`) and the public-repo presentation (PR 10:
 > README, `CONTRIBUTING.md`, issue forms, `CHANGELOG.md`, `SECURITY.md` covering self-hosted
-> copies) are on `dev`; next is the merge into the public repo. Outside contributions come in
+> copies) are **live as `v3.1` (2026-10-16)**, with the fresh-server test's fixes in `v3.2`
+> (2026-10-18, which also moved the hosted service to app.nouriloop.com). **Since the Linode
+> cutover (2026-10-19) production deploys from this public repo**; the old private `nouriloop`
+> repo is retired and awaits archiving. Development here follows the same flow as before:
+> a branch per change → PR into `dev` → John merges `dev` into `main`. Outside contributions come in
 > under the same AGPL, with no CLA (John, 2026-10-15). Keep `CHANGELOG.md`'s *Unreleased*
 > section current: add a line when a PR changes something a user or self-hoster can see.
 
@@ -90,7 +94,7 @@ behavior lives in its rules file.
 | `.claude/rules/insights-and-coaching.md` | `src/Controller/PredictiveInsightController.php`, `src/Service/PredictiveInsightService.php`, `src/Dto/ScenarioRequest.php`, … | Predictive Help; Postprandial glucose response & insights; AI voice & tone |
 | `.claude/rules/timezones.md` | `src/Service/UserTime.php`, `src/Service/TimezoneChanger.php`, `src/Twig/TimeExtension.php`, … | Timezones |
 | `.claude/rules/i18n.md` | `translations/**`, `src/Enum/SupportedLocale.php`, `src/EventSubscriber/LocaleSubscriber.php`, … | Internationalization; Phase 4; Translation catalogs; Phase 3; Phase 2 |
-| `.claude/rules/registration.md` | `src/Controller/RegistrationController.php`, `src/Form/RegistrationFormType.php`, `src/Service/InvitationCodeManager.php`, … | Registration; Registration attribution; Feedback form |
+| `.claude/rules/registration.md` | `src/Controller/RegistrationController.php`, `src/Form/RegistrationFormType.php`, `src/Service/InvitationCodeManager.php`, … | Registration; Registration attribution; Feedback form; Business-site contact form (`POST /site-contact`, 2026-10-20) |
 | `.claude/rules/admin.md` | `src/Controller/AdminUserController.php`, `src/Controller/AdminReportController.php`, `src/Dto/AdminUserFilters.php`, … | Admin / user management |
 | `.claude/rules/settings-and-account.md` | `templates/base.html.twig`, `src/Controller/SettingsController.php`, `src/Form/ProfileFormType.php`, … | Navbar; Settings hub; Profile; Account deletion |
 | `.claude/rules/notifications.md` | `src/Service/NotificationService.php`, `src/Command/SendNotificationsCommand.php`, `src/Outbound/**`, … | Email & SMS notifications; In-app notification center |
@@ -145,11 +149,12 @@ code that file's paths don't cover.
   secret.
 
 ## Deployment (production)
-Production runs on a single Ubuntu VPS (Nginx + PHP-FPM + MariaDB, cron for the scheduled
-commands; app mail through Resend since 2026-10-17). The host layout, the `scripts/deploy.sh` procedure
-("Deploying an update"), prod logging, SSH hardening, backups and the hard-won gotchas live
-in **`docs/ops/production.md`** in the private `nouriloop-ops` repo (`scripts/deploy.sh`
-itself stays here until production deploys from the public repo at the VPS move).
+Production runs on a single Ubuntu VPS at Linode (Akamai), Seattle, since the 2026-10-19
+cutover from IONOS (Nginx + PHP-FPM + MariaDB, cron for the scheduled commands; app mail
+through Resend since 2026-10-17). The server deploys from a clone of **this public repo**
+over HTTPS, with `scripts/deploy.sh` from the private `nouriloop-ops` repo; the host layout,
+the deploy procedure, prod logging, SSH hardening, backups and the hard-won gotchas live in
+**`docs/ops/production.md`** there.
 
 ## Agent skills
 

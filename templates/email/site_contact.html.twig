@@ -1,0 +1,14 @@
+{# i18n: team-facing (SITE_CONTACT_TO) — stays English on purpose. The business site is NouriLoop LLC's, so it is named literally. #}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #212529; line-height: 1.5;">
+    <h2 style="margin-bottom: 4px;">Message from the nouriloop.com contact form</h2>
+    <ul>
+        <li><strong>Name:</strong> {{ name ?: '(not given)' }}</li>
+        <li><strong>Email:</strong> {{ fromEmail }}</li>
+    </ul>
+    <p style="white-space: pre-wrap; border-left: 3px solid #dee2e6; padding-left: 12px; color: #212529;">{{ message }}</p>
+    <p style="color: #6c757d; font-size: 13px;">Reply directly to this email to respond.</p>
+</body>
+</html>

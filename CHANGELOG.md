@@ -8,6 +8,12 @@ something you can see, a patch fixes something.
 Changes to the developer notes, deployment and the project's own operations aren't
 listed.
 
+## Unreleased
+
+### Fixed
+- Replying to a feedback email now goes only to the person who sent the feedback, not also
+  to the no-reply address.
+
 ## 3.2 - 2026-10-18
 
 ### Changed
