@@ -57,6 +57,8 @@ final class WelcomeEmailTest extends WebTestCase
         $welcome = $bySubject['Welcome to NouriLoop'] ?? null;
         self::assertNotNull($welcome, 'welcome email sent');
         $this->assertEmailAddressContains($welcome, 'To', 'welcomed@test.local');
+        // A message that sets no Reply-To still gets the global MAILER_REPLY_TO.
+        $this->assertEmailAddressContains($welcome, 'Reply-To', 'noreply@nouriloop.com');
         $this->assertEmailHtmlBodyContains($welcome, 'Welcome Welcomed Person,');
 
         // The founder's letter must run uninterrupted: the verification CTA sits

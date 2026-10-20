@@ -79,6 +79,8 @@ security:
         - { path: ^/lp, roles: PUBLIC_ACCESS }
         # Public "Send us feedback" form (linked from the footer on every page).
         - { path: ^/feedback, roles: PUBLIC_ACCESS }
+        # The business site's contact form (nouriloop.com posts here; SiteContactController).
+        - { path: ^/site-contact$, roles: PUBLIC_ACCESS }
         # SEO crawl files (served by controllers, so they pass through the firewall).
         - { path: '^/(robots\.txt|sitemap\.xml|app\.webmanifest)$', roles: PUBLIC_ACCESS }
         # RFC 9116 security.txt — the vulnerability-reporting contact. MUST stay

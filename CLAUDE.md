@@ -90,7 +90,7 @@ behavior lives in its rules file.
 | `.claude/rules/insights-and-coaching.md` | `src/Controller/PredictiveInsightController.php`, `src/Service/PredictiveInsightService.php`, `src/Dto/ScenarioRequest.php`, … | Predictive Help; Postprandial glucose response & insights; AI voice & tone |
 | `.claude/rules/timezones.md` | `src/Service/UserTime.php`, `src/Service/TimezoneChanger.php`, `src/Twig/TimeExtension.php`, … | Timezones |
 | `.claude/rules/i18n.md` | `translations/**`, `src/Enum/SupportedLocale.php`, `src/EventSubscriber/LocaleSubscriber.php`, … | Internationalization; Phase 4; Translation catalogs; Phase 3; Phase 2 |
-| `.claude/rules/registration.md` | `src/Controller/RegistrationController.php`, `src/Form/RegistrationFormType.php`, `src/Service/InvitationCodeManager.php`, … | Registration; Registration attribution; Feedback form |
+| `.claude/rules/registration.md` | `src/Controller/RegistrationController.php`, `src/Form/RegistrationFormType.php`, `src/Service/InvitationCodeManager.php`, … | Registration; Registration attribution; Feedback form; Business-site contact form (`POST /site-contact`, 2026-10-20) |
 | `.claude/rules/admin.md` | `src/Controller/AdminUserController.php`, `src/Controller/AdminReportController.php`, `src/Dto/AdminUserFilters.php`, … | Admin / user management |
 | `.claude/rules/settings-and-account.md` | `templates/base.html.twig`, `src/Controller/SettingsController.php`, `src/Form/ProfileFormType.php`, … | Navbar; Settings hub; Profile; Account deletion |
 | `.claude/rules/notifications.md` | `src/Service/NotificationService.php`, `src/Command/SendNotificationsCommand.php`, `src/Outbound/**`, … | Email & SMS notifications; In-app notification center |

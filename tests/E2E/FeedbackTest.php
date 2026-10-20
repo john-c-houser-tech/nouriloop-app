@@ -44,6 +44,8 @@ final class FeedbackTest extends WebTestCase
         $this->assertEmailAddressContains($email, 'To', 'info@nouriloop.com');
         // Submitter's address becomes Reply-To so a reply goes straight back to them.
         $this->assertEmailAddressContains($email, 'Reply-To', 'casey@example.test');
+        // ...and only them: the global MAILER_REPLY_TO is a default, not an addition.
+        $this->assertEmailAddressNotContains($email, 'Reply-To', 'noreply@nouriloop.com');
         $this->assertEmailHtmlBodyContains($email, 'Love the app');
         $this->assertEmailHtmlBodyContains($email, 'Casey Tester');
     }
