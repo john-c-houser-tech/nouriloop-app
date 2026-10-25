@@ -10,10 +10,20 @@ listed.
 
 ## Unreleased
 
+## 3.3.1 - 2026-10-25
+
+### Fixed
+- The help center's screenshots and the diabetes page's Glucose Insights picture show the
+  new mark.
+
+## 3.3 - 2026-10-25
+
 ### Changed
 - A new NouriLoop mark: a bowl with a coil of steam, gold on slate, in the navbar, on the
   sign-in pages, as the app and home-screen icon, the browser-tab icon and the link preview
   card. The old infinity loop blurred at tab size.
+
+## 3.2.2 - 2026-10-20
 
 ### Security
 - Symfony updated within 7.4 for three advisories: a ReDoS in `symfony/http-foundation`
