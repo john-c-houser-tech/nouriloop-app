@@ -10,6 +10,11 @@ listed.
 
 ## Unreleased
 
+### Changed
+- A new NouriLoop mark: a bowl with a coil of steam, gold on slate, in the navbar, on the
+  sign-in pages, as the app and home-screen icon, the browser-tab icon and the link preview
+  card. The old infinity loop blurred at tab size.
+
 ### Security
 - Symfony updated within 7.4 for three advisories: a ReDoS in `symfony/http-foundation`
   reachable through the `Cache-Control` request header (CVE-2026-108082), unbounded recursion

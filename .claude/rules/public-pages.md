@@ -150,14 +150,16 @@ stays out of the index.
   per-page blurb); everything else inherits the marketing default. **Authenticated pages
   get `<meta name="robots" content="noindex">`** (emitted when `app.user` is set) as a
   backstop to robots.txt — no private/health page is ever indexed.
-- **OG card:** `public/images/og-card.png` (1200×630, brand teal→slate + the real
-  `auth-logo.png` mark), referenced via `absolute_url(asset(...))`. Committed to git (like
+- **OG card:** `public/images/og-card.png` (1200×630, brand teal→slate + the app-icon tile
+  of the bowl-and-steam mark), referenced via `absolute_url(asset(...))`. Committed to git (like
   the help screenshots, **not** under gitignored `public/uploads/`). The **source is
-  `public/images/og-card.svg`** (self-contained — the logo is embedded as a base64 data
-  URI), so a tweak is a one-line regenerate:
+  `public/images/og-card.svg`** (self-contained — since 2026-10-24 the mark is inline SVG, the
+  same tile as the app icon, not an embedded PNG), so a tweak is a one-line regenerate:
   `rsvg-convert -w 1200 -h 630 public/images/og-card.svg -o public/images/og-card.png`
   (needs `librsvg`/`rsvg-convert` — `brew install librsvg`; ImageMagick's built-in SVG
-  renderer drops `url()` gradients and can't resolve fonts, so use rsvg).
+  renderer drops `url()` gradients and can't resolve fonts, so use rsvg). Headless Chrome
+  (`--screenshot --window-size=1200,630` on an HTML wrapper) renders it identically and is
+  what produced the 2026-10-24 card.
 - Covered by `tests/E2E/SeoTest` (robots public + no `/dashboard` rule; sitemap is valid
   XML listing every help topic; `/about` carries title/description/canonical/OG; public
   page indexable, authenticated page noindex).
