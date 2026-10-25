@@ -30,8 +30,9 @@
 <div class="container py-4" style="max-width: 720px;">
 
     {# Brand mark — deliberately not a link (keep the visitor on the CTA path). #}
-    <div class="d-flex align-items-center justify-content-center gap-2 mb-4 text-muted">
-        <img src="{{ asset('navbar-logo.png') }}" alt="" width="28" height="28">
+    {# Same lockup rule as the navbar (base.html.twig ▸ .brand-lockup): at 28 px the mark hangs 11.1 px below the baseline. #}
+    <div class="text-center mb-4 text-muted" style="white-space: nowrap;">
+        <img src="{{ asset('navbar-logo.png') }}" alt="" width="28" height="28" style="vertical-align: -11.1px; margin-right: .5rem;">
         <span class="fw-bold fs-5" style="letter-spacing: -0.5px; color: var(--slate);">NouriLoop</span>
     </div>
 

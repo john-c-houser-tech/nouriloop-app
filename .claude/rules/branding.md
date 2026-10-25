@@ -47,6 +47,20 @@ the same PR as any change to it.
   else NouriLoop's own asset of the right size on the hosted service (`auth-logo.png`,
   `navbar-logo.png`, `icon-192x192.png`), else a neutral `bi-egg-fried` icon on pages and
   nothing in email.
+- **NouriLoop's mark (2026-10-24)** is a bowl with a coil of steam seen from the side, gold
+  (`#f1c24d`) on slate (`#1f2937`). It replaced the gold infinity-loop-leaf-head mark, which
+  blurred at favicon size and sat in a crowd of look-alike wellness logos (the search record is
+  in the business folder, `logo/HANDOFF-logo-favicon.md`). One vector source, kept in the business
+  folder (`logo/app-n1-steam-surface.svg`); every PNG in `public/` is rendered from it:
+  `navbar-logo.png` is the bare gold mark on transparent; `auth-logo.png` and the favicons are the
+  mark on a rounded slate tile; `apple-touch-icon.png`, `icon-192x192.png` and `icon-512x512.png`
+  are full-bleed slate (the manifest marks them maskable). `public/images/og-card.svg` carries the
+  same tile inline.
+- **Lockup rule** (John, 2026-10-24): beside its name at navbar size, NouriLoop's mark is not
+  centred on the text — the text baseline sits on the bottom edge of the bowl's rim line
+  (`.brand-lockup` in `base.html.twig`: at 32 px the image hangs 12.7 px below the baseline;
+  `lp/_layout.html.twig` does the same at 28 px). An operator's own logo keeps the centred flex
+  lockup, since the rule is about this drawing.
 - **`OPERATOR_EMAIL`, `PRIVACY_URL`, `TERMS_URL`, `SOURCE_URL`** (default
   `Brand::DEFAULT_SOURCE_URL`, the public repo).
 - Templates: the **`brand`** Twig global (`brand.name`, `brand.isNouriLoop`,

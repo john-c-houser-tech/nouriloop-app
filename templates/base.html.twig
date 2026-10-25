@@ -182,6 +182,11 @@
            stays visible without the hero overflowing the screen). */
         .min-vh-hero { min-height: calc(100vh - var(--footer-h)); }
         .navbar-brand { font-weight: 700; letter-spacing: -0.5px; }
+        /* NouriLoop's own mark beside the name: the text baseline sits on the bottom edge of the
+           bowl's rim line, not centred on the mark (John, 2026-10-24). In the 64-unit drawing that
+           edge is 38.62 from the top, so at 32 px the mark hangs 12.7 px below the baseline. */
+        .brand-lockup { white-space: nowrap; }
+        .brand-lockup img { vertical-align: -12.7px; margin-right: .5rem; }
         .nav-link.active { font-weight: 600; }
         /* Expanded navbar only: keep each item's icon and label on ONE line. The bar
            is wide enough to fit at the lg breakpoint, but a label that wraps puts the
@@ -283,7 +288,8 @@
 {% if app.user and not chrome_suppressed %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-slate">
     <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('app_dashboard') }}">
+        {# An operator's own logo is centred; NouriLoop's mark uses the lockup rule (.brand-lockup). #}
+        <a class="navbar-brand {{ brand.isNouriLoop and not brand.logoUrl ? 'brand-lockup' : 'd-flex align-items-center gap-2' }}" href="{{ path('app_dashboard') }}">
             {% include '_brand_mark.html.twig' with {variant: 'navbar', size: 32, class: 'd-inline-block'} %}
             <span>{{ brand.name }}</span>
         </a>
