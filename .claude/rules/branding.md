@@ -60,7 +60,9 @@ the same PR as any change to it.
   centred on the text — the text baseline sits on the bottom edge of the bowl's rim line
   (`.brand-lockup` in `base.html.twig`: at 32 px the image hangs 12.7 px below the baseline;
   `lp/_layout.html.twig` does the same at 28 px). An operator's own logo keeps the centred flex
-  lockup, since the rule is about this drawing.
+  lockup, since the rule is about this drawing. In the expanded bar (≥ 992 px) the container
+  aligns its items by baseline when the lockup is present, so "NouriLoop" and "Today" share a
+  baseline (they were ~1 px apart under Bootstrap's centring); the bar's height does not change.
 - **`OPERATOR_EMAIL`, `PRIVACY_URL`, `TERMS_URL`, `SOURCE_URL`** (default
   `Brand::DEFAULT_SOURCE_URL`, the public repo).
 - Templates: the **`brand`** Twig global (`brand.name`, `brand.isNouriLoop`,

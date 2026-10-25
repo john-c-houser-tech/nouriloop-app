@@ -187,6 +187,13 @@
            edge is 38.62 from the top, so at 32 px the mark hangs 12.7 px below the baseline. */
         .brand-lockup { white-space: nowrap; }
         .brand-lockup img { vertical-align: -12.7px; margin-right: .5rem; }
+        /* In the expanded bar, line the brand's baseline up with the nav links' ("Today" and the rest):
+           Bootstrap centres the two boxes, and their different font sizes leave the baselines ~1 px
+           apart. Baseline alignment keeps the bar the same height. Below lg the hamburger has no
+           text baseline, so the rule stays off there. */
+        @media (min-width: 992px) {
+            .navbar-expand-lg > .container-fluid:has(.brand-lockup) { align-items: baseline; }
+        }
         .nav-link.active { font-weight: 600; }
         /* Expanded navbar only: keep each item's icon and label on ONE line. The bar
            is wide enough to fit at the lg breakpoint, but a label that wraps puts the
