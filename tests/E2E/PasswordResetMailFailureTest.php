@@ -79,6 +79,34 @@ final class PasswordResetMailFailureTest extends WebTestCase
         self::assertCount(1, $em->getRepository(ResetPasswordRequest::class)->findAll());
     }
 
+    /**
+     * `a..b@example.com` passes the form's Email constraint, but the mail library refuses
+     * it when the recipient is set. That's a failed send like any other, not a 500.
+     */
+    public function testAnAddressTheMailLibraryRejectsIsTreatedAsAFailedSend(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $this->truncateAll($em);
+        $this->seedUser($em, 'double..dot@test.local');
+
+        $this->requestReset($client, 'double..dot@test.local');
+        $this->assertResponseRedirects('/reset-password/check-email');
+        $this->assertEmailCount(0);
+        $failedPage = $client->followRedirect()->html();
+        $em->clear();
+        self::assertCount(
+            0,
+            $em->getRepository(ResetPasswordRequest::class)->findAll(),
+            'the failed request is dropped',
+        );
+
+        // The page is the one an unknown address gets.
+        $this->requestReset($client, 'nobody@test.local');
+        $this->assertResponseRedirects('/reset-password/check-email');
+        self::assertSame($this->pageBody($failedPage), $this->pageBody($client->followRedirect()->html()));
+    }
+
     private function requestReset(KernelBrowser $client, string $email): void
     {
         $client->request('GET', '/reset-password');

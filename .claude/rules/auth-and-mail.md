@@ -177,7 +177,10 @@ tokens, **1-hour** expiry, request throttling.
   check-email page, with the placeholder token an unknown address gets, so the
   failure reveals nothing about the account (the magic-link posture). The stored
   request is removed, so the page's "Try again" sends a fresh link at once instead
-  of being throttled for an hour behind one that never arrived. Covered by
+  of being throttled for an hour behind one that never arrived. An address the
+  mail library refuses counts as a failed send too: `a..b@example.com` passes the
+  form's `Email` constraint but `->to()` throws, so such an account gets no reset
+  link and nothing tells its owner why. Covered by
   `tests/E2E/PasswordResetMailFailureTest`.
 - The bundle table is `reset_password_request` (migration
   `Version20260608184112`).
