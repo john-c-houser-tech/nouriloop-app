@@ -10,11 +10,17 @@ listed.
 
 ## Unreleased
 
+## 3.3.2 - 2026-11-02
+
 ### Security
 - `symfony/mime` updated to 7.4.22 for CVE-2026-45070, an email header injection through
   MIME parameter names. Versions up to 7.4.21 are affected, including 7.4.12, which was
   first announced as the fix. NouriLoop doesn't set parameter names from user input, so this
   is a precaution.
+
+### Changed
+- Routine dependency updates within their current major versions, including Doctrine ORM
+  3.7, Twig 3.30 and Symfony 7.4 patch releases.
 
 ## 3.3.1 - 2026-10-25
 
