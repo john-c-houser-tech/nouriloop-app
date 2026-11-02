@@ -93,6 +93,10 @@ final class PasswordResetMailFailureTest extends WebTestCase
         $this->requestReset($client, 'double..dot@test.local');
         $this->assertResponseRedirects('/reset-password/check-email');
         $this->assertEmailCount(0);
+        self::assertFalse(
+            $client->getRequest()->getSession()->has('ResetPasswordToken'),
+            'no real token is kept for the check-email page',
+        );
         $failedPage = $client->followRedirect()->html();
         $em->clear();
         self::assertCount(

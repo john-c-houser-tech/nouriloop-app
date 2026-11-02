@@ -173,7 +173,8 @@ tokens, **1-hour** expiry, request throttling.
   whether the account exists) → email link → set new password → redirect to
   login with a success flash. Reset errors use the standard `error` flash bag.
 - **A failed send isn't a 500 (#225, 2026-10-07).** A mail-transport failure is
-  caught and `warning`-logged (by user id), and the user lands on the same
+  caught and `warning`-logged (by user id, though the error text can include the
+  address), and the user lands on the same
   check-email page, with the placeholder token an unknown address gets, so the
   failure reveals nothing about the account (the magic-link posture). The stored
   request is removed, so the page's "Try again" sends a fresh link at once instead
