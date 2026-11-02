@@ -182,15 +182,17 @@ class ResetPasswordController extends AbstractController
             $mailer,
             $translator,
         ): bool {
-            $email = (new TemplatedEmail())
-                ->to((string) $user->getEmail())
-                ->subject($translator->trans('delivery.transactional.reset_subject'))
-                ->htmlTemplate('reset_password/email.html.twig')
-                ->context([
-                    'resetToken' => $resetToken,
-                ]);
-
             try {
+                // Inside the try: ->to() throws on an address the form's Email constraint
+                // accepts but the mail library refuses, such as a..b@example.com.
+                $email = (new TemplatedEmail())
+                    ->to((string) $user->getEmail())
+                    ->subject($translator->trans('delivery.transactional.reset_subject'))
+                    ->htmlTemplate('reset_password/email.html.twig')
+                    ->context([
+                        'resetToken' => $resetToken,
+                    ]);
+
                 $mailer->send($email);
 
                 return true;
