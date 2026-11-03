@@ -10,6 +10,11 @@ listed.
 
 ## Unreleased
 
+### Fixed
+- Asking for a password reset no longer shows a server error when the account's email address
+  can't be mailed, such as one with two dots in a row. The request ends on the usual
+  check-your-email page, but no reset email is sent.
+
 ## 3.3.2 - 2026-11-02
 
 ### Security
