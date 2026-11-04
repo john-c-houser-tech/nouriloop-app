@@ -10,6 +10,8 @@ listed.
 
 ## Unreleased
 
+## 3.3.4 - 2026-11-04
+
 ### Security
 - The contact form on nouriloop.com now checks that it was loaded and filled in by a person:
   a signed token the page fetches when it opens (so a bot posting the bare form is turned
