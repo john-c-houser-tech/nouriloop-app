@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\TurnstileValidator;
+use App\SiteContact\FormToken;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +30,9 @@ use Symfony\Component\Validator\Validation;
  *
  * The visitor is on another origin, so there is no CSRF token and no session. Each
  * outcome redirects back to a static page on SITE_CONTACT_ORIGIN, and the defenses are a
- * honeypot, a per-IP cap and a check that any Origin sent is the business site's.
+ * honeypot, a signed form token the page fetches with JavaScript (FormToken), a per-IP cap,
+ * a Cloudflare Turnstile check (TurnstileValidator, once its keys are set) and a check
+ * that any Origin sent is the business site's.
  * The recipient is fixed, so the worst abuse is spam to our own inbox.
  */
 class SiteContactController extends AbstractController
@@ -41,6 +46,31 @@ class SiteContactController extends AbstractController
     ) {
     }
 
+    /**
+     * The page asks for a token when it loads, and for the Turnstile site key (empty while
+     * Turnstile is off, so the page then shows no widget). Readable only from the business
+     * site's origin (CORS), never cached, and worthless on its own: the token just says when
+     * the form was opened, and the site key is public by design.
+     */
+    #[Route(
+        '/site-contact/token',
+        name: 'app_site_contact_token',
+        methods: ['GET'],
+        condition: "service('hosting').isHosted()",
+    )]
+    public function token(FormToken $formToken, TurnstileValidator $turnstile): Response
+    {
+        $response = new JsonResponse([
+            'token' => $formToken->issue(),
+            'turnstileSiteKey' => $turnstile->isEnabled() ? $turnstile->siteKey() : '',
+        ]);
+        $response->headers->set('Access-Control-Allow-Origin', rtrim($this->siteOrigin, '/'));
+        $response->headers->set('Vary', 'Origin');
+        $response->headers->set('Cache-Control', 'no-store');
+
+        return $response;
+    }
+
     #[Route(
         '/site-contact',
         name: 'app_site_contact',
@@ -51,6 +81,8 @@ class SiteContactController extends AbstractController
         Request $request,
         MailerInterface $mailer,
         LoggerInterface $logger,
+        FormToken $formToken,
+        TurnstileValidator $turnstile,
         #[Target('site_contact')] RateLimiterFactoryInterface $siteContactLimiter,
     ): Response {
         $origin = rtrim($this->siteOrigin, '/');
@@ -66,6 +98,13 @@ class SiteContactController extends AbstractController
         // Honeypot tripped → look successful but send nothing.
         if (trim((string) $request->request->get('website', '')) !== '') {
             return $this->back($origin, 'thanks');
+        }
+
+        // No token, a forged or stale one, or one used within seconds of the page opening:
+        // a script posting the HTML form, or a visitor with JavaScript off. Say so on the
+        // problem page, which also gives the address and phone number.
+        if (!$formToken->isValid((string) $request->request->get('ft', ''))) {
+            return $this->back($origin, 'problem', 'check');
         }
 
         if (!$siteContactLimiter->create('site-contact-ip-' . $request->getClientIp())->consume()->isAccepted()) {
@@ -86,6 +125,11 @@ class SiteContactController extends AbstractController
         );
         if (\count($violations) > 0) {
             return $this->back($origin, 'problem', 'invalid');
+        }
+
+        $turnstileResponse = (string) $request->request->get('cf-turnstile-response', '');
+        if (!$turnstile->verify($turnstileResponse, $request->getClientIp())) {
+            return $this->back($origin, 'problem', 'check');
         }
 
         try {

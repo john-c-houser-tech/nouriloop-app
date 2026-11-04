@@ -10,6 +10,13 @@ listed.
 
 ## Unreleased
 
+### Security
+- The contact form on nouriloop.com now checks that it was loaded and filled in by a person:
+  a signed token the page fetches when it opens (so a bot posting the bare form is turned
+  away), and the same Cloudflare Turnstile check the registration form uses. A visitor with
+  JavaScript turned off sees the "message not sent" page, which gives our address and phone
+  number.
+
 ## 3.3.3 - 2026-11-02
 
 ### Fixed

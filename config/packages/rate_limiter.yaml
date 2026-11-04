@@ -54,8 +54,8 @@ framework:
             limit: 3
             interval: '1 hour'
         # The business site's contact form (POST /site-contact): unauthenticated and
-        # mail-triggering, per client IP. Honeypot + this cap; no Turnstile, because the
-        # form lives on the static nouriloop.com site, which loads no third-party script.
+        # mail-triggering, per client IP. One of several defenses: honeypot, signed form
+        # token, Cloudflare Turnstile, and this cap (see SiteContactController).
         site_contact:
             policy: 'sliding_window'
             limit: 5
