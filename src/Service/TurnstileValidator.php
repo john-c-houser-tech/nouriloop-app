@@ -9,8 +9,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Cloudflare Turnstile CAPTCHA verification for the public invitation-request
- * form. Configured via TURNSTILE_SITEKEY / TURNSTILE_SECRET in .env.local.
+ * Cloudflare Turnstile CAPTCHA verification for the public forms (registration,
+ * feedback, and the business site's contact form). Configured via TURNSTILE_SITEKEY / TURNSTILE_SECRET in .env.local.
  *
  * Mirrors the app's optional-integration pattern (cf. Twilio): when no secret is
  * configured the check is a no-op that passes, so local/dev works without keys.
