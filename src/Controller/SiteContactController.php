@@ -107,10 +107,6 @@ class SiteContactController extends AbstractController
             return $this->back($origin, 'problem', 'check');
         }
 
-        if (!$siteContactLimiter->create('site-contact-ip-' . $request->getClientIp())->consume()->isAccepted()) {
-            return $this->back($origin, 'problem', 'limited');
-        }
-
         $name = trim((string) $request->request->get('name', ''));
         $email = trim((string) $request->request->get('email', ''));
         $message = trim((string) $request->request->get('message', ''));
@@ -130,6 +126,12 @@ class SiteContactController extends AbstractController
         $turnstileResponse = (string) $request->request->get('cf-turnstile-response', '');
         if (!$turnstile->verify($turnstileResponse, $request->getClientIp())) {
             return $this->back($origin, 'problem', 'check');
+        }
+
+        // Charged last, so bots that fail the checks above cannot use up the allowance of
+        // real visitors behind the same address.
+        if (!$siteContactLimiter->create('site-contact-ip-' . $request->getClientIp())->consume()->isAccepted()) {
+            return $this->back($origin, 'problem', 'limited');
         }
 
         try {

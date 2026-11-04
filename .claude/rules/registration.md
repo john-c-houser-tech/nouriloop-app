@@ -235,7 +235,12 @@ copy answers 404).
   `reason=check`). The token endpoint also returns `turnstileSiteKey` (empty while Turnstile is
   off), so the static page loads Cloudflare's script and shows the widget only when the app says
   so and holds no key itself. **The Turnstile widget's hostname list must include
-  `nouriloop.com`.** Then the **`site_contact` limiter** (5/hour per client IP) and an
+  `nouriloop.com`.** The token endpoint is not itself protected: CORS only restricts browsers,
+  so any script can fetch a token and it stays usable for 2 hours; the token only stops a bot
+  that posts the bare HTML form, and Turnstile is the real bot check. Checks run in this order:
+  Origin, honeypot, token, field validation, Turnstile, and only then the **`site_contact`
+  limiter** (5/hour per client IP, charged just before sending so refused bots cannot lock out
+  real visitors on a shared address) and mail. `FormToken` refuses an empty `APP_SECRET`. There is also an
   **Origin check** — an `Origin` that isn't `SITE_CONTACT_ORIGIN` gets a 403, **including
   the opaque `null`** a sandboxed iframe sends (a Copilot review catch: accepting it let a foreign
   page post through a visitor's browser and spend their per-IP allowance). Only an absent
@@ -244,4 +249,4 @@ copy answers 404).
   spam to our own inbox. (Added after bots began filling the form with gibberish, 2026-11.)
 - Covered by `tests/E2E/SiteContactTest` (send + sole Reply-To, honeypot, invalid input,
   foreign and `null` Origin 403, no/forged/stale/too-young token, the token endpoint, Turnstile
-  on, the sixth-in-an-hour cap, GET 405, self-hosted 404) and `tests/SiteContact/FormTokenTest`.
+  on, refused posts not spending the cap, the sixth-in-an-hour cap, GET 405, self-hosted 404) and `tests/SiteContact/FormTokenTest`.

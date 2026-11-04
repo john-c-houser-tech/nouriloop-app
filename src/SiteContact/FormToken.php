@@ -25,6 +25,10 @@ class FormToken
 
     public function __construct(#[Autowire('%kernel.secret%')] private readonly string $secret)
     {
+        // An HMAC with an empty key is computable by anyone, which would make the token worthless.
+        if ($secret === '') {
+            throw new \LogicException('APP_SECRET must be set for the contact form token.');
+        }
     }
 
     public function issue(?int $now = null): string

@@ -171,6 +171,19 @@ final class SiteContactTest extends WebTestCase
         $this->assertEmailCount(1);
     }
 
+    /** Bots that fail the token or Turnstile must not use up a shared address's allowance. */
+    public function testRefusedPostsDoNotSpendTheHourlyAllowance(): void
+    {
+        for ($i = 0; $i < 6; ++$i) {
+            $this->post(['email' => 'bot@example.org', 'message' => 'Spam'], self::SITE, null);
+            $this->assertResponseRedirects(self::SITE . '/contact/problem/?reason=check', 303);
+        }
+
+        $this->post(['email' => 'pat@example.org', 'message' => 'A real message']);
+        $this->assertResponseRedirects(self::SITE . '/contact/thanks/', 303);
+        $this->assertEmailCount(1);
+    }
+
     public function testOnlyPostIsAnswered(): void
     {
         $this->client->request('GET', '/site-contact');

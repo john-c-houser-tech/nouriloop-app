@@ -32,6 +32,21 @@ final class FormTokenTest extends TestCase
         self::assertFalse((new FormToken('other'))->isValid($tokens->issue(1_000_000), 1_001_000));
     }
 
+    public function testAFutureOrHugeTimestampIsRefused(): void
+    {
+        $tokens = new FormToken('secret');
+
+        self::assertFalse($tokens->isValid($tokens->issue(2_000_100), 2_000_000));
+        self::assertFalse($tokens->isValid('99999999999999999999.x', 2_000_000));
+    }
+
+    public function testAnEmptySecretIsRefused(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        new FormToken('');
+    }
+
     #[DataProvider('junk')]
     public function testJunkIsRefused(string $token): void
     {
