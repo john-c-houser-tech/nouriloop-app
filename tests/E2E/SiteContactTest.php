@@ -52,7 +52,11 @@ final class SiteContactTest extends WebTestCase
 
     public function testTheHoneypotLooksSuccessfulButSendsNothing(): void
     {
-        $this->post(['email' => 'bot@example.org', 'message' => 'Buy now', 'website' => 'http://spam'], self::SITE, null);
+        $this->post(
+            ['email' => 'bot@example.org', 'message' => 'Buy now', 'website' => 'http://spam'],
+            self::SITE,
+            null,
+        );
 
         $this->assertResponseRedirects(self::SITE . '/contact/thanks/', 303);
         $this->assertEmailCount(0);
@@ -115,7 +119,8 @@ final class SiteContactTest extends WebTestCase
         $this->post(['email' => 'pat@example.org', 'message' => 'Hello'], self::SITE, (time() - 60) . '.forged');
         $this->assertResponseRedirects(self::SITE . '/contact/problem/?reason=check', 303);
 
-        $this->post(['email' => 'pat@example.org', 'message' => 'Hello'], self::SITE, $formToken->issue(time() - FormToken::MAX_AGE_SECONDS - 5));
+        $stale = $formToken->issue(time() - FormToken::MAX_AGE_SECONDS - 5);
+        $this->post(['email' => 'pat@example.org', 'message' => 'Hello'], self::SITE, $stale);
         $this->assertResponseRedirects(self::SITE . '/contact/problem/?reason=check', 303);
         $this->assertEmailCount(0);
     }
@@ -126,14 +131,17 @@ final class SiteContactTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         self::assertSame(self::SITE, $this->client->getResponse()->headers->get('Access-Control-Allow-Origin'));
-        self::assertStringContainsString('no-store', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        $cacheControl = (string) $this->client->getResponse()->headers->get('Cache-Control');
+        self::assertStringContainsString('no-store', $cacheControl);
         $body = json_decode((string) $this->client->getResponse()->getContent(), true);
         // No Turnstile keys in the test env, so no site key is handed out and no widget shown.
         self::assertSame('', $body['turnstileSiteKey']);
         $token = $body['token'];
         // Just issued, so too young to post: the page's reader needs a few seconds.
         self::assertFalse(static::getContainer()->get(FormToken::class)->isValid($token));
-        self::assertTrue(static::getContainer()->get(FormToken::class)->isValid($token, time() + FormToken::MIN_AGE_SECONDS));
+        self::assertTrue(
+            static::getContainer()->get(FormToken::class)->isValid($token, time() + FormToken::MIN_AGE_SECONDS),
+        );
     }
 
     public function testTurnstileMustPassWhenItIsSwitchedOn(): void
@@ -162,7 +170,8 @@ final class SiteContactTest extends WebTestCase
         });
 
         $this->client->request('GET', '/site-contact/token', [], [], ['HTTP_ORIGIN' => self::SITE]);
-        self::assertSame('site-key', json_decode((string) $this->client->getResponse()->getContent(), true)['turnstileSiteKey']);
+        $body = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertSame('site-key', $body['turnstileSiteKey']);
 
         $this->post(['email' => 'pat@example.org', 'message' => 'Hello']);
         $this->assertResponseRedirects(self::SITE . '/contact/problem/?reason=check', 303);

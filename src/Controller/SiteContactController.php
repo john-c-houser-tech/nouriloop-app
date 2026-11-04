@@ -126,10 +126,8 @@ class SiteContactController extends AbstractController
 
         // Each Turnstile check is an outbound call, so cap them per address (loosely: this
         // one is charged for refused posts too).
-        if (
-            $turnstile->isEnabled()
-            && !$siteContactVerifyLimiter->create('site-contact-verify-' . $request->getClientIp())->consume()->isAccepted()
-        ) {
+        $verifyBucket = $siteContactVerifyLimiter->create('site-contact-verify-' . $request->getClientIp());
+        if ($turnstile->isEnabled() && !$verifyBucket->consume()->isAccepted()) {
             return $this->back($origin, 'problem', 'limited');
         }
 
