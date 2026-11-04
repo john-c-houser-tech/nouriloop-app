@@ -84,6 +84,7 @@ class SiteContactController extends AbstractController
         FormToken $formToken,
         TurnstileValidator $turnstile,
         #[Target('site_contact')] RateLimiterFactoryInterface $siteContactLimiter,
+        #[Target('site_contact_verify')] RateLimiterFactoryInterface $siteContactVerifyLimiter,
     ): Response {
         $origin = rtrim($this->siteOrigin, '/');
 
@@ -121,6 +122,15 @@ class SiteContactController extends AbstractController
         );
         if (\count($violations) > 0) {
             return $this->back($origin, 'problem', 'invalid');
+        }
+
+        // Each Turnstile check is an outbound call, so cap them per address (loosely: this
+        // one is charged for refused posts too).
+        if (
+            $turnstile->isEnabled()
+            && !$siteContactVerifyLimiter->create('site-contact-verify-' . $request->getClientIp())->consume()->isAccepted()
+        ) {
+            return $this->back($origin, 'problem', 'limited');
         }
 
         $turnstileResponse = (string) $request->request->get('cf-turnstile-response', '');

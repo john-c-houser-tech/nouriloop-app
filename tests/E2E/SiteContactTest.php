@@ -27,6 +27,8 @@ final class SiteContactTest extends WebTestCase
         $this->client = static::createClient();
         static::getContainer()->get('limiter.site_contact')
             ->create('site-contact-ip-127.0.0.1')->reset();
+        static::getContainer()->get('limiter.site_contact_verify')
+            ->create('site-contact-verify-127.0.0.1')->reset();
     }
 
     public function testAMessageIsMailedToInfoWithTheVisitorAsReplyTo(): void
@@ -169,6 +171,37 @@ final class SiteContactTest extends WebTestCase
         $this->post(['email' => 'pat@example.org', 'message' => 'Hello', 'cf-turnstile-response' => 'good-token']);
         $this->assertResponseRedirects(self::SITE . '/contact/thanks/', 303);
         $this->assertEmailCount(1);
+    }
+
+    public function testTurnstileChecksAreCappedPerAddress(): void
+    {
+        $this->client->disableReboot();
+        $calls = new \ArrayObject();
+        static::getContainer()->set(TurnstileValidator::class, new class ($calls) extends TurnstileValidator {
+            public function __construct(private \ArrayObject $calls)
+            {
+            }
+
+            public function isEnabled(): bool
+            {
+                return true;
+            }
+
+            public function verify(?string $token, ?string $ip = null): bool
+            {
+                $this->calls[] = $token;
+
+                return false;
+            }
+        });
+
+        for ($i = 0; $i < 31; ++$i) {
+            $this->post(['email' => 'bot@example.org', 'message' => 'Spam', 'cf-turnstile-response' => 'x']);
+        }
+
+        self::assertCount(30, $calls);
+        $this->assertResponseRedirects(self::SITE . '/contact/problem/?reason=limited', 303);
+        $this->assertEmailCount(0);
     }
 
     /** Bots that fail the token or Turnstile must not use up a shared address's allowance. */

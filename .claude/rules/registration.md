@@ -238,7 +238,7 @@ copy answers 404).
   `nouriloop.com`.** The token endpoint is not itself protected: CORS only restricts browsers,
   so any script can fetch a token and it stays usable for 2 hours; the token only stops a bot
   that posts the bare HTML form, and Turnstile is the real bot check. Checks run in this order:
-  Origin, honeypot, token, field validation, Turnstile, and only then the **`site_contact`
+  Origin, honeypot, token, field validation, a loose **`site_contact_verify`** limiter (30/hour per IP, charged for refused posts too, only bounds the outbound Turnstile calls), Turnstile, and only then the **`site_contact`
   limiter** (5/hour per client IP, charged just before sending so refused bots cannot lock out
   real visitors on a shared address) and mail. `FormToken` refuses an empty `APP_SECRET`. There is also an
   **Origin check** — an `Origin` that isn't `SITE_CONTACT_ORIGIN` gets a 403, **including

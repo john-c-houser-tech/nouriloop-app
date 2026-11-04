@@ -60,3 +60,10 @@ framework:
             policy: 'sliding_window'
             limit: 5
             interval: '1 hour'
+        # Same form: Turnstile checks (an outbound call to Cloudflare each). Far looser than
+        # site_contact, because it is charged for refused posts too and must not lock out real
+        # visitors behind a shared address; it only bounds the outbound calls a bot can cause.
+        site_contact_verify:
+            policy: 'sliding_window'
+            limit: 30
+            interval: '1 hour'
