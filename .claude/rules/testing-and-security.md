@@ -155,8 +155,8 @@ same PR as any change to the behavior it describes.
   testing rules written around the fact that **real users' health data is in the system**
   (own-account-only, stop-on-incidental-access, minimum-proof).
   - ⚠️ **`SECURITY.md` isn't where the researchers it addresses will look.** This repo is
-    private; since 2026-10-11 the file is also published in the public `nouriloop-app`
-    mirror, but someone probing app.nouriloop.com has no reason to find either. The file
+    public (the live repo since the 2026-10-19 cutover; the private `nouriloop` repo is
+    archived), but someone probing app.nouriloop.com has no reason to find it. The file
     documents the process; it is **not** the main way for an outsider to find the contact
     address.
 - **On a self-hosted copy** `security.txt` names the operator (`OPERATOR_EMAIL`) or 404s
@@ -179,8 +179,9 @@ same PR as any change to the behavior it describes.
     **That failing test is the entire annual review** — same principle as the daily
     digest sending on quiet days. Widening the window instead of bumping the date
     defeats the whole mechanism.
-  - **`Policy:` links `SECURITY.md` in the public `nouriloop-app` mirror** (added
-    2026-10-11; omitted before because a 404 inside a security.txt is worse than an absent
-    optional field). The mirror trails the private repo between re-exports, which is why
-    the inline rules stay. If the mirror ever moves, update `POLICY` (pinned by
+  - **`Policy:` links `SECURITY.md` on `main` in this repo** (added 2026-10-11, when
+    `nouriloop-app` was still a public mirror; omitted before because a 404 inside a
+    security.txt is worse than an absent optional field). `main` trails `dev` between
+    John's merges, and a researcher may read security.txt and nothing else, which is why
+    the inline rules stay. If the repo ever moves, update `POLICY` (pinned by
     `SecurityTxtTest::testPolicyPointsAtThePublicSecurityMd`).
