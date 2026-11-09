@@ -38,11 +38,13 @@ same PR as any change to the behavior it describes.
     — incl. effective-tier where a comped-Loop+/stored-Free user files under Loop+ —
     filters survive a page boundary, and a dropdown row action still round-trips). They
     reuse `tests/E2E/DbResetTrait` for the schema reset.
-- **Config tests** (`tests/Config/`): plain `TestCase`s that parse a YAML config file and
-  assert an invariant no runtime test can reach, because the container under test is
-  `test` and the config that matters is `prod`. Today that's
-  `MonologHandlerPathsTest` — no two handlers in an env block may share a `path` (see
-  **Logging (prod)**).
+- **Config tests** (`tests/Config/`): plain `TestCase`s that assert an invariant of the
+  project's own config files that no runtime test can reach. `MonologHandlerPathsTest` parses
+  the YAML, because the container under test is `test` and the config that matters is
+  `prod`: no two handlers in an env block may share a `path` (see **Logging (prod)**).
+  `SymfonyLineCheckTest` covers `composer.json` and `composer.lock`: the line check script,
+  and a `conflict` entry for every indirect Symfony component (see the Symfony 7.4 note
+  under **Dependency security**).
 - **Dedicated test DB `nutrition_test`:** the `when@test` block in
   `config/packages/doctrine.yaml` appends `_test`, so `.env.test.local`'s `DATABASE_URL`
   keeps base name `nutrition`.
@@ -57,10 +59,13 @@ same PR as any change to the behavior it describes.
 - **chromedriver:** fetched by `vendor/bin/bdi detect drivers` into a gitignored
   `./drivers/` (version-matched to the installed Chrome; Panther auto-finds it there).
   Don't `brew install chromedriver` (it drifts from the Chrome version).
-- **CI** (`.github/workflows/ci.yml`, on push/PR to `main`): a **`unit`** job (the Symfony
-  line check, cs-check, `lint:container`, unit phpunit) + an **`e2e`** job (MariaDB 10.11 service, Chrome + bdi
-  driver, migrate the test DB, run the Panther suite). Branch protection on `main` is
-  **not** enabled — it's GitHub-Pro-gated on private repos.
+- **CI** (`.github/workflows/ci.yml`, on pushes to `main` and PRs into `main` or `dev`): a
+  **`unit`** job (the Symfony line check, cs-check, `lint:container`, unit phpunit) + an
+  **`e2e`** job (MariaDB 10.11 service, Chrome + bdi driver, migrate the test DB, run the
+  Panther suite), plus the self-host stack build. **Rulesets:** "Protect main" requires a PR
+  and the checks "Unit tests + lint", "Browser E2E (Panther)" and "Self-host stack builds and
+  boots"; "Protect dev" requires a PR but **no** checks, so a red PR into `dev` can still be
+  merged, and the checks are enforced at the `dev` → `main` PR.
 - **Dependency security (Dependabot + scheduled audit, added 2026-07-03):** the repo's
   GitHub security **alerts** were already enabled; **`.github/dependabot.yml`** turns them
   into weekly update **PRs** (composer + github-actions ecosystems; routine minor/patch
@@ -108,12 +113,23 @@ same PR as any change to the behavior it describes.
     apply Flex's `extra.symfony.require`, so its grouped bump 24f2559 moved 14 indirect
     components to 8.1. A local `composer update` then refused to resolve them, which nearly
     blocked the 2026-11-09 security update (#33 had to run with
-    `SYMFONY_REQUIRE='7.4.*|8.1.*'`). The mix was settled back on 7.4 in the follow-up PR.
-    `scripts/check-symfony-line.php` now fails CI when any framework component in
-    `composer.lock` is off that line, so a drifting Dependabot PR goes red instead of
-    merging. Close Dependabot PRs that bump a component to another line. Moving to the next
-    LTS is a planned upgrade: change `extra.symfony.require` and the `7.4.*` requirements
-    together. A Symfony package with its own version numbers goes on the script's skip list.
+    `SYMFONY_REQUIRE='7.4.*|8.1.*'`). The mix was settled back on 7.4 in the follow-up PR
+    (#34), with two guards:
+    1. **`conflict` entries in `composer.json`** (`">=8.0"`) for every framework component
+       that isn't a direct `7.4.*` requirement. Composer itself then can't resolve one to
+       8.x, with or without Flex, so Dependabot can't either. A dry run without plugins
+       moved 20 Symfony packages to 8.x without them, and none with them.
+       `SymfonyLineCheckTest` fails when an indirect component in the lock has no entry.
+    2. **`scripts/check-symfony-line.php`**, the first step of CI's `unit` job: fails when any
+       framework component in `composer.lock` is off the line. This is the backstop.
+    Close a Dependabot PR that bumps a direct requirement to another line (`@dependabot
+    ignore this major version` keeps it from coming back). If a grouped PR goes red on the
+    check, don't throw away its other bumps: redo the group locally with `composer update`
+    (Flex applies the line) and add a `conflict` entry for whatever drifted. Moving to the
+    next LTS is a planned upgrade: change `extra.symfony.require`, the `7.4.*` requirements
+    and the `conflict` entries together; the tests read the line from `composer.json`. A
+    Symfony package with its own version numbers goes on the skip list in the script and
+    in `SymfonyLineCheckTest`.
   - ⚠️ **An alert does not guarantee a PR — triage the alert list, not the PR list**
     (learned 2026-08-10, `squizlabs/php_codesniffer` CVE-2026-67434). Both repo toggles
     were on (`automated-security-fixes` `enabled`, `vulnerability-alerts` 204), the alert
