@@ -50,6 +50,11 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
+      # Dependabot ignores Flex's extra.symfony.require, so a grouped bump can move
+      # indirect components off the line (24f2559 moved 14 to 8.1). Fail on the PR.
+      - name: Symfony components on one line
+        run: php scripts/check-symfony-line.php
+
       - name: Coding standards (PSR-12)
         run: composer cs-check
 

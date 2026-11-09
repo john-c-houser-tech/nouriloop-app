@@ -57,8 +57,8 @@ same PR as any change to the behavior it describes.
 - **chromedriver:** fetched by `vendor/bin/bdi detect drivers` into a gitignored
   `./drivers/` (version-matched to the installed Chrome; Panther auto-finds it there).
   Don't `brew install chromedriver` (it drifts from the Chrome version).
-- **CI** (`.github/workflows/ci.yml`, on push/PR to `main`): a **`unit`** job (cs-check,
-  `lint:container`, unit phpunit) + an **`e2e`** job (MariaDB 10.11 service, Chrome + bdi
+- **CI** (`.github/workflows/ci.yml`, on push/PR to `main`): a **`unit`** job (the Symfony
+  line check, cs-check, `lint:container`, unit phpunit) + an **`e2e`** job (MariaDB 10.11 service, Chrome + bdi
   driver, migrate the test DB, run the Panther suite). Branch protection on `main` is
   **not** enabled — it's GitHub-Pro-gated on private repos.
 - **Dependency security (Dependabot + scheduled audit, added 2026-07-03):** the repo's
@@ -104,6 +104,16 @@ same PR as any change to the behavior it describes.
        locally first; treat as a small project, not a rubber stamp.
     5. Merge in any order; if a PR falls behind after another merges, comment
        `@dependabot rebase` on it.
+  - ⚠️ **Symfony stays on one release line: 7.4 LTS (John, 2026-11-09).** Dependabot doesn't
+    apply Flex's `extra.symfony.require`, so its grouped bump 24f2559 moved 14 indirect
+    components to 8.1. A local `composer update` then refused to resolve them, which nearly
+    blocked the 2026-11-09 security update (#33 had to run with
+    `SYMFONY_REQUIRE='7.4.*|8.1.*'`). The mix was settled back on 7.4 in the follow-up PR.
+    `scripts/check-symfony-line.php` now fails CI when any framework component in
+    `composer.lock` is off that line, so a drifting Dependabot PR goes red instead of
+    merging. Close Dependabot PRs that bump a component to another line. Moving to the next
+    LTS is a planned upgrade: change `extra.symfony.require` and the `7.4.*` requirements
+    together. A Symfony package with its own version numbers goes on the script's skip list.
   - ⚠️ **An alert does not guarantee a PR — triage the alert list, not the PR list**
     (learned 2026-08-10, `squizlabs/php_codesniffer` CVE-2026-67434). Both repo toggles
     were on (`automated-security-fixes` `enabled`, `vulnerability-alerts` 204), the alert
