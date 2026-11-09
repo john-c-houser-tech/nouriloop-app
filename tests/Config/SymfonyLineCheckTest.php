@@ -65,6 +65,32 @@ final class SymfonyLineCheckTest extends TestCase
         self::assertSame([], $missing, 'Add `"<name>": ">=' . ((int) $major + 1) . '.0"` to composer.json conflict');
     }
 
+    /** The other half of the guard: a direct requirement pins its component to the line itself. */
+    public function testEveryDirectComponentIsRequiredOnTheLine(): void
+    {
+        $composer = self::project()['composer'];
+        $line = $composer['extra']['symfony']['require'];
+
+        $offLine = [];
+        foreach (array_merge($composer['require'], $composer['require-dev'] ?? []) as $name => $constraint) {
+            if (self::isFrameworkComponent($name) && $constraint !== $line) {
+                $offLine[] = "{$name}: {$constraint}";
+            }
+        }
+
+        self::assertSame([], $offLine, "Direct Symfony requirements must be \"{$line}\"");
+    }
+
+    public function testTheSkipListIsReadFromTheScript(): void
+    {
+        self::assertFalse(self::isFrameworkComponent('symfony/flex'));
+        self::assertFalse(self::isFrameworkComponent('symfony/http-client-contracts'));
+        self::assertFalse(self::isFrameworkComponent('symfony/polyfill-php85'));
+        self::assertFalse(self::isFrameworkComponent('twig/twig'));
+        self::assertTrue(self::isFrameworkComponent('symfony/http-foundation'));
+        self::assertTrue(self::isFrameworkComponent('symfony/security-csrf'));
+    }
+
     public function testComponentsOnTheLinePassAndOwnVersionedPackagesAreSkipped(): void
     {
         $this->write('7.4.*', [
@@ -205,12 +231,30 @@ final class SymfonyLineCheckTest extends TestCase
         return ['composer' => $read('composer.json'), 'lock' => $read('composer.lock')];
     }
 
-    /** The same skip list as the script: Symfony packages versioned on their own. */
+    /**
+     * A symfony/* package not on the script's skip list (Symfony packages versioned on
+     * their own). The patterns are read from the script, so the two can't drift apart.
+     */
     private static function isFrameworkComponent(string $name): bool
     {
-        return str_starts_with($name, 'symfony/')
-            && preg_match('#^symfony/(flex|([a-z-]+-)?contracts|polyfill-.*|ux-.*|stimulus-bundle|monolog-bundle'
-                . '|maker-bundle|panther)$#', $name) !== 1;
+        static $patterns = null;
+        if ($patterns === null) {
+            $source = (string) file_get_contents(self::root() . '/scripts/check-symfony-line.php');
+            self::assertSame(1, preg_match('/\$ownVersioning = \[(.*?)\];/s', $source, $block));
+            preg_match_all("/'(#[^']+#)'/", $block[1], $found);
+            $patterns = $found[1];
+            self::assertNotEmpty($patterns, 'No skip patterns found in the script');
+        }
+        if (!str_starts_with($name, 'symfony/')) {
+            return false;
+        }
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $name) === 1) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

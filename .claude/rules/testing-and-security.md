@@ -64,8 +64,9 @@ same PR as any change to the behavior it describes.
   **`e2e`** job (MariaDB 10.11 service, Chrome + bdi driver, migrate the test DB, run the
   Panther suite), plus the self-host stack build. **Rulesets:** "Protect main" requires a PR
   and the checks "Unit tests + lint", "Browser E2E (Panther)" and "Self-host stack builds and
-  boots"; "Protect dev" requires a PR but **no** checks, so a red PR into `dev` can still be
-  merged, and the checks are enforced at the `dev` → `main` PR.
+  boots"; "Protect dev" requires a PR and "Unit tests + lint" (added 2026-11-09, so a PR that
+  fails the Symfony line check or the unit suite can't merge into `dev`). The browser and
+  self-host checks are enforced at the `dev` → `main` PR.
 - **Dependency security (Dependabot + scheduled audit, added 2026-07-03):** the repo's
   GitHub security **alerts** were already enabled; **`.github/dependabot.yml`** turns them
   into weekly update **PRs** (composer + github-actions ecosystems; routine minor/patch
@@ -89,8 +90,8 @@ same PR as any change to the behavior it describes.
     here, and all dependency work happened in the private repo. With that repo archived, this
     is the live repo: the config is back, and Dependabot alerts, Dependabot security updates
     and the Monday audit workflow are switched on for `nouriloop-app`.
-  - **Weekly triage process for the Dependabot batch** (~15 min, manual — branch
-    protection is GitHub-Pro-gated on this repo, so there's no auto-merge-on-green):
+  - **Weekly triage process for the Dependabot batch** (~15 min, manual — the repo's
+    `allow_auto_merge` setting is off, so there's no auto-merge-on-green):
     1. **Triage by ecosystem.** `github-actions` PRs are CI-only — no prod impact, no
        deploy. `composer` PRs change the app runtime and **don't reach prod until the
        next deploy**, so plan one after merging.
@@ -128,8 +129,9 @@ same PR as any change to the behavior it describes.
     (Flex applies the line) and add a `conflict` entry for whatever drifted. Moving to the
     next LTS is a planned upgrade: change `extra.symfony.require`, the `7.4.*` requirements
     and the `conflict` entries together; the tests read the line from `composer.json`. A
-    Symfony package with its own version numbers goes on the skip list in the script and
-    in `SymfonyLineCheckTest`.
+    Symfony package with its own version numbers goes on the script's skip list, which
+    `SymfonyLineCheckTest` reads from the script. The test also fails when a direct Symfony
+    requirement is loosened off the line (e.g. `^7.4|^8.0`).
   - ⚠️ **An alert does not guarantee a PR — triage the alert list, not the PR list**
     (learned 2026-08-10, `squizlabs/php_codesniffer` CVE-2026-67434). Both repo toggles
     were on (`automated-security-fixes` `enabled`, `vulnerability-alerts` 204), the alert
