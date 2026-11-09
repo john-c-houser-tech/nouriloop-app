@@ -36,6 +36,12 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      # Dependabot ignores Flex's extra.symfony.require, so a grouped bump can move
+      # indirect components off the line (24f2559 moved 14 to 8.1). Reads only
+      # composer.json + composer.lock, so it runs first and fails with the clearest message.
+      - name: Symfony components on one line
+        run: php scripts/check-symfony-line.php
+
       - name: Get composer cache dir
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"

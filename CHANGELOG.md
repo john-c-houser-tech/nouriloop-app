@@ -11,7 +11,7 @@ listed.
 ## Unreleased
 
 ### Security
-- Symfony updated to its latest 7.4 and 8.1 patch releases for the 18 advisories Symfony
+- Symfony updated to its latest 7.4 patch releases for the 18 advisories Symfony
   published on 2026-11-04, which failed Monday's composer audit. The one
   that reaches NouriLoop directly is in the guard that keeps a custom AI provider address off
   our own network: it didn't hold a cached host to the address it had checked, so a host that
