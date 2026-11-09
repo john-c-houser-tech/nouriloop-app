@@ -10,6 +10,8 @@ listed.
 
 ## Unreleased
 
+## 3.3.5 - 2026-11-09
+
 ### Security
 - Symfony updated to its latest 7.4 patch releases for the 18 advisories Symfony
   published on 2026-11-04, which failed Monday's composer audit. The one
