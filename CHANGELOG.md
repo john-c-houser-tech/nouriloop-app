@@ -10,6 +10,16 @@ listed.
 
 ## Unreleased
 
+## 3.3.5 - 2026-11-09
+
+### Security
+- Symfony updated to its latest 7.4 patch releases for the 18 advisories Symfony
+  published on 2026-11-04, which failed Monday's composer audit. The one
+  that reaches NouriLoop directly is in the guard that keeps a custom AI provider address off
+  our own network: it didn't hold a cached host to the address it had checked, so a host that
+  changes its DNS answer could probe internal ports. Most of the rest cover features NouriLoop
+  doesn't use.
+
 ## 3.3.4 - 2026-11-04
 
 ### Security

@@ -38,11 +38,13 @@ same PR as any change to the behavior it describes.
     — incl. effective-tier where a comped-Loop+/stored-Free user files under Loop+ —
     filters survive a page boundary, and a dropdown row action still round-trips). They
     reuse `tests/E2E/DbResetTrait` for the schema reset.
-- **Config tests** (`tests/Config/`): plain `TestCase`s that parse a YAML config file and
-  assert an invariant no runtime test can reach, because the container under test is
-  `test` and the config that matters is `prod`. Today that's
-  `MonologHandlerPathsTest` — no two handlers in an env block may share a `path` (see
-  **Logging (prod)**).
+- **Config tests** (`tests/Config/`): plain `TestCase`s that assert an invariant of the
+  project's own config files that no runtime test can reach. `MonologHandlerPathsTest` parses
+  the YAML, because the container under test is `test` and the config that matters is
+  `prod`: no two handlers in an env block may share a `path` (see **Logging (prod)**).
+  `SymfonyLineCheckTest` covers `composer.json` and `composer.lock`: the line check script,
+  and a `conflict` entry for every indirect Symfony component (see the Symfony 7.4 note
+  under **Dependency security**).
 - **Dedicated test DB `nutrition_test`:** the `when@test` block in
   `config/packages/doctrine.yaml` appends `_test`, so `.env.test.local`'s `DATABASE_URL`
   keeps base name `nutrition`.
@@ -57,10 +59,14 @@ same PR as any change to the behavior it describes.
 - **chromedriver:** fetched by `vendor/bin/bdi detect drivers` into a gitignored
   `./drivers/` (version-matched to the installed Chrome; Panther auto-finds it there).
   Don't `brew install chromedriver` (it drifts from the Chrome version).
-- **CI** (`.github/workflows/ci.yml`, on push/PR to `main`): a **`unit`** job (cs-check,
-  `lint:container`, unit phpunit) + an **`e2e`** job (MariaDB 10.11 service, Chrome + bdi
-  driver, migrate the test DB, run the Panther suite). Branch protection on `main` is
-  **not** enabled — it's GitHub-Pro-gated on private repos.
+- **CI** (`.github/workflows/ci.yml`, on pushes to `main` and PRs into `main` or `dev`): a
+  **`unit`** job (the Symfony line check, cs-check, `lint:container`, unit phpunit) + an
+  **`e2e`** job (MariaDB 10.11 service, Chrome + bdi driver, migrate the test DB, run the
+  Panther suite), plus the self-host stack build. **Rulesets:** "Protect main" requires a PR
+  and the checks "Unit tests + lint", "Browser E2E (Panther)" and "Self-host stack builds and
+  boots"; "Protect dev" requires a PR and "Unit tests + lint" (added 2026-11-09, so a PR that
+  fails the Symfony line check or the unit suite can't merge into `dev`). The browser and
+  self-host checks are enforced at the `dev` → `main` PR.
 - **Dependency security (Dependabot + scheduled audit, added 2026-07-03):** the repo's
   GitHub security **alerts** were already enabled; **`.github/dependabot.yml`** turns them
   into weekly update **PRs** (composer + github-actions ecosystems; routine minor/patch
@@ -84,8 +90,8 @@ same PR as any change to the behavior it describes.
     here, and all dependency work happened in the private repo. With that repo archived, this
     is the live repo: the config is back, and Dependabot alerts, Dependabot security updates
     and the Monday audit workflow are switched on for `nouriloop-app`.
-  - **Weekly triage process for the Dependabot batch** (~15 min, manual — branch
-    protection is GitHub-Pro-gated on this repo, so there's no auto-merge-on-green):
+  - **Weekly triage process for the Dependabot batch** (~15 min, manual — the repo's
+    `allow_auto_merge` setting is off, so there's no auto-merge-on-green):
     1. **Triage by ecosystem.** `github-actions` PRs are CI-only — no prod impact, no
        deploy. `composer` PRs change the app runtime and **don't reach prod until the
        next deploy**, so plan one after merging.
@@ -104,6 +110,28 @@ same PR as any change to the behavior it describes.
        locally first; treat as a small project, not a rubber stamp.
     5. Merge in any order; if a PR falls behind after another merges, comment
        `@dependabot rebase` on it.
+  - ⚠️ **Symfony stays on one release line: 7.4 LTS (John, 2026-11-09).** Dependabot doesn't
+    apply Flex's `extra.symfony.require`, so its grouped bump 24f2559 moved 14 indirect
+    components to 8.1. A local `composer update` then refused to resolve them, which nearly
+    blocked the 2026-11-09 security update (#33 had to run with
+    `SYMFONY_REQUIRE='7.4.*|8.1.*'`). The mix was settled back on 7.4 in the follow-up PR
+    (#34), with two guards:
+    1. **`conflict` entries in `composer.json`** (`">=8.0"`) for every framework component
+       that isn't a direct `7.4.*` requirement. Composer itself then can't resolve one to
+       8.x, with or without Flex, so Dependabot can't either. A dry run without plugins
+       moved 20 Symfony packages to 8.x without them, and none with them.
+       `SymfonyLineCheckTest` fails when an indirect component in the lock has no entry.
+    2. **`scripts/check-symfony-line.php`**, the first step of CI's `unit` job: fails when any
+       framework component in `composer.lock` is off the line. This is the backstop.
+    Close a Dependabot PR that bumps a direct requirement to another line (`@dependabot
+    ignore this major version` keeps it from coming back). If a grouped PR goes red on the
+    check, don't throw away its other bumps: redo the group locally with `composer update`
+    (Flex applies the line) and add a `conflict` entry for whatever drifted. Moving to the
+    next LTS is a planned upgrade: change `extra.symfony.require`, the `7.4.*` requirements
+    and the `conflict` entries together; the tests read the line from `composer.json`. A
+    Symfony package with its own version numbers goes on the script's skip list, which
+    `SymfonyLineCheckTest` reads from the script. The test also fails when a direct Symfony
+    requirement is loosened off the line (e.g. `^7.4|^8.0`).
   - ⚠️ **An alert does not guarantee a PR — triage the alert list, not the PR list**
     (learned 2026-08-10, `squizlabs/php_codesniffer` CVE-2026-67434). Both repo toggles
     were on (`automated-security-fixes` `enabled`, `vulnerability-alerts` 204), the alert
@@ -127,8 +155,8 @@ same PR as any change to the behavior it describes.
   testing rules written around the fact that **real users' health data is in the system**
   (own-account-only, stop-on-incidental-access, minimum-proof).
   - ⚠️ **`SECURITY.md` isn't where the researchers it addresses will look.** This repo is
-    private; since 2026-10-11 the file is also published in the public `nouriloop-app`
-    mirror, but someone probing app.nouriloop.com has no reason to find either. The file
+    public (the live repo since the 2026-10-19 cutover; the private `nouriloop` repo is
+    archived), but someone probing app.nouriloop.com has no reason to find it. The file
     documents the process; it is **not** the main way for an outsider to find the contact
     address.
 - **On a self-hosted copy** `security.txt` names the operator (`OPERATOR_EMAIL`) or 404s
@@ -151,8 +179,9 @@ same PR as any change to the behavior it describes.
     **That failing test is the entire annual review** — same principle as the daily
     digest sending on quiet days. Widening the window instead of bumping the date
     defeats the whole mechanism.
-  - **`Policy:` links `SECURITY.md` in the public `nouriloop-app` mirror** (added
-    2026-10-11; omitted before because a 404 inside a security.txt is worse than an absent
-    optional field). The mirror trails the private repo between re-exports, which is why
-    the inline rules stay. If the mirror ever moves, update `POLICY` (pinned by
+  - **`Policy:` links `SECURITY.md` on `main` in this repo** (added 2026-10-11, when
+    `nouriloop-app` was still a public mirror; omitted before because a 404 inside a
+    security.txt is worse than an absent optional field). `main` trails `dev` between
+    John's merges, and a researcher may read security.txt and nothing else, which is why
+    the inline rules stay. If the repo ever moves, update `POLICY` (pinned by
     `SecurityTxtTest::testPolicyPointsAtThePublicSecurityMd`).

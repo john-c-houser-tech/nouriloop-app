@@ -15,9 +15,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * vulnerability in NouriLoop.
  *
  * ⚠️ This file exists because SECURITY.md can't do this job. SECURITY.md lives in the
- * source repo (private for development, mirrored publicly as nouriloop-app since
- * 2026-10-11), and someone probing nouriloop.com has no reason to go looking for a
- * GitHub repo. Until this route shipped, when the repo was still fully private, an
+ * public source repo (nouriloop-app, where development has happened since the
+ * 2026-10-19 cutover), and someone probing app.nouriloop.com has no reason to go looking
+ * for a GitHub repo. Until this route shipped, when the repo was still fully private, an
  * outside researcher looking at a service with open public registration and live
  * Stripe billing had no way to find a contact address at all. Deleting this route puts
  * that back — SECURITY.md is not a substitute, whatever it says.
@@ -27,8 +27,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * and Canonical stays in sync with the real host across environments.
  *
  * The comment block in the body still carries the essential testing rules rather than
- * relying on the Policy: link: a researcher may read this file and nothing else, and
- * the linked mirror is only as current as its last re-export. A contact address with
+ * relying on the Policy: link: a researcher may read this file and nothing else. A
+ * contact address with
  * no rules attached invites exactly the "I dumped your user table to prove it" report
  * that the policy exists to prevent.
  */
@@ -54,9 +54,9 @@ class SecurityTxtController extends AbstractController
     private const CONTACT = 'info@nouriloop.com';
 
     /**
-     * SECURITY.md in the public source mirror (the development repo is private). The
-     * mirror is refreshed by occasional re-exports, so this can trail the private copy;
-     * the inline rules in the body are what must stay current.
+     * SECURITY.md on main in the public source repo. Main changes only at John's
+     * dev → main merges, so this can trail dev; the inline rules in the body are what
+     * must stay current.
      */
     private const POLICY = 'https://github.com/john-c-houser-tech/nouriloop-app/blob/main/SECURITY.md';
 
