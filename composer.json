@@ -41,7 +41,7 @@
         "symfony/twig-bundle": "7.4.*",
         "symfony/twilio-notifier": "7.4.*",
         "symfony/ux-turbo": "^3.1",
-        "symfony/validator": "7.4.*",
+        "symfony/validator": "8.1.*",
         "symfony/web-link": "7.4.*",
         "symfony/yaml": "7.4.*",
         "symfonycasts/reset-password-bundle": "^1.25",
